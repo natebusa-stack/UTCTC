@@ -3912,6 +3912,11 @@ function nextBar() {
         p.pedBarr = 2 * nX;
       } else p.pedBarr = 0;
     } catch (e) { p.pedBarr = 0; }
+    p.bikeAdd = 0;
+    if (z.eff.bike && ['shoulder', 'flagging', 'intersection', 'signal', 'laneshift', 'twolanes'].indexOf(p.scenario) >= 0 && !p.signs.some(function (g) { return g.code === 'W11-1'; })) {
+      var mn = L ? L.legs.filter(function (l) { return l.kind === 'main'; }).length : 2; p.bikeAdd = mn || 2;
+      add('W11-1', 'BICYCLE (bike lane or cyclists at the work)', p.bikeAdd, 'bike lane');
+    }
     p.signCounts = Object.keys(cnt).sort().map(function (c) { return cnt[c]; });
     p.signTotal = p.signCounts.reduce(function (n, o) { return n + o.n; }, 0);
   }
@@ -3919,6 +3924,7 @@ function nextBar() {
   function signTotal(p) { return p.signTotal || p.signs.length; }
   function pedLine(p) {
     var h = '';
+    if (p.bikeAdd) h += '<p class="cap"><b>Added for this location (bike lane or cyclists):</b> BICYCLE W11-1 x' + p.bikeAdd + ', one on each main-road approach.</p>';
     if (p.pedX) h += '<p class="cap"><b>Added for this location (' + esc(p.pedWhy) + '):</b> SIDEWALK CLOSED R9-9 x' + 2 * p.pedX.n + ', SIDEWALK CLOSED AHEAD, CROSS HERE R9-11a x' + 2 * p.pedX.n + ', Type II barricades x' + p.pedBarr + '. Use only if the sidewalk or crosswalk is closed; mark a pedestrian detour.</p>';
     return h;
   }
