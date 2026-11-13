@@ -466,6 +466,7 @@ ol.steps>li.done::before{content:"\2713";background:var(--ok);color:#fff}
       <canvas id="cv" aria-label="Map of job locations. Drag to move, pinch or scroll to zoom."></canvas>
       <div class="mctl"><button type="button" id="zin" aria-label="Zoom in">+</button><button type="button" id="zout" aria-label="Zoom out">&minus;</button><button type="button" class="t" id="fitsite">Site</button><button type="button" class="t" id="fitall">All</button></div>
     </div>
+    <div class="hint" id="mapfirst" hidden style="margin:8px 0 0;font-size:13px;line-height:1.45"></div>
     <p class="hint" id="mhint" role="status" style="margin:8px 0 0"></p>
     <div class="mbar"><div class="grow" id="msel"></div></div>
     <div class="mbar" id="alinks"></div>
@@ -657,6 +658,13 @@ function plan(i) {
     out.notes.push('Confirm the shift or reverse-curve warning sign your agency requires (W1-4 and W24-1 family).');
     if (!i.oneway) out.notes.push('Per the California MUTCD 2026 lane shift figure (6P-102(CA), low volume two-way road): signs on both sides for each direction, W20-1 then W1-4 (optional W13-1P) then W6-3. Keep at least 10 ft from the shifted lane to the pavement edge or outside edge of the paved shoulder. A buffer space and truck-mounted attenuator are optional. END ROAD WORK (G20-2) is optional.');
   }
+  if (sc === 'flagging' && i.narrow) {
+    out.narrow = true;
+    out.notes.push('NARROW ROAD (about ' + (i.padW || 11) + ' ft wide). DO NOT BLOCK THE ROAD. Closing it needs a road closure or encroachment permit from the agency. Without that permit, keep the road open.');
+    out.notes.push('Work off the pavement when you can: park trucks and stage materials on the shoulder, in the yard or in a driveway, not across the lane. Keep cones to the edge of the lane. Nothing stays in the travel path.');
+    out.notes.push('Flaggers on every approach hold traffic only while equipment or crew is in the lane, then release it as soon as the lane is clear. Traffic must always be able to get through, and emergency vehicles go first.');
+    out.notes.push('If the job cannot be done without blocking the lane for longer than a short stop, stop work and call your supervisor. Get the closure permit and a detour plan first.');
+  }
   if (sc === 'flagging') {
     out.notes.push('Put a flagger at each end. Each needs at least ' + out.stopSight + ' ft of clear view to approaching traffic.');
     out.notes.push('Use certified flaggers with an escape route. Light each flagger station at night.');
@@ -766,8 +774,26 @@ function featPoint(e) {
 }
 
 /* ---------- input ---------- */
+function normCoord(line) {
+  var s = String(line);
+  try { if (/%[0-9A-Fa-f]{2}/.test(s)) s = decodeURIComponent(s); } catch (e) {}
+  s = s.replace(/[\u2212\u2013\u2014]/g, '-').replace(/[\uff0c\u3001]/g, ',').replace(/[\u2032\u2019\u00b4]/g, "'").replace(/[\u2033\u201d]/g, '"');
+  if (!/^https?:/i.test(s)) {
+    s = s.replace(/\b(?:latitude|lat)\b\s*[:=]?/ig, ' ').replace(/\b(?:longitude|lon|lng|long)\b\s*[:=]?/ig, ' ');
+    if (/[\u00b0\u00ba]/.test(s)) s = s.replace(/(^|\s)([NSEWnsew])\s*(\d{1,3}\s*[\u00b0\u00ba][^NSEWnsew]*?)(?=\s*(?:[NSEWnsew]\s*\d|$))/g, function (m, pre, h, rest) { return pre + rest + ' ' + h; });
+    var dms = /(?:^|[^\d.])(\d{1,3})\s*[\u00b0\u00ba]\s*(?:(\d{1,2}(?:\.\d+)?)\s*['\u2032]\s*)?(?:(\d{1,2}(?:\.\d+)?)\s*(?:"|'')\s*)?([NSEWnsew])(?![A-Za-z])/g;
+    s = s.replace(dms, function (m, d, mi, se, h) {
+      var pre = /^[\d.]/.test(m) ? '' : m.charAt(0);
+      var v = parseFloat(d) + (mi ? parseFloat(mi) / 60 : 0) + (se ? parseFloat(se) / 3600 : 0);
+      h = h.toUpperCase(); if (h === 'S' || h === 'W') v = -v;
+      return pre + ' ' + v.toFixed(6) + ' ';
+    });
+  }
+  return s;
+}
 function parseOne(line) {
-  var lat = null, lon = null, label = '';
+  var lat = null, lon = null, label = '', warn = '';
+  line = normCoord(line);
   var u = line.match(/(?:@|[?&]q=|[?&]ll=|[?&]query=|!3d)(-?\d+(?:\.\d+)?)(?:,|!4d)\s*(-?\d+(?:\.\d+)?)/);
   if (/^https?:/i.test(line) && u) { lat = parseFloat(u[1]); lon = parseFloat(u[2]); }
   else {
@@ -785,13 +811,15 @@ function parseOne(line) {
     }
   }
   if (lat === null || isNaN(lat) || isNaN(lon)) return { ok: false, msg: 'needs coordinates like 38.5816, -121.4944 or a map link.' };
+  if (lat >= 32 && lat <= 42.1 && lon >= 114 && lon <= 125 && !/[EeNn]\s*$|\bE\b/.test(line.replace(/[^A-Za-z]/g, ' ').trim() ? line : '')) { lon = -lon; warn = 'The longitude had no minus sign. Treated as west (California).'; }
   if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return { ok: false, msg: 'is outside the valid range for latitude and longitude.' };
-  return { ok: true, p: { lat: lat, lon: lon, label: label.replace(/^[,;\-\s]+/, '').replace(/\s+/g, ' ').trim() } };
+  return { ok: true, p: { lat: lat, lon: lon, label: label.replace(/^[,;\-\s]+/, '').replace(/\s+/g, ' ').trim(), warn: warn } };
 }
 function parseLines(text) {
   var out = [], errs = [], bad = 0, lines = String(text).split(/\r?\n/);
   for (var n = 0; n < lines.length; n++) {
-    var line = lines[n].replace(/"/g, '').trim(); if (!line) continue;
+    var line = (/\d\s*[\"\u201d\u2033]\s*[NSEWnsew]/.test(lines[n]) ? lines[n] : lines[n].replace(/"/g, '')).trim(); if (!line) continue;
+    if (!/^https?:/i.test(line) && (line.match(/;/g) || []).length >= 1 && /\d\s*,\s*-?\d.*;.*\d\s*,\s*-?\d/.test(line)) { line.split(';').forEach(function (part) { part = part.trim(); if (!part) return; var q = parseOne(part); if (q.ok) out.push(q.p); else bad++; }); continue; }
     var r = parseOne(line);
     if (r.ok) out.push(r.p);
     else if (out.length === 0 && /[a-z]/i.test(line) && !/\d\.\d/.test(line)) continue;
@@ -904,6 +932,7 @@ function effective(loc, G) {
   v.laneSide = (loc.laneSide === 'L' || loc.laneSide === 'R') ? loc.laneSide : (ro && ro.found && ro.oneway && ro.offset >= 8 ? (((ro.latCr > 0) !== !!ro.rev) ? 'L' : 'R') : 'R');
   ['speed','lanes','laneW','shoulderW','sidewalkW'].forEach(function (k) { v[k] = +v[k] || 0; });
   v.lanes = Math.max(1, Math.round(v.lanes)); v.speed = Math.max(15, v.speed || 25); v.laneW = v.laneW || 11; v.sidewalkW = v.sidewalkW || 5;
+  v.narrow = !v.oneway && v.lanes * v.laneW <= 16;
   if (typeof JSAFlags === 'function' && G.j) JSAFlags(v, G.j, loc);
   return v;
 }
@@ -996,7 +1025,8 @@ function applyOSM(loc, osm) {
   if (r.lanes) set('lanes', r.lanes);
   set('oneway', r.oneway);
   var lanes = loc.vals.lanes || 2;
-  if (r.widthFt && r.lanes) set('laneW', Math.max(8, Math.min(14, Math.round(r.widthFt / lanes * 2) / 2)));
+  if (r.widthFt && r.widthFt <= 16 && !r.oneway) { set('lanes', 1); set('laneW', Math.max(7, Math.round(r.widthFt * 2) / 2)); }
+  else if (r.widthFt && r.lanes) set('laneW', Math.max(8, Math.min(14, Math.round(r.widthFt / lanes * 2) / 2)));
   if (r.parking) set('shoulderW', 7);
   if (r.sidewalks) set('sidewalks', r.sidewalks);
   if (r.sidewalkW) set('sidewalkW', r.sidewalkW);
@@ -1023,7 +1053,7 @@ function evaluate(v) {
   var mid = ['secondary','tertiary'].indexOf(v.hw) >= 0;
   var local = !hv && !mid;
   var area = v.hw === 'motorway' ? 'freeway' : (S >= 50 ? 'rural' : 'urban');
-  var base = { speed: v.speed, lanesPerDir: lpd, laneW: v.laneW, shoulderW: v.shoulderW, area: area, oneway: v.oneway, workLen: v.len, sidewalkW: v.sidewalkW, sidewalks: v.sidewalks, ovr: v.ovr, laneSide: v.laneSide, bike: !!v.bike, hold: v.jhold === 'yes' };
+  var base = { speed: v.speed, lanesPerDir: lpd, laneW: v.laneW, shoulderW: v.shoulderW, area: area, oneway: v.oneway, workLen: v.len, sidewalkW: v.sidewalkW, sidewalks: v.sidewalks, ovr: v.ovr, laneSide: v.laneSide, bike: !!v.bike, hold: v.jhold === 'yes', narrow: !!v.narrow, padW: Math.round(v.lanes * v.laneW) };
   var servesMap = { lane: { laneclosure: 1, laneshift: 1, twolanes: 1, intersection: 1, flagging: 1, signal: 1, full: 1 }, shoulder: { shoulder: 1, laneclosure: 1, flagging: 1, signal: 1, full: 1 }, sidewalk: { sidewalk: 1, walkway: 1 } }[v.pos];
   var shoulderOK = v.shoulderW >= 4;
   var ids = ['shoulder','laneclosure','laneshift','twolanes','intersection','flagging','signal','full','sidewalk','walkway'];
@@ -1127,12 +1157,16 @@ function evaluate(v) {
       if (v.curve) A('med', 8, curveTxt);
       if (dark) A('med', 6, 'No street lighting recorded. Light the shift and keep lane lines reflective.');
     }
+    if (v.narrow && (id === 'laneclosure' || id === 'laneshift' || id === 'twolanes' || id === 'shoulder')) { c.feasible = false; c.block = 'The road is only about ' + Math.round(v.lanes * v.laneW) + ' ft wide. There is no second lane to merge into, shift to or close.'; }
+    if (v.narrow && id === 'full' && (v.twoBlocked || v.inInt)) A('high', 10, 'NEEDS A CLOSURE PERMIT. This road is only about ' + Math.round(v.lanes * v.laneW) + ' ft wide and the work blocks all of it. Do not close it until the agency has issued the permit and approved the detour.');
+    else if (v.narrow && id === 'full') { c.feasible = false; c.block = 'Blocking a road this narrow is a road closure and needs a closure permit from the agency. The app does not recommend it. Flag and keep the road open instead, or get the permit first.'; }
     if (id === 'flagging') {
       if (!twoLane && !(v.oneway && lpd === 1 && v.jhold === 'yes' && v.len <= 300)) {
         c.feasible = false;
         c.block = v.oneway ? 'This is a one-way road. Flagging would stop all traffic, which is a full closure.' :
           'The road has ' + lpd + ' lanes each way. Traffic can merge into the open lane, so alternating one-way flow is unnecessary and creates long queues.';
-      } else if (v.laneW < 10) { c.feasible = false; c.block = 'The open lane is ' + v.laneW + ' ft wide. Two-way alternating traffic needs about 10 ft for trucks.'; }
+      } else if (v.laneW < 10 && !v.narrow) { c.feasible = false; c.block = 'The open lane is ' + v.laneW + ' ft wide. Two-way alternating traffic needs about 10 ft for trucks.'; }
+      if (v.narrow) { c.pros.push('The road is only about ' + Math.round(v.lanes * v.laneW) + ' ft wide. Flaggers keep it open and let traffic through between work moves, so the road is never blocked.'); A('low', 2, 'A road this narrow cannot pass traffic beside equipment. Keep equipment and materials off the pavement and let traffic through between work moves.'); }
       c.pros.push('Works on a two-lane road with no spare lane.');
       if (v.len <= 300) c.pros.push('Quick to set up for a short job.');
       if (hv) A('high', 18, 'Heavy traffic on a ' + v.hw + ' road. Stopping both directions builds long queues and rear-end crashes at the back.');
@@ -1237,6 +1271,7 @@ function evaluate(v) {
   var picked = v.pick ? cands.filter(function (c) { return c.id === v.pick; })[0] : null;
   var rec = picked || ok[0] || null;
   if (picked) picked.pros.unshift('Chosen by the technician instead of the app\u2019s recommendation.');
+  if (rec && rec.id === 'full' && v.narrow) { rec.plan.notes = rec.plan.notes || []; rec.plan.notes.unshift('PERMIT REQUIRED. This road is only about ' + Math.round(v.lanes * v.laneW) + ' ft wide and this work blocks all of it. Do not block the road without a closure or encroachment permit and an approved detour. If you do not have the permit, keep the road open with flaggers and work off the pavement.'); }
   if (rec && rec.id === 'full') {
     var blockers = cands.filter(function (c) { return c.id !== 'full' && c.serves && !c.feasible && c.block; }).map(function (c) { return c.name + ': ' + c.block; });
     if (blockers.length) rec.pros.unshift('Closure is recommended only because every setup that keeps traffic moving was ruled out. ' + blockers.slice(0, 3).join(' '));
@@ -3703,6 +3738,21 @@ function nextBar() {
   }
 
   /* ---------- map pane ---------- */
+  function mapFirst(s, l) {
+    var el = $('mapfirst'); if (!el) return;
+    var z = s.zones[0], v = z && z.eff, got = !!(l.osm && l.osm.found), h = '';
+    var ro = l.osm && l.osm.found ? l.osm : null, nm = ro && ro.tags && (ro.tags.name || ro.tags.ref) ? ro.tags.name || ro.tags.ref : '';
+    if (got && v) {
+      var wid = Math.round(v.lanes * v.laneW);
+      h = '<b>Step 1. Check the site from above.</b> The pin is on ' + (nm ? esc(nm) : 'a mapped road') + ', about ' + wid + ' ft wide, ' + v.speed + ' mph. Wrong road? Drag the pin onto the work spot. The roads reload and the plan rebuilds.';
+      if (v.narrow) h += '<br><b style="color:var(--bad)">NARROW ROAD, about ' + wid + ' ft. Do not block it without a closure permit.</b> The plan keeps the road open with flaggers on every approach.';
+    } else {
+      h = '<b>Step 1. Check the site from above.</b> No road data matched under the pin yet, so the plan is a generic flagging setup, not built from this site. Tap <b>Load roads</b> (Locations tab, Load the road data), or drag the pin onto the road.';
+    }
+    h += '<div class="go" style="margin-top:8px"><button type="button" class="pri" id="mfbuild" style="width:100%">Looks right. Build the plan from this view</button></div>';
+    el.hidden = false; el.innerHTML = h;
+    var b = $('mfbuild'); if (b) b.onclick = function () { pick(sel, true); };
+  }
   function renderMapUI() {
     var s = sites[sel]; if (!s) { say('msel', ''); return; }
     var it = s.items[0], l = it.loc, r = s.zones[0] && s.zones[0].ev.rec;
@@ -3712,6 +3762,7 @@ function nextBar() {
       '<a class="btnlink sm" href="https://www.google.com/maps/@?api=1&map_action=map&center=' + c + '&zoom=20&basemap=satellite" target="_blank" rel="noopener">Aerial view</a>' +
       '<a class="btnlink sm" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + c + '" target="_blank" rel="noopener">Street view</a>' +
       '<a class="btnlink sm" href="https://www.bing.com/maps?cp=' + l.lat.toFixed(6) + '~' + l.lon.toFixed(6) + '&lvl=20&style=a" target="_blank" rel="noopener">Bing aerial</a>';
+    mapFirst(s, l);
     var di = mv && mv.dirInfo ? mv.dirInfo(sel) : null;
     $('flipb').textContent = di ? 'Traffic direction: ' + di.name + (mv.flipped(sel) ? ' (reversed)' : '') + '. Tap to reverse' : (mv && mv.flipped(sel) ? 'Traffic direction: reversed' : 'Traffic direction: as mapped');
     $('laneside').value = l.laneSide || '';
@@ -4093,7 +4144,7 @@ function nextBar() {
   }
   function sheetDoc(arr) {
     var css = Array.prototype.map.call(document.querySelectorAll('style'), function (s) { return s.textContent; }).join('\n');
-    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Traffic Control Plan</title><style>' + css + '\nbody{background:#fff;padding:0}.sheetov{position:static;background:#fff;overflow:visible}</style></head><body><div class="sheetov" id="sheetov">' + sheetHTML(arr) + '</div>';
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Traffic Control Plan</title><style>' + css + '\nbody{background:#fff;padding:0}.sheetov{position:static;background:#fff;overflow:visible}</style></head><body><div class="sheetov" id="sheetov">' + sheetHTML(arr) + '</div></body></html>';
   }
   var sheetSites = null;
   function openSheet(arr) {
@@ -4281,9 +4332,12 @@ function nextBar() {
     try { if (window.claude && window.claude.use) window.claude.use('downloads').then(function (d) { dl = d; }, function () {}); } catch (e) {}
     bindMap(); bindZoom(); bindGuide();
     $('addr').oninput = function () { var v = this.value.trim(); $('addrgo').href = v ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v) : 'https://www.google.com/maps'; };
+    var justPasted = false;
+    $('pts').addEventListener('paste', function () { justPasted = true; });
     $('pts').addEventListener('input', function () {
-      clearTimeout(timer); timer = setTimeout(function () { if (parseLines($('pts').value).pts.length) { var pt = tab; build(); setTab(pt); } }, 900);
+      clearTimeout(timer); timer = setTimeout(function () { if (parseLines($('pts').value).pts.length) { var pt = tab, jp = justPasted; justPasted = false; build(); if (jp && pt === 'locs' && sites.length) { pick(0, false); setTab('map'); } else setTab(pt); } }, jp0());
     });
+    function jp0() { return justPasted ? 250 : 900; }
     $('ex').onclick = function () { $('pts').value = SAMPLE; bulkText = ''; build(); };
     var po = $('pasteosm'); if (po) po.onclick = function () {
       var ta = $('osm'), fb = function () { ta.focus(); say('ostat', 'Your phone did not let this page read the clipboard. Press and hold in the box, choose Paste, then tap Apply map data.'); };
@@ -4291,20 +4345,41 @@ function nextBar() {
       navigator.clipboard.readText().then(function (t) { if (!t || t.indexOf('elements') < 0) { say('ostat', 'The clipboard does not hold road data yet. Do steps 1 and 2 first (open, select all, copy).'); return; } ta.value = t; $('apply').click(); roadAsked = true; }, fb);
     };
     var ol = $('osmlink'); if (ol) ol.addEventListener('click', function () { roadAsked = true; });
+    var gpsWatch = null;
     $('gps').onclick = function () {
-      var m = $('exnote');
-      if (!navigator.geolocation) { m.textContent = 'Your browser will not share location here.'+' In Google Maps or Apple Maps, press and hold the spot, copy the coordinates, and paste them in the box above.'; return; }
-      m.textContent = 'Finding you. Stand still for a few seconds...';
-      navigator.geolocation.getCurrentPosition(function (p) {
-        var line = p.coords.latitude.toFixed(6) + ', ' + p.coords.longitude.toFixed(6) + ' My location', t = $('pts').value.trim();
-        $('pts').value = (t && t !== SAMPLE) ? t + '\n' + line : line; bulkText = '';
-        build(); m.textContent = 'Location added (accurate to about ' + Math.round(p.coords.accuracy * 3.28084) + ' ft).';
-        if (sites.length) pick(sites.length > 1 ? sites.length - 1 : 0, true);
-      }, function (e) {
-        m.textContent = e && e.code === 1 ? 'Location is blocked for this page.'+' In Google Maps or Apple Maps, press and hold the spot, copy the coordinates, and paste them in the box above.' : 'Could not get a location. Move to open sky and try again.'+' In Google Maps or Apple Maps, press and hold the spot, copy the coordinates, and paste them in the box above.';
-      }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 });
+      var m = $('exnote'), HELP = ' In Google Maps or Apple Maps, press and hold the spot, copy the coordinates, and paste them in the box above.';
+      if (!navigator.geolocation) { m.textContent = 'Your browser will not share location here.' + HELP; return; }
+      if (gpsWatch !== null) { try { navigator.geolocation.clearWatch(gpsWatch); } catch (e) {} gpsWatch = null; }
+      var best = null, done = false, t0 = Date.now(), tmr = null, errc = 0;
+      m.textContent = 'Finding you. Stand still and look at the sky for a few seconds...';
+      var finish = function () {
+        if (done) return; done = true; clearTimeout(tmr);
+        if (gpsWatch !== null) { try { navigator.geolocation.clearWatch(gpsWatch); } catch (e) {} gpsWatch = null; }
+        if (!best) { m.textContent = (errc === 1 ? 'Location is blocked for this page. Allow location for this site in your phone settings, or paste the coordinates.' : 'Could not get a location. Move to open sky and try again, or paste the coordinates.') + HELP; return; }
+        var ft = Math.round(best.coords.accuracy * 3.28084);
+        var line = best.coords.latitude.toFixed(6) + ', ' + best.coords.longitude.toFixed(6) + ' My location';
+        var lines = $('pts').value.split(/\r?\n/).filter(function (x) { return x.trim() && !/My location\s*$/.test(x) && x.trim() !== SAMPLE; });
+        lines.push(line); $('pts').value = lines.join('\n'); bulkText = '';
+        build();
+        m.textContent = 'Location added. Accurate to about ' + ft + ' ft.' + (ft > 100 ? ' That is rough. Drag the pin on the map onto the work spot.' : '');
+        if (sites.length) { pick(sites.length - 1, false); setTab('map'); }
+      };
+      var ok = function (p) {
+        if (done) return;
+        if (!best || p.coords.accuracy < best.coords.accuracy) best = p;
+        var ft = Math.round(best.coords.accuracy * 3.28084);
+        m.textContent = 'Finding you... accuracy about ' + ft + ' ft' + (ft > 30 ? ', waiting for a better fix.' : '.');
+        if (best.coords.accuracy <= 9) finish();
+      };
+      var bad = function (e) { errc = (e && e.code) || errc; if (e && e.code === 1) finish(); };
+      try { gpsWatch = navigator.geolocation.watchPosition(ok, bad, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }); } catch (e) { m.textContent = 'Could not start location.' + HELP; return; }
+      tmr = setTimeout(function () {
+        if (best || errc === 1) return finish();
+        try { navigator.geolocation.getCurrentPosition(function (p) { best = p; finish(); }, function (e) { errc = (e && e.code) || errc; finish(); }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }); } catch (e) { finish(); }
+      }, 12000);
+      var tick = setInterval(function () { if (done) return clearInterval(tick); var el = Date.now() - t0; if (best && (el > 9000 || (el > 4000 && best.coords.accuracy <= 30))) { clearInterval(tick); finish(); } }, 1000);
     };
-    $('go').onclick = function () { build(); if (sites.length) { if (sites.length > 1) $('adv').open = true; pick(0, true); } };
+    $('go').onclick = function () { build(); if (sites.length) { if (sites.length > 1) $('adv').open = true; pick(0, false); setTab('map'); } };
     $('clr').onclick = function () { $('pts').value = ''; bulkText = ''; $('pts').placeholder = 'Paste coordinates or a map link, one per line'; locs = []; store = OsmStore(); sites = []; say('exnote', ''); try { localStorage.removeItem('tcp5'); } catch (e) {} renderQuery(); renderMapStatus(); compute(); };
     $('ptsfile').onchange = onFile; $('mapfiles').onchange = onMapFiles; $('apply').onclick = applyPaste;
     $('thr').onchange = function () { thr = Math.max(50, +$('thr').value || 1000); save(); compute(); if (mv) mv.focusSite(sel); };
