@@ -1,8 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#14202b"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="UTCTC"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon-192.png"><style>*{box-sizing:border-box}body{margin:0}</style></head><body><title>UTCTC Technician Companion</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#14202b"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="UTCTC"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon-192.png"><style>
 /* Layout: inputs and location editors in a left rail, one card per site on the right. Stacks on phones. */
 :root{
   --bg:#EDF0F3; --panel:#FFFFFF; --field:#F7F9FA; --ink:#15202A; --muted:#566471; --line:#D2D9DF;
@@ -587,7 +583,7 @@ function plan(i) {
   var sp = out.space, sg = [];
   if (sc === 'laneclosure') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-5', LW + ' LANE CLOSED AHEAD', 2], ['W4-2' + LS, 'Lane ends (' + LSw + ') symbol', 1]];
   else if (sc === 'twolanes') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-5', LW + ' TWO LANES CLOSED AHEAD', 2], ['W4-2' + LS, 'Lane ends (' + LSw + ') symbol', 1]];
-  else if (sc === 'intersection') sg = [['W20-1', 'ROAD WORK AHEAD', 2], ['W20-7', 'FLAGGER (symbol) AHEAD', 1]];
+  else if (sc === 'intersection') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-1', 'ROAD WORK AHEAD', 2], ['W20-7', 'FLAGGER (symbol) AHEAD', 1]];
   else if (sc === 'laneshift') sg = i.oneway ? [['W20-1', 'ROAD WORK AHEAD', 3], ['W1-4', 'REVERSE CURVE (lane shift)', 2], ['W1-4', 'REVERSE CURVE (lane shift)', 1]]
     : [['W20-1', 'ROAD WORK AHEAD', 3], ['W1-4', 'REVERSE CURVE (lane shift)', 2], ['W13-1P', 'XX MPH advisory speed plaque (optional)', 2], ['W6-3', 'TWO-WAY TRAFFIC', 1]];
   else if (sc === 'flagging') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-4', 'ONE LANE ROAD AHEAD', 2], ['W20-7', 'FLAGGER (symbol) AHEAD', 1]];
@@ -1678,8 +1674,8 @@ var SignLib = (function () {
       c.strokeStyle = 'rgba(0,0,0,.55)'; c.lineWidth = 1; c.beginPath(); c.moveTo(cx, cy - r); c.lineTo(cx + r, cy); c.lineTo(cx, cy + r); c.lineTo(cx - r, cy); c.closePath(); c.stroke();
       if (s.special) symbol(c, s, cx, cy, h * 0.88);
       else if (s.lines) {
-        var n = s.lines.length, lh = h * (n >= 4 ? 0.155 : n === 3 ? 0.195 : 0.25), y0 = cy - (n - 1) * lh / 2, fs0 = lh * 1.0, hs = 0.8;
-        s.lines.forEach(function (t, i) { var d = Math.abs(i - (n - 1) / 2) * lh, wmax = Math.max(6, 2 * (r - ins * 2.2 - d - lh * 0.3)); c.font = '800 ' + fs0 + 'px ' + FONT; var w0 = c.measureText(t).width * hs; if (w0 > wmax) fs0 = fs0 * wmax / w0; });
+        var n = s.lines.length, lh = h * (n >= 4 ? 0.17 : n === 3 ? 0.225 : 0.27), y0 = cy - (n - 1) * lh / 2, fs0 = lh * 1.12, hs = 0.64;
+        s.lines.forEach(function (t, i) { var d = Math.abs(i - (n - 1) / 2) * lh, wmax = Math.max(6, 2 * (r - ins * 2.2 - d - lh * 0.16)); c.font = '800 ' + fs0 + 'px ' + FONT; var w0 = c.measureText(t).width * hs; if (w0 > wmax) fs0 = fs0 * wmax / w0; });
         s.lines.forEach(function (t, i) { c.save(); c.translate(cx, y0 + i * lh); c.scale(hs, 1); c.font = '800 ' + fs0 + 'px ' + FONT; c.fillStyle = s.fg; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(t, 0, 0); c.restore(); });
       }
     } else if (s.shape === 'circle') {
@@ -2405,9 +2401,11 @@ function MapView(canvas, cb) {
     c.moveTo(x, y - r - 2); c.lineTo(x + r + 2, y); c.lineTo(x, y + r + 2); c.lineTo(x - r - 2, y); c.closePath(); c.fill(); c.stroke();
     if (label) { c.fillStyle = C.ink; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(label, x, y - r - 8); c.fillText(label, x, y - r - 8); c.textAlign = 'left'; }
   }
-  function sideStreets(c, C, data, z, g, dir, tS, tE, p) {
+  function sideStreets(c, C, data, z, g, dir, tS, tE, p, both) {
     var it = z.items[Math.floor(z.items.length / 2)], mainId = it.loc.osm && it.loc.osm.wayId, found = [], n = 0;
-    var lo = g.s0 + Math.min(dir * tS, dir * tE) - 40, hi = g.s0 + Math.max(dir * tS, dir * tE) + 40;
+    var adv0 = p.signs.filter(function (q) { return !q.end && !q.buf && !q.opp && q.dist > 0; }), far = adv0.reduce(function (m, q) { return Math.max(m, q.dist); }, 0), ext = Math.max(far, 100);
+    var a0 = Math.min(tS - ext, tS), a1 = Math.max(tE + (both ? ext : 80), tE);
+    var lo = g.s0 + Math.min(dir * a0, dir * a1) - 40, hi = g.s0 + Math.max(dir * a0, dir * a1) + 40;
     data.ways.forEach(function (w) {
       if (w.id === mainId || !RW[w.tags.highway] || n > 14) return;
       var pts = wpts(w);
@@ -2419,8 +2417,21 @@ function MapView(canvas, cb) {
         var avail = lg < 0 ? sj : tot - sj; if (avail < 45) return;
         var d = Math.min(D, avail - 8), q = atS(pts, cum, sj + lg * d), x = sx(q.x), y = sy(q.y);
         c.setLineDash([4, 3]); c.strokeStyle = C.ink; c.lineWidth = 1; c.beginPath(); c.moveTo(sx(j.x), sy(j.y)); c.lineTo(x, y); c.stroke(); c.setLineDash([]);
-        if (S.k > 0.12) { c.fillStyle = C.ink; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; var tl = cb.fixed ? 0.7 : 0.5, mx = sx(j.x) + (x - sx(j.x)) * tl, my = sy(j.y) + (y - sy(j.y)) * tl; c.strokeText(Math.round(d) + "'", mx + 8, my); c.fillText(Math.round(d) + "'", mx + 8, my); c.textAlign = 'left'; }
-        if (cb.fixed) { SignLib.post(c, x, y + 30, C.ink); SignLib.draw(c, 'W20-1', x, y, 56, { legend: 'ROAD WORK AHEAD' }); } else diamond(c, C, x, y, 'W20-1', C.work);
+        if (S.k > 0.12 && !cb.fixed) { c.fillStyle = C.ink; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; var tl = cb.fixed ? 0.7 : 0.5, mx = sx(j.x) + (x - sx(j.x)) * tl, my = sy(j.y) + (y - sy(j.y)) * tl; c.strokeText(Math.round(d) + "'", mx + 8, my); c.fillText(Math.round(d) + "'", mx + 8, my); c.textAlign = 'left'; }
+        if (cb.fixed) {
+          var seq = adv0.slice().sort(function (u, v) { return v.dist - u.dist; }).filter(function (q) { return q.code.charAt(0) === 'W'; });
+          var m = Math.max(1, Math.min(seq.length, 3, Math.floor((avail - 8) / D))); seq = seq.slice(0, m);
+          var jx = sx(j.x), jy = sy(j.y), tvx = jx - x, tvy = jy - y, tl2 = Math.hypot(tvx, tvy) || 1; tvx /= tl2; tvy /= tl2;
+          var rx = -tvy, ry = tvx;
+          seq.forEach(function (q, k) {
+            var slot = m - k, dd = Math.min((slot + 0.9) * D, avail - 8), qq = atS(pts, cum, sj + lg * dd), px2 = sx(qq.x), py2 = sy(qq.y), FH = 52, off2 = 20 + FH / 2;
+            SignLib.post(c, px2 + rx * 14, py2 + ry * 14, C.ink);
+            c.strokeStyle = C.ink; c.lineWidth = 1; c.beginPath(); c.moveTo(px2 + rx * 14, py2 + ry * 14); c.lineTo(px2 + rx * (off2 - FH / 2 + 2), py2 + ry * (off2 - FH / 2 + 2)); c.stroke();
+            SignLib.draw(c, q.code, px2 + rx * off2, py2 + ry * off2, FH, { legend: q.legend });
+            c.font = '700 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineWidth = 3; c.strokeStyle = C.road; c.fillStyle = C.ink; var ty2 = py2 + ry * off2 + FH / 2 + 11; c.strokeText(q.code, px2 + rx * off2, ty2); c.fillText(q.code, px2 + rx * off2, ty2);
+            if (k === 0) { x = px2; y = py2; }
+          });
+        } else diamond(c, C, x, y, 'W20-1', C.work);
         if (w.tags.name && S.k > 0.15) { var ny = y + (cb.fixed ? 46 : 26); c.fillStyle = C.ink; c.font = (cb.fixed ? '700 14px' : '11px') + ' sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(w.tags.name, x, ny); c.fillText(w.tags.name, x, ny); c.textAlign = 'left'; }
       });
     });
@@ -2527,7 +2538,7 @@ function MapView(canvas, cb) {
           c.fillStyle = C.txt; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.road; c.strokeText(label, x2, ly); c.fillText(label, x2, ly); c.textAlign = 'left';
         }
       };
-      var faceH = cb.fixed ? 76 : 36, taken = [], big = cb.fixed || S.k > 0.1;
+      var faceH = cb.fixed ? 62 : 36, taken = [], big = cb.fixed || S.k > 0.1;
       var placeSign = function (code, legend, t, opt) {
         opt = opt || {};
         if (!big) { mark(t, '', 'd', C.work); return; }
@@ -2590,7 +2601,7 @@ function MapView(canvas, cb) {
         }
         if (!dt) lab(tW0, 'Road ' + Math.round(p.roadWidth) + "' wide", -44);
       }
-      if (data && !dt && sc !== 'sidewalk' && sc !== 'walkway') sideStreets(c, C, data, z, g, dir, tS, tE, p);
+      if (data && !dt && sc !== 'sidewalk' && sc !== 'walkway') sideStreets(c, C, data, z, g, dir, tS, tE, p, bothWays);
       if (sc === 'flagging') { mark(tS - 40, 'F1', 'c', C.acc); mark(tE + 40, 'F2', 'c', C.acc); }
       if (sc === 'signal') { mark(tS - 40, 'S1', 's', C.bad); mark(tE + 40, 'S2', 's', C.bad); }
       if (sc === 'full') {
@@ -2815,6 +2826,43 @@ var GUIDE = [
   { id: 'l-links', cat: 'links', title: 'Where to read the official text', tags: 'mutcd fhwa part 6 official link edition supplement',
     body: '<p>This guide is a summary written from memory. For the rules, use the edition and state supplement your agency adopted.</p><ul><li><a href="https://mutcd.fhwa.dot.gov/" target="_blank" rel="noopener">FHWA MUTCD website</a>, with Part 6 on temporary traffic control.</li><li><a href="https://mutcd.fhwa.dot.gov/kno-11th_Edition.htm" target="_blank" rel="noopener">MUTCD 11th Edition</a></li><li>Your state DOT page for its MUTCD supplement and typical drawings.</li></ul>' }
 ];
+
+</script>
+<script>
+/* Automatic MUTCD / Caltrans T9 rule check. Runs on every plan before it is shown. */
+function mutcdCheck(rec, eff) {
+  var p = rec && rec.plan, out = [];
+  if (!p) return out;
+  var S = +eff.speed || p.speed || 0, id = rec.id, T = function (ok, rule, det) { out.push({ ok: !!ok, rule: rule, det: det }); };
+  var adv = (p.signs || []).filter(function (g) { return !g.end && !g.buf && !g.opp && g.dist > 0; }).map(function (g) { return g.dist; }).sort(function (a, b) { return a - b; });
+  var uniq = adv.filter(function (d, i) { return adv.indexOf(d) === i; });
+  var exp = S <= 25 ? 100 : (S <= 40 ? 250 : 350);
+  var need = ['shoulder', 'sidewalk', 'walkway'].indexOf(id) >= 0 ? 2 : 3;
+  T(uniq.length >= need, 'Advance warning signs on the approach', uniq.length + ' sign stations before the work (' + need + ' expected)');
+  var gaps = uniq.slice(1).map(function (d, i) { return d - uniq[i]; });
+  T(gaps.every(function (g) { return g <= Math.max(p.space, exp) + 1 && g >= Math.min(p.space, exp) - 1; }), 'Sign spacing matches the sign table', 'planned ' + p.space + "', table " + exp + "' urban");
+  T(p.space >= exp, 'Sign spacing at least the table value for ' + S + ' mph', p.space + "' vs " + exp + "'");
+  if (['laneclosure', 'twolanes', 'flagging', 'signal', 'shoulder'].indexOf(id) >= 0) T((p.signs || []).some(function (g) { return g.end; }), 'END ROAD WORK sign at the end', '');
+  var bufMin = { 20: 35, 25: 55, 30: 85, 35: 120, 40: 170, 45: 220, 50: 280, 55: 335, 60: 395, 65: 465, 70: 540, 75: 620 };
+  var bk = Object.keys(bufMin).map(Number).sort(function (a, b) { return a - b; }).filter(function (k) { return k >= S; })[0] || 75;
+  if (p.buffer) T(p.buffer >= bufMin[bk], 'Buffer space at least the MUTCD table', p.buffer + "' vs " + bufMin[bk] + "' minimum");
+  if (p.taper && (id === 'laneclosure' || id === 'twolanes')) {
+    var W = +eff.laneW || 12, L = S <= 40 ? W * S * S / 60 : W * S;
+    T(p.taper >= Math.floor(L) - 5, 'Merging taper length', p.taper + "' vs " + Math.round(L) + "' for a ' + W + ' ft lane at " + S + ' mph');
+  }
+  if (p.devSpacingTaper) T(p.devSpacingTaper <= Math.max(S, 15) + 0.1, 'Device spacing in taper no more than speed in feet', p.devSpacingTaper + "' at " + S + ' mph');
+  if (p.devSpacingTangent) T(p.devSpacingTangent <= Math.max(2 * S, 20) + 0.1 && p.devSpacingTangent <= 100, 'Device spacing on tangent no more than twice speed', p.devSpacingTangent + "'");
+  if (p.downstream) T(p.downstream >= 100 || id === 'flagging' || id === 'laneshift', 'Downstream taper 100 ft', p.downstream + "'");
+  if (id === 'laneclosure' && (+p.lanes || +eff.lanes) >= 2 && S >= 45) T(p.arrowBoard, 'Arrow board for multilane closure', p.arrowBoard ? 'yes' : 'missing');
+  if (id === 'flagging') T(p.flaggers >= 2, 'Two flaggers for two-way flagging', (p.flaggers || 0) + ' flaggers');
+  return out;
+}
+function mutcdSite(s) {
+  var all = [];
+  s.zones.forEach(function (z, i) { if (z.ev.rec) mutcdCheck(z.ev.rec, z.eff).forEach(function (c) { c.zone = i + 1; all.push(c); }); });
+  var bad = all.filter(function (c) { return !c.ok; });
+  return { all: all, bad: bad, pass: all.length - bad.length };
+}
 
 </script>
 <script>
@@ -3493,6 +3541,8 @@ function nextBar() {
     var h = '<div class="selbar"><button type="button" class="ghost" data-act="prev"' + (sel === 0 ? ' disabled' : '') + '>Previous</button><div class="seln"><b>' + s.name + '</b><small>' + (sel + 1) + ' of ' + sites.length + '</small></div><button type="button" class="ghost" data-act="next"' + (sel >= sites.length - 1 ? ' disabled' : '') + '>Next</button></div>';
     h += '<section class="panel site"><div class="sh"><div><h2>' + s.name + '</h2><p class="coords">' + (a.length > 1 ? 'Locations ' + a.join(', ') : 'Location ' + a[0]) + (s.road ? ' on ' + esc(s.road) : '') + (a.length > 1 ? ' · ' + s.span + ' ft apart at most' : '') + '</p></div>';
     h += '<div class="tot"><span class="pill">' + s.zones.length + ' zone' + (s.zones.length > 1 ? 's' : '') + '</span><span class="pill">' + (t.dev + t.barr) + ' devices</span><span class="pill">' + t.signs + ' signs</span>' + (t.flaggers ? '<span class="pill">' + t.flaggers + ' flaggers</span>' : '') + (t.signals ? '<span class="pill">' + t.signals + ' signals</span>' : '') + (t.arrow ? '<span class="pill">' + t.arrow + ' arrow board</span>' : '') + (t.tma ? '<span class="pill">' + t.tma + ' attenuator</span>' : '') + '</div></div>';
+    var mc = mutcdSite(s);
+    h += '<div class="notes"><div class="nt ' + (mc.bad.length ? 'high' : 'ok') + '" id="mutcdchk"><b>' + (mc.bad.length ? 'MUTCD check: ' + mc.bad.length + ' item' + (mc.bad.length > 1 ? 's' : '') + ' need attention' : 'MUTCD check: ' + mc.pass + ' of ' + mc.all.length + ' rules passed') + '</b>' + (mc.bad.length ? mc.bad.map(function (c) { return '<div>' + esc(c.rule) + ': ' + esc(c.det) + '</div>'; }).join('') : '<div>Sign count and spacing, buffer, taper, device spacing, downstream taper, end sign, arrow board and flaggers were tested against the tables in this app. A person still has to confirm the road details.</div>') + '</div></div>';
     var fullHere = s.zones.some(function (z) { return z.ev.rec && z.ev.rec.id === 'full'; }), jj = G.j || {};
     if (fullHere && !(jj.whole && jj.room && jj.hold)) {
       var qq = function (id, lab) { return jj[id] ? '' : '<div class="qt">' + esc(lab) + '</div><div class="opts sm">' + YN.map(function (o) { return opt(null, id, o[0], o[1], '', false, 'jqp'); }).join('') + '</div>'; };
@@ -3771,7 +3821,7 @@ function nextBar() {
     var NT = siteNotes(s), notes = NT.map(function (x) { return x.t; });
     var sg = []; s.zones.forEach(function (z) { var rr = z.ev.rec; if (rr) rr.plan.signs.forEach(function (g) { if (sg.indexOf(g.code) < 0) sg.push(g.code); }); }); s.zones.forEach(function (z) { var dd = getDet(z); if (dd && dd.ok) detourSigns(dd, z.ev.rec.plan).forEach(function (g) { if (sg.indexOf(g.code) < 0) sg.push(g.code); }); });
     var h = '<article class="sheet tcp pb"><div class="tcpbox"><div class="tcpmain">' + plan + '</div>';
-    h += '<div class="tcpnotes">' + (warnFor(s) ? '<div class="tcpwarn">' + esc(warnFor(s)) + '</div>' : '') + '<b>NOTES</b><ol>' + notes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>' + s.zones.map(function (z, zi) { var rr = z.ev.rec; if (!rr) return ''; var pp = rr.plan; return '<table class="tcpt"><tr><th colspan="2">' + (s.zones.length > 1 ? 'Zone ' + (zi + 1) + ': ' : '') + esc(rr.name) + ' at ' + z.eff.speed + ' mph</th></tr><tr><td>Taper</td><td>' + pp.taper + "'</td></tr><tr><td>Buffer</td><td>" + pp.buffer + "'</td></tr><tr><td>Sign spacing</td><td>" + pp.space + "'</td></tr><tr><td>Downstream taper</td><td>" + pp.downstream + "'</td></tr><tr><td>" + (getDet(z) && getDet(z).ok ? 'Closed length' : 'Work length') + "</td><td>" + (getDet(z) && getDet(z).ok ? getDet(z).closedFt : z.eff.len) + "'</td></tr><tr><td>Devices</td><td>" + (rr.id === 'full' ? pp.barricades + ' barricades' : pp.devTotal) + '</td></tr></table>'; }).join('') + '</div>';
+    h += '<div class="tcpnotes">' + (warnFor(s) ? '<div class="tcpwarn">' + esc(warnFor(s)) + '</div>' : '') + '<div class="tcpwarn" style="background:' + (mutcdSite(s).bad.length ? '#fde8e8' : '#e7f5ec') + '">MUTCD check: ' + mutcdSite(s).pass + ' of ' + mutcdSite(s).all.length + ' rules passed' + (mutcdSite(s).bad.length ? ' (REVIEW: ' + esc(mutcdSite(s).bad.map(function (c) { return c.rule; }).join('; ')) + ')' : '') + '</div><b>NOTES</b><ol>' + notes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>' + s.zones.map(function (z, zi) { var rr = z.ev.rec; if (!rr) return ''; var pp = rr.plan; return '<table class="tcpt"><tr><th colspan="2">' + (s.zones.length > 1 ? 'Zone ' + (zi + 1) + ': ' : '') + esc(rr.name) + ' at ' + z.eff.speed + ' mph</th></tr><tr><td>Taper</td><td>' + pp.taper + "'</td></tr><tr><td>Buffer</td><td>" + pp.buffer + "'</td></tr><tr><td>Sign spacing</td><td>" + pp.space + "'</td></tr><tr><td>Downstream taper</td><td>" + pp.downstream + "'</td></tr><tr><td>" + (getDet(z) && getDet(z).ok ? 'Closed length' : 'Work length') + "</td><td>" + (getDet(z) && getDet(z).ok ? getDet(z).closedFt : z.eff.len) + "'</td></tr><tr><td>Devices</td><td>" + (rr.id === 'full' ? pp.barricades + ' barricades' : pp.devTotal) + '</td></tr></table>'; }).join('') + '</div>';
     var di0 = mv && mv.dirInfo ? mv.dirInfo(sites.indexOf(s)) : null;
     h += '<div class="tcplegend">' + (z0 ? '<div class="tcpxs"><b>TYPICAL SECTION</b>' + xsecSVG(z0, di0 ? di0.side : 'R') + '</div>' : '') + '<b>LEGEND</b><div><i class="sw w"></i>Work area</div><div><i class="sw c"></i>Cone or drum</div><div><i class="sw d"></i>Sign: ' + esc(sg.join(', ')) + '</div>' + (z0 && z0.ev.rec && z0.ev.rec.plan.flaggers ? '<div><i class="sw f"></i>Flagger</div>' : '') + (p && p.arrowBoard ? '<div><i class="sw a"></i>Arrow board' + (p.arrowBoards > 1 ? 's' : '') + '</div>' : '') + (p && p.tma ? '<div><i class="sw t"></i>Shadow vehicle with attenuator</div>' : '') + (s.zones.some(function (z) { return z.ev.rec && (z.ev.rec.id === 'sidewalk' || z.ev.rec.id === 'walkway') || (z.ev.comp || []).some(function (c) { return c.kind === 'ped'; }); }) ? '<div><i class="sw p"></i>Pedestrian route</div>' : '') + '<div>Distances in feet. Map is to scale. Devices and signs are shown at their planned stations.</div></div>' + (SD.noPark ? '<div class="tcpnp"><svg viewBox="0 0 60 80" width="46" height="62" aria-hidden="true"><rect x="2" y="2" width="56" height="76" rx="5" fill="#fff" stroke="#111" stroke-width="3"/><circle cx="30" cy="26" r="17" fill="#fff" stroke="#B42318" stroke-width="5"/><text x="30" y="34" text-anchor="middle" font-size="22" font-weight="700" font-family="sans-serif">P</text><line x1="18" y1="38" x2="42" y2="14" stroke="#B42318" stroke-width="5"/><rect x="6" y="52" width="48" height="20" fill="#B42318"/><text x="30" y="66" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="sans-serif">TOW-AWAY</text></svg><div><b>NO PARKING</b><br>Barricade mounted, both sides of the street, 72 hours before work.</div></div>' : '') + '</div>';
     h += '<div class="tb"><div><small>Job / PM #</small><b>' + esc(SD.job) + '</b><small style="margin-top:4px">Sheet</small><b>TC-' + (idx + 1) + '</b></div>';
@@ -3802,8 +3852,6 @@ function nextBar() {
         if (!r) { h += '<p><b>No standard setup fits these inputs.</b> Engineering judgment is required.</p></section>'; return; }
         var p = r.plan;
         h += '<h3>Recommended: ' + esc(r.name) + '</h3><p>' + esc(PLAIN[r.id]) + ' Safety ' + r.safety + '/100, ease of setup ' + r.ease + '/100.</p>';
-        h += '<div class="keep">' + draw(p, v) + '</div>';
-        h += '<h3>Key distances</h3><table><tr><th>Taper</th><th>Buffer</th><th>Sign spacing</th><th>Downstream taper</th><th>Device spacing, taper / tangent</th><th>Devices</th></tr><tr><td>' + p.taper + ' ft</td><td>' + p.buffer + ' ft</td><td>' + p.space + ' ft</td><td>' + p.downstream + ' ft</td><td>' + p.devSpacingTaper + ' / ' + p.devSpacingTangent + ' ft</td><td>' + (r.id === 'full' ? p.barricades + ' barricades' : p.devTotal) + '</td></tr></table>';
         if (p.edited.length) h += '<p><b>Distances edited by hand:</b> ' + esc(p.edited.join(', ')) + '.</p>';
         h += '<h3>Sign schedule (' + esc(p.signSize) + ' minimum, orange)</h3><table><tr><th>Code</th><th>Legend</th><th>Location</th></tr>' + p.signs.map(function (g) { return '<tr><td>' + signCell(g) + '</td><td>' + esc(g.legend) + '</td><td>' + (g.dist > 0 ? signWhere(p.signs, g) : g.dist < 0 ? Math.abs(g.dist) + ' ft after work area' : 'At the closure') + '</td></tr>'; }).join('') + '</table>';
         h += detourSheet(z);
@@ -3812,7 +3860,7 @@ function nextBar() {
         h += '<h3>Setup order</h3><ol>' + buildSteps(r, v, z).map(function (st) { return '<li><b>' + esc(st.t) + '</b><ul>' + st.l.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></li>'; }).join('') + '</ol>';
         compItems(z).forEach(function (c) { h += '<h3>Also required: ' + esc(c.name) + '</h3><p>' + esc(c.why) + '</p><ol>' + c.steps.map(function (st) { return '<li><b>' + esc(st.t) + '</b><ul>' + st.l.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></li>'; }).join('') + '</ol>' + (c.cand ? '<div class="keep">' + draw(c.cand.plan, v) + '</div>' : '') + (c.kit.length ? '<table><tr><th>Qty</th><th>Item</th><th>Note</th></tr>' + c.kit.map(function (x) { return '<tr><td>' + esc(x[0]) + '</td><td>' + esc(x[1]) + '</td><td>' + esc(x[2]) + '</td></tr>'; }).join('') + '</table>' : ''); });
         if (r.hazards.length) h += '<h3>Hazards at this location</h3><ul>' + r.hazards.map(function (x) { return '<li>' + (x.sev === 'high' ? '<b>Serious: </b>' : '') + esc(x.text) + '</li>'; }).join('') + '</ul>';
-        h += '<h3>Other setups considered</h3><ul>' + ev.rejected.map(function (x) { return '<li><b>' + esc(x.c.name) + ':</b> ' + esc(x.reasons[0]) + '</li>'; }).join('') + '</ul></section>';
+        h += '</section>';
       });
       h += '<div class="sgn"><div>Prepared by (name, date)</div><div>Reviewed / approved by (name, date)</div></div>';
       h += '<p style="font-size:11px;color:#4a5560;margin-top:12px">Distances follow MUTCD Part 6 tables as commonly applied. Confirm values and sign codes against the agency\u2019s adopted edition and state supplement.</p></article>';
@@ -3821,7 +3869,7 @@ function nextBar() {
   }
   function sheetDoc(arr) {
     var css = Array.prototype.map.call(document.querySelectorAll('style'), function (s) { return s.textContent; }).join('\n');
-    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Traffic Control Plan</title><style>' + css + '\nbody{background:#fff;padding:0}.sheetov{position:static;background:#fff;overflow:visible}</style></head><body><div class="sheetov" id="sheetov">' + sheetHTML(arr) + '</div></body></html>';
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Traffic Control Plan</title><style>' + css + '\nbody{background:#fff;padding:0}.sheetov{position:static;background:#fff;overflow:visible}</style></head><body><div class="sheetov" id="sheetov">' + sheetHTML(arr) + '</div><script>if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script></body></html>';
   }
   var sheetSites = null;
   function openSheet(arr) {
@@ -4060,4 +4108,3 @@ function nextBar() {
 })();
 
 </script>
-<script>if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script></body></html>
