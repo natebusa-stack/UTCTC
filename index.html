@@ -838,8 +838,11 @@ function buildQuery(locs) {
       'node(around:100,' + c + ')["railway"~"^(level_crossing|crossing)$"];' +
       'nwr(around:160,' + c + ')["amenity"~"^(school|kindergarten|hospital)$"];';
   });
-  if (locs.length) q += 'nwr(around:20000,' + locs[0].lat.toFixed(6) + ',' + locs[0].lon.toFixed(6) + ')["amenity"="hospital"];';
   return q + ');out tags geom;';
+}
+function buildHospQuery(locs) {
+  if (!locs.length) return '';
+  return '[out:json][timeout:25];nwr(around:15000,' + locs[0].lat.toFixed(6) + ',' + locs[0].lon.toFixed(6) + ')["amenity"="hospital"];out tags center 5;';
 }
 function parseOSM(text) {
   var j;
@@ -1412,7 +1415,7 @@ function analyzeAll(locs, thr, G) {
   });
 }
 
-if (typeof module !== 'undefined') module.exports = { OsmStore: OsmStore, confidence: confidence, parseLines: parseLines, buildQuery: buildQuery, parseOSM: parseOSM, newLoc: newLoc, applyOSM: applyOSM, refreshAssumed: refreshAssumed, effective: effective, evaluate: evaluate, analyzeAll: analyzeAll, clusterLocs: clusterLocs, dist: dist, CLASS: CLASS, FIELDS: FIELDS };
+if (typeof module !== 'undefined') module.exports = { buildHospQuery: buildHospQuery, OsmStore: OsmStore, confidence: confidence, parseLines: parseLines, buildQuery: buildQuery, parseOSM: parseOSM, newLoc: newLoc, applyOSM: applyOSM, refreshAssumed: refreshAssumed, effective: effective, evaluate: evaluate, analyzeAll: analyzeAll, clusterLocs: clusterLocs, dist: dist, CLASS: CLASS, FIELDS: FIELDS };
 
 </script>
 <script>
@@ -3150,6 +3153,31 @@ function signCell(g) {
   }
 
   /* try to load the roads around the job by itself; fall back to the manual steps when the page cannot reach the map server */
+  var MIRRORS = ['https://overpass-api.de/api/interpreter', 'https://overpass.private.coffee/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.openstreetmap.fr/api/interpreter', 'https://lz4.overpass-api.de/api/interpreter'];
+  /* ask several Overpass servers, staggered, and take the first good answer */
+  function loadRoads(q, done, quiet) {
+    var finished = false, fails = [], timers = [], ctls = [], left = MIRRORS.length;
+    function host(u) { return u.replace(/^https?:\/\//, '').split('/')[0]; }
+    function end(ok, why) { if (finished) return; finished = true; timers.forEach(clearTimeout); ctls.forEach(function (c) { try { c.abort(); } catch (e) {} }); done(ok, why); }
+    function fail(k, why) { fails.push(host(MIRRORS[k]) + ': ' + why); if (--left <= 0) end(false, 'Tried ' + MIRRORS.length + ' map servers. ' + fails.join('; ') + '.'); }
+    MIRRORS.forEach(function (u, k) {
+      timers.push(setTimeout(function () {
+        if (finished) return;
+        var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null; if (ctl) ctls.push(ctl);
+        var to = setTimeout(function () { if (ctl) ctl.abort(); fail(k, 'no answer in 30 s'); fin = true; }, 30000), fin = false;
+        if (!quiet) say('mstat', 'Looking up the roads around your location (' + (k + 1) + ' of ' + MIRRORS.length + ' servers asked)...');
+        fetch(u, { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, signal: ctl ? ctl.signal : undefined })
+          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+          .then(function (t) { clearTimeout(to); if (fin || finished) return; if (t.indexOf('"elements"') < 0) throw new Error('busy or bad reply'); if (ingest(t)) end(true); else { fin = true; fail(k, 'unreadable reply'); } })
+          .catch(function (e) { clearTimeout(to); if (fin || finished) return; fin = true; fail(k, e && e.name === 'AbortError' ? 'stopped' : (e && e.message === 'Failed to fetch' ? 'could not connect (blocked or offline)' : (e && e.message) || 'failed')); });
+      }, k * 2500));
+    });
+  }
+  function loadHospitals(few) {
+    var hq = buildHospQuery(few); if (!hq) return;
+    var u = MIRRORS[0];
+    try { fetch(u, { method: 'POST', body: 'data=' + encodeURIComponent(hq), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) { if (t && t.indexOf('"elements"') > 0 && ingest(t)) afterData(); }).catch(function () {}); } catch (e) {}
+  }
   var autoTried = {}, autoTimer = null, autoBusy = false;
   function autoMap() {
     clearTimeout(autoTimer);
@@ -3158,17 +3186,11 @@ function signCell(g) {
       if (!few.length || autoBusy || typeof fetch !== 'function') return;
       var q = buildQuery(few); if (autoTried[q]) return; autoTried[q] = 1; autoBusy = true;
       say('mstat', 'Looking up the roads around your location...');
-      var MIRRORS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter', 'https://maps.mail.ru/osm/tools/overpass/api/interpreter'];
-      function tryMirror(k) {
-        if (k >= MIRRORS.length) { autoBusy = false; delete autoTried[q]; renderMapStatus(); say('ostat', 'This page could not reach a map server. Check your signal and reopen the page, or tap "Open map data for these points" below, copy what it shows, paste it here and tap Apply. You can also draw the street yourself under each location.'); return; }
-        var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null, to = setTimeout(function () { if (ctl) ctl.abort(); }, 25000);
-        say('mstat', 'Looking up the roads around your location (server ' + (k + 1) + ' of ' + MIRRORS.length + ')...');
-        fetch(MIRRORS[k], { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, signal: ctl ? ctl.signal : undefined })
-          .then(function (r) { if (!r.ok) throw new Error('http'); return r.text(); })
-          .then(function (t) { clearTimeout(to); if (t.indexOf('"elements"') < 0) throw new Error('bad'); autoBusy = false; if (ingest(t)) { say('mstat', 'Roads loaded automatically.'); afterData(); } else renderMapStatus(); })
-          .catch(function () { clearTimeout(to); tryMirror(k + 1); });
-      }
-      tryMirror(0);
+      loadRoads(q, function (ok, why) {
+        autoBusy = false;
+        if (ok) { say('mstat', 'Roads loaded automatically.'); afterData(); loadHospitals(few); }
+        else { delete autoTried[q]; renderMapStatus(); say('mstat', 'Roads did not load. ' + why + (/could not connect/.test(why) && !/^https?:/.test(location.protocol + '//') ? '' : '') + (location.protocol === 'https:' && /github\.io/.test(location.host) ? ' Check your signal.' : ' Pages opened inside Claude cannot reach map servers. Open the app from your GitHub link instead (natebusa-stack.github.io), then try again.')); say('ostat', 'Tap "Load roads now" on the Map tab to try again, or use the manual steps below. You can also draw the street yourself under each location.'); renderMapUI(); }
+      });
     }, 1200);
   }
   function renderMapStatus() {
@@ -3740,6 +3762,7 @@ function nextBar() {
   /* ---------- map pane ---------- */
   function mapFirst(s, l) {
     var el = $('mapfirst'); if (!el) return;
+    var autoMsg = ($('mstat') && /did not load|Looking up/.test($('mstat').textContent)) ? $('mstat').textContent : '';
     var z = s.zones[0], v = z && z.eff, got = !!(l.osm && l.osm.found), h = '';
     var ro = l.osm && l.osm.found ? l.osm : null, nm = ro && ro.tags && (ro.tags.name || ro.tags.ref) ? ro.tags.name || ro.tags.ref : '';
     if (got && v) {
@@ -3747,11 +3770,12 @@ function nextBar() {
       h = '<b>Step 1. Check the site from above.</b> The pin is on ' + (nm ? esc(nm) : 'a mapped road') + ', about ' + wid + ' ft wide, ' + v.speed + ' mph. Wrong road? Drag the pin onto the work spot. The roads reload and the plan rebuilds.';
       if (v.narrow) h += '<br><b style="color:var(--bad)">NARROW ROAD, about ' + wid + ' ft. Do not block it without a closure permit.</b> The plan keeps the road open with flaggers on every approach.';
     } else {
-      h = '<b>Step 1. Check the site from above.</b> No road data matched under the pin yet, so the plan is a generic flagging setup, not built from this site. Tap <b>Load roads</b> (Locations tab, Load the road data), or drag the pin onto the road.';
+      h = '<b>Step 1. Check the site from above.</b> No road data matched under the pin yet, so the plan is a generic flagging setup, not built from this site. Tap <b>Load roads</b> (Locations tab, Load the road data), or drag the pin onto the road.' + (autoMsg ? '<br><i>' + esc(autoMsg) + '</i>' : '') + '<div class="go" style="margin-top:6px"><button type="button" class="ghost" id="mfload">Load roads now</button></div>';
     }
     h += '<div class="go" style="margin-top:8px"><button type="button" class="pri" id="mfbuild" style="width:100%">Looks right. Build the plan from this view</button></div>';
     el.hidden = false; el.innerHTML = h;
     var b = $('mfbuild'); if (b) b.onclick = function () { pick(sel, true); };
+    var lb = $('mfload'); if (lb) lb.onclick = function () { autoTried = {}; autoBusy = false; roadAsked = true; say('mstat', 'Looking up the roads around your location...'); autoMap(); };
   }
   function renderMapUI() {
     var s = sites[sel]; if (!s) { say('msel', ''); return; }
