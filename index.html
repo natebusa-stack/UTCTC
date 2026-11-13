@@ -2424,7 +2424,7 @@ function MapView(canvas, cb) {
           var jx = sx(j.x), jy = sy(j.y), tvx = jx - x, tvy = jy - y, tl2 = Math.hypot(tvx, tvy) || 1; tvx /= tl2; tvy /= tl2;
           var rx = -tvy, ry = tvx;
           seq.forEach(function (q, k) {
-            var slot = m - k, dd = Math.min((slot + 0.9) * D, avail - 8), qq = atS(pts, cum, sj + lg * dd), px2 = sx(qq.x), py2 = sy(qq.y), FH = 52, off2 = 20 + FH / 2;
+            var slot = m - k, dd = Math.min((slot + 1.2) * D, avail - 8), qq = atS(pts, cum, sj + lg * dd), px2 = sx(qq.x), py2 = sy(qq.y), FH = 46, off2 = 20 + FH / 2;
             SignLib.post(c, px2 + rx * 14, py2 + ry * 14, C.ink);
             c.strokeStyle = C.ink; c.lineWidth = 1; c.beginPath(); c.moveTo(px2 + rx * 14, py2 + ry * 14); c.lineTo(px2 + rx * (off2 - FH / 2 + 2), py2 + ry * (off2 - FH / 2 + 2)); c.stroke();
             SignLib.draw(c, q.code, px2 + rx * off2, py2 + ry * off2, FH, { legend: q.legend });
@@ -3138,7 +3138,7 @@ function signCell(g) {
     var els = [{ type: 'way', id: 9000001 + i, tags: tags, geometry: [pt(-L, bear), pt(0, bear), pt(L, bear)] }];
     [[-d, c1, 1], [d, c2, 2]].forEach(function (x) {
       var o = pt(x[0], bear), q = (bear + 90) % 360;
-      els.push({ type: 'way', id: 9100000 + i * 10 + x[2], tags: { highway: 'residential', name: x[1] || 'Side street' }, geometry: [along(o, -700, q), o, along(o, 700, q)] });
+      els.push({ type: 'way', id: 9100000 + i * 10 + x[2], tags: { highway: 'residential', name: x[1] || 'Side street' }, geometry: [along(o, -1500, q), o, along(o, 1500, q)] });
     });
     var ok = ingest(JSON.stringify({ elements: els }), 'Street');
     l.hand = { name: name, bear: bear, c1: c1, c2: c2, d: d };
