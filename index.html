@@ -2582,7 +2582,7 @@ function MapView(canvas, cb) {
           c.fillStyle = C.txt; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.road; c.strokeText(label, x2, ly); c.fillText(label, x2, ly); c.textAlign = 'left';
         }
       };
-      var faceH = cb.fixed ? Math.max(34, Math.min(62, p.space * S.k * 0.85)) : 36, taken = [], big = cb.fixed || S.k > 0.1;
+      var faceH = cb.fixed ? Math.max(26, Math.min(62, p.space * S.k * 0.62)) : 36, taken = [], big = cb.fixed || S.k > 0.1;
       var LG = !dt ? legsOf(z, s) : null; if (LG) drawLegs(c, C, LG, taken);
       var placeSign = function (code, legend, t, opt) {
         opt = opt || {};
@@ -2591,9 +2591,10 @@ function MapView(canvas, cb) {
         var X = q.x + Math.sin(ang) * off, Y = q.y - Math.cos(ang) * off, px = sx(X), py = sy(Y);
         var ux = sx(q.x + Math.sin(ang) * side) - sx(q.x), uy = sy(q.y - Math.cos(ang) * side) - sy(q.y), L = Math.hypot(ux, uy) || 1; ux /= L; uy /= L;
         var o2 = { legend: legend, street: opt.street }, fh = (code.charAt(0) === 'G' || code.charAt(0) === 'R' || code.charAt(0) === 'M') ? faceH * 0.62 : faceH, sz = SignLib.size(code, fh, o2), rad = Math.max(sz.w, sz.h) / 2 + 7, dist = rad + 10, k = 0, cx, cy;
-        var ok = false, sh = [0, -80, 80, -160, 160], si;
-        for (k = 0; k < 6 && !ok; k++) { for (si = 0; si < sh.length && !ok; si++) { cx = px + ux * dist - uy * sh[si]; cy = py + uy * dist + ux * sh[si]; if (!taken.some(function (o) { return Math.hypot(o.x - cx, o.y - cy) < o.r + rad; })) ok = true; } if (!ok) dist += 14; }
-        if (!ok) { cx = px + ux * dist; cy = py + uy * dist; }
+        var ok = false, sh = [0, -30, 30, -60, 60, -90, 90], si;
+        var d0 = dist; for (k = 0; k < 5 && !ok; k++) { for (si = 0; si < sh.length && !ok; si++) { cx = px + ux * dist - uy * sh[si]; cy = py + uy * dist + ux * sh[si]; if (!taken.some(function (o) { return Math.hypot(o.x - cx, o.y - cy) < o.r + rad; })) ok = true; } if (!ok) dist += 14; }
+        if (!ok) { dist = d0; for (k = 0; k < 4 && !ok; k++) { for (si = 1; si < sh.length && !ok; si++) { cx = px + ux * dist - uy * sh[si]; cy = py + uy * dist + ux * sh[si]; if (!taken.some(function (o) { return Math.hypot(o.x - cx, o.y - cy) < o.r + rad; })) ok = true; } if (!ok) dist += 14; } }
+        if (!ok) { dist = d0; cx = px + ux * dist; cy = py + uy * dist; }
         taken.push({ x: cx, y: cy, r: rad });
         var lx = cx - ux * (rad - 4), ly = cy - uy * (rad - 4);
         c.strokeStyle = C.ink; c.lineWidth = 1.3; c.beginPath(); c.moveTo(lx, ly); c.lineTo(px + ux * 6, py + uy * 6); c.stroke();
