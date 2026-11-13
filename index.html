@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#14202b"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="UTCTC"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon-192.png"><style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#14202b"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="UTCTC"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon-192.png"><style>[hidden]{display:none!important}
 /* Layout: inputs and location editors in a left rail, one card per site on the right. Stacks on phones. */
 :root{
   --bg:#EDF0F3; --panel:#FFFFFF; --field:#F7F9FA; --ink:#15202A; --muted:#566471; --line:#D2D9DF;
@@ -3543,6 +3543,7 @@ function nextBar() {
     h += '<div class="tot"><span class="pill">' + s.zones.length + ' zone' + (s.zones.length > 1 ? 's' : '') + '</span><span class="pill">' + (t.dev + t.barr) + ' devices</span><span class="pill">' + t.signs + ' signs</span>' + (t.flaggers ? '<span class="pill">' + t.flaggers + ' flaggers</span>' : '') + (t.signals ? '<span class="pill">' + t.signals + ' signals</span>' : '') + (t.arrow ? '<span class="pill">' + t.arrow + ' arrow board</span>' : '') + (t.tma ? '<span class="pill">' + t.tma + ' attenuator</span>' : '') + '</div></div>';
     var mc = mutcdSite(s);
     h += '<div class="notes"><div class="nt ' + (mc.bad.length ? 'high' : 'ok') + '" id="mutcdchk"><b>' + (mc.bad.length ? 'MUTCD check: ' + mc.bad.length + ' item' + (mc.bad.length > 1 ? 's' : '') + ' need attention' : 'MUTCD check: ' + mc.pass + ' of ' + mc.all.length + ' rules passed') + '</b>' + (mc.bad.length ? mc.bad.map(function (c) { return '<div>' + esc(c.rule) + ': ' + esc(c.det) + '</div>'; }).join('') : '<div>Sign count and spacing, buffer, taper, device spacing, downstream taper, end sign, arrow board and flaggers were tested against the tables in this app. A person still has to confirm the road details.</div>') + '</div></div>';
+    h += '<div class="notes" id="aiwrap" hidden><button type="button" class="ghost" id="aibtn">Ask Claude to review this plan</button><div id="aiout" class="nt" hidden style="white-space:pre-wrap"></div></div>';
     var fullHere = s.zones.some(function (z) { return z.ev.rec && z.ev.rec.id === 'full'; }), jj = G.j || {};
     if (fullHere && !(jj.whole && jj.room && jj.hold)) {
       var qq = function (id, lab) { return jj[id] ? '' : '<div class="qt">' + esc(lab) + '</div><div class="opts sm">' + YN.map(function (o) { return opt(null, id, o[0], o[1], '', false, 'jqp'); }).join('') + '</div>'; };
@@ -3558,8 +3559,24 @@ function nextBar() {
     h += '<div class="actions"><button type="button" id="viewtcp">View and print TCP</button><button type="button" class="ghost" id="copy">Share this plan</button><span class="status" id="cs"></span></div>';
     h += '<p class="disc"><b>Field aid, not an issued plan.</b> Follow your agency, utility and permit rules and your supervisor’s instructions. Distances follow MUTCD Part 6 tables and sign codes should be confirmed against your adopted edition and state supplement. Check the layout against what you see on site.</p></section>';
     var f = document.activeElement, fid = f && f.id; el.innerHTML = h;
+    aiHook(s);
     var txt = summaryText([s]); $('viewtcp').onclick = function () { openSheet([s]); }; $('copy').onclick = function () { if (navigator.share) { navigator.share({ title: s.name + ' traffic control setup', text: txt }).catch(function () { copyText(txt, 'cs'); }); } else copyText(txt, 'cs'); };
     if (fid && $(fid)) try { $(fid).focus(); } catch (e) {}
+  }
+  function aiHook(s) {
+    try {
+      if (!window.claude || !window.claude.use) return;
+      window.claude.use('sample').then(function (sm) {
+        if (!sm || !$('aiwrap')) return;
+        $('aiwrap').hidden = false;
+        $('aibtn').onclick = function () {
+          var out = $('aiout'), mc = mutcdSite(s);
+          out.hidden = false; out.textContent = 'Reviewing...'; $('aibtn').disabled = true;
+          var q = 'You are reviewing a draft temporary traffic control plan for a California road work zone against the MUTCD (11th ed., Part 6) and the CA MUTCD / Caltrans Standard Plan T9. Be brief and practical for a field Traffic Control Supervisor. List only real concerns: missing or misplaced advance signs on any approach or side street, spacing, taper, buffer, pedestrian/ADA path, bike lane, driveways, flagger or arrow board needs. Say what to check on site. Do not invent road details that are not given. If it looks fine, say so.\n\nPLAN:\n' + summaryText([s]) + '\n\nAUTOMATIC RULE CHECK: ' + mc.pass + ' of ' + mc.all.length + ' passed' + (mc.bad.length ? '; failed: ' + mc.bad.map(function (c) { return c.rule + ' (' + c.det + ')'; }).join('; ') : '') + '\n\nROAD DATA: ' + JSON.stringify(s.items.map(function (it) { return it.loc.vals; })).slice(0, 1500);
+          sm(q, { onText: function (t) { out.textContent = t.text; }, modelTier: 'default' }).then(function (r) { out.textContent = r.text; $('aibtn').disabled = false; }, function (e) { out.textContent = e && e.code === 'not_granted' ? 'Review was not allowed.' : 'The review could not run right now.'; $('aibtn').disabled = false; });
+        };
+      }, function () {});
+    } catch (e) {}
   }
   function copyText(txt, id) {
     var done = function (ok) { say(id, ok ? 'Copied.' : 'Copy is blocked here. Select the text by hand.'); };
@@ -3869,7 +3886,7 @@ function nextBar() {
   }
   function sheetDoc(arr) {
     var css = Array.prototype.map.call(document.querySelectorAll('style'), function (s) { return s.textContent; }).join('\n');
-    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Traffic Control Plan</title><style>' + css + '\nbody{background:#fff;padding:0}.sheetov{position:static;background:#fff;overflow:visible}</style></head><body><div class="sheetov" id="sheetov">' + sheetHTML(arr) + '</div><script>if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script></body></html>';
+    return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Traffic Control Plan</title><style>' + css + '\nbody{background:#fff;padding:0}.sheetov{position:static;background:#fff;overflow:visible}</style></head><body><div class="sheetov" id="sheetov">' + sheetHTML(arr) + '</div>';
   }
   var sheetSites = null;
   function openSheet(arr) {
@@ -4107,4 +4124,4 @@ function nextBar() {
   init();
 })();
 
-</script>
+</script><script>if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script></body></html>
