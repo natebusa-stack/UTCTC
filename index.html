@@ -2198,6 +2198,12 @@ function MapView(canvas, cb) {
       var r = z.ev.rec, g = zoneGeom(z); if (!r || !g) return;
       var p = r.plan, len = z.eff.len, a = -len / 2 - p.buffer - p.taper - p.firstSign - 40, e = len / 2 + p.downstream + 90 + (!z.eff.oneway && !(r.id === 'shoulder') ? p.firstSign + 60 : 0);
       sub(g.pts, g.cum, g.s0 + dir * a, g.s0 + dir * e).concat([atS(g.pts, g.cum, g.s0 + dir * a), atS(g.pts, g.cum, g.s0 + dir * e)]).forEach(function (q) { box = box || { x0: q.x, x1: q.x, y0: q.y, y1: q.y }; box.x0 = Math.min(box.x0, q.x); box.x1 = Math.max(box.x1, q.x); box.y0 = Math.min(box.y0, q.y); box.y1 = Math.max(box.y1, q.y); });
+      var LG0 = r.id === 'full' ? null : legsOf(z, s);
+      if (LG0 && box) LG0.legs.forEach(function (l) {
+        if (l.kind !== 'side') return;
+        var far = Math.min((l.signs.length ? l.signs[l.signs.length - 1].dist : 0) + 80, l.avail), q = atS(l.pts, l.cum, l.sj + l.lg * far);
+        box.x0 = Math.min(box.x0, q.x); box.x1 = Math.max(box.x1, q.x); box.y0 = Math.min(box.y0, q.y); box.y1 = Math.max(box.y1, q.y);
+      });
       var dt = r.id === 'full' && cb.detour ? cb.detour(z) : null;
       if (dt && dt.ok) {
         var add = function (la, lo) { var q = toW(la, lo); box = box || { x0: q.x, x1: q.x, y0: q.y, y1: q.y }; box.x0 = Math.min(box.x0, q.x); box.x1 = Math.max(box.x1, q.x); box.y0 = Math.min(box.y0, q.y); box.y1 = Math.max(box.y1, q.y); };
@@ -2424,7 +2430,12 @@ function MapView(canvas, cb) {
     if (data) data.ways.forEach(function (w) {
       if (w.id === mainId || !RW[w.tags.highway] || n > 14) return;
       var pts = wpts(w);
-      for (var i = 0; i < pts.length; i++) { var m = nearMain(g, pts[i]); if (m.d < 24 && m.s >= lo && m.s <= hi) { found.push({ w: w, i: i, tJ: dir * (m.s - g.s0) }); n++; break; } }
+      for (var i = 0; i < pts.length; i++) { var m = nearMain(g, pts[i]);
+        if (m.d < 24 && m.s >= lo && m.s <= hi) {
+          var j2 = i < pts.length - 1 ? i + 1 : i - 1, sa = Math.atan2(pts[j2].y - pts[i].y, pts[j2].x - pts[i].x), ma = atS(g.pts, g.cum, m.s).a, df = Math.abs(((sa - ma) % Math.PI + Math.PI) % Math.PI);
+          if (Math.min(df, Math.PI - df) < 0.5) break;
+          found.push({ w: w, i: i, tJ: dir * (m.s - g.s0) }); n++; break;
+        } }
     });
     var D = Math.min(p.space, 350), seqAsc = adv.filter(function (q) { return q.code.charAt(0) === 'W'; }).slice(0, 4);
     found.forEach(function (f) {
@@ -2432,7 +2443,7 @@ function MapView(canvas, cb) {
       var need = (sc === 'intersection' && f.tJ >= tW0 - 100 && f.tJ <= tW1 + 100) || (sc === 'flagging' && f.tJ >= tS - 10 && f.tJ <= tE + 10);
       [-1, 1].forEach(function (lg) {
         var avail = lg < 0 ? sj : tot - sj; if (avail < 45) return;
-        var F = need ? 30 : 0, m = Math.max(0, Math.min(seqAsc.length, Math.floor((avail - F - 8) / D)));
+        var F = need ? 50 : 0, m = Math.max(0, Math.min(seqAsc.length, Math.floor((avail - F - 8) / D)));
         var sg = seqAsc.slice(0, m).map(function (q, k) { return { code: q.code, legend: q.legend, dist: F + (k + 1) * D }; });
         legs.push({ kind: 'side', name: w.tags.name || 'Side street', flagger: need, signs: sg, missing: seqAsc.length - m, w: w, pts: pts, cum: cum, sj: sj, lg: lg, avail: avail, F: F, D: D, tJ: f.tJ });
       });
@@ -2453,8 +2464,8 @@ function MapView(canvas, cb) {
       c.setLineDash([4, 3]); c.strokeStyle = C.ink; c.lineWidth = 1; c.beginPath(); c.moveTo(sx(j.x), sy(j.y)); c.lineTo(x, y); c.stroke(); c.setLineDash([]);
       if (cb.fixed) {
         var jx = sx(j.x), jy = sy(j.y), tvx = jx - x, tvy = jy - y, tl2 = Math.hypot(tvx, tvy) || 1; tvx /= tl2; tvy /= tl2;
-        var rx = -tvy, ry = tvx, FH = 46, off2 = 20 + FH / 2;
-        if (lg.flagger) { var fq = atS(pts, cum, sj + L0 * lg.F), fx = sx(fq.x), fy = sy(fq.y); flagMark(c, fx + rx * 18, fy + ry * 18, lg.fid); }
+        var rx = -tvy, ry = tvx, FH = Math.max(30, Math.min(46, lg.D * S.k * 0.7)), off2 = 18 + FH / 2;
+        if (lg.flagger) { var fq = atS(pts, cum, sj + L0 * lg.F), fx = sx(fq.x), fy = sy(fq.y); flagMark(c, fx + rx * 26, fy + ry * 26, lg.fid); }
         lg.signs.slice().reverse().forEach(function (sgn) {
           var qq = atS(pts, cum, sj + L0 * sgn.dist), px2 = sx(qq.x), py2 = sy(qq.y);
           
@@ -2571,7 +2582,7 @@ function MapView(canvas, cb) {
           c.fillStyle = C.txt; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.road; c.strokeText(label, x2, ly); c.fillText(label, x2, ly); c.textAlign = 'left';
         }
       };
-      var faceH = cb.fixed ? 62 : 36, taken = [], big = cb.fixed || S.k > 0.1;
+      var faceH = cb.fixed ? Math.max(34, Math.min(62, p.space * S.k * 0.85)) : 36, taken = [], big = cb.fixed || S.k > 0.1;
       var LG = !dt ? legsOf(z, s) : null; if (LG) drawLegs(c, C, LG, taken);
       var placeSign = function (code, legend, t, opt) {
         opt = opt || {};
