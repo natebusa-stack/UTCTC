@@ -349,7 +349,7 @@ ol.steps>li.done::before{content:"\2713";background:var(--ok);color:#fff}
 .tcpmain .zsv{border-bottom:1px solid #9aa5ad}
 .tcpnotes,.tcplegend{background:#fff;border:0;padding:8px 10px;font-size:11px;line-height:1.35}
 .tcplegend{border-top:1px solid #111}
-.legt{width:100%;border-collapse:collapse;margin-top:6px}.legt th,.legt td{border:1px solid #333;padding:2px 4px;font-size:10px;text-align:left;vertical-align:top}.tcpnotes ol{margin:2px 0 0;padding-left:16px}.tcplegend .tcpxs{display:block;margin:0 0 6px;padding:0}.jobpane{padding:4px 2px 20px}.jh{font-size:17px;margin:20px 0 6px}.jgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.qs{font-weight:700;margin:16px 0 0;color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:.06em}.crewrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.crewadd{display:flex;gap:8px;margin-top:8px}.crewadd input{flex:1}
+.quick{background:#fff6e8;border:1px solid #f0c27a;border-radius:10px;padding:10px 12px;margin:10px 0}.qt2{font-weight:600;margin:8px 0 4px}.legt{width:100%;border-collapse:collapse;margin-top:6px}.legt th,.legt td{border:1px solid #333;padding:2px 4px;font-size:10px;text-align:left;vertical-align:top}.tcpnotes ol{margin:2px 0 0;padding-left:16px}.tcplegend .tcpxs{display:block;margin:0 0 6px;padding:0}.jobpane{padding:4px 2px 20px}.jh{font-size:17px;margin:20px 0 6px}.jgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.qs{font-weight:700;margin:16px 0 0;color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:.06em}.crewrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.crewadd{display:flex;gap:8px;margin-top:8px}.crewadd input{flex:1}
 .sheet.jsa h1{font-size:22px}.sheet .jt th{width:18%}.sheet .sigt td{height:34px}.sheet .sigt td.sgn{width:34%}.sheet .sigt td.tm{width:12%}.sheet .sigline{border-bottom:1.5px solid #111;height:34px;margin-top:4px}.sheet .notebox{border:1px solid #9aa5ad;height:90px}.sheet .pb2{page-break-before:always;break-before:page}
 .tcpwarn{border:2px solid #b42318;color:#b42318;font-weight:700;padding:5px 7px;margin:0 0 6px;font-size:11px;line-height:1.3}
 .tcplegend div{display:flex;gap:6px;align-items:center;margin-top:2px}
@@ -3560,6 +3560,32 @@ function nextBar() {
   }
 
   /* tuning panel for the selected site */
+
+  /* Which unanswered questions change the plan the most? Try each answer and compare the results. */
+  function planSig(l) {
+    try { var e = evaluate(effective(l, G)), r = e.rec; if (!r) return 'none'; var p = r.plan; return [r.id, p.flaggers || 0, p.signs.length, p.devTotal || 0, p.arrowBoard ? 1 : 0, p.space, p.taper].join('|'); } catch (x) { return 'err'; }
+  }
+  function quickQs(l) {
+    var asked = function (k) { return l.src[k] === 'user' || l.src[k] === 'osm'; }, V = l.vals, out = [];
+    var tryOpts = function (key, label, opts, apply, cur) {
+      if (asked(key === 'lanes' ? 'lanes' : key)) return;
+      var sigs = {}, n = 0;
+      opts.forEach(function (o) { var c = Object.assign({}, l, { vals: Object.assign({}, l.vals), src: Object.assign({}, l.src) }); apply(c, o[0]); var s = planSig(c); if (!sigs[s]) { sigs[s] = 1; n++; } });
+      if (n > 1) out.push({ key: key, label: label, opts: opts, n: n });
+    };
+    tryOpts('speed', 'Speed limit', [25, 35, 45, 55].map(function (x) { return [x, String(x)]; }), function (c, v) { c.vals.speed = +v; });
+    tryOpts('lanes', 'How many lanes', LANES.slice(0, 5).map(function (x) { return [x[0], x[1], x[2]]; }), function (c, v) { var p = String(v).split('|'); c.vals.lanes = +p[0]; c.vals.oneway = p[1] === '1'; });
+    tryOpts('sidewalks', 'Sidewalks', [['both', 'Both sides'], ['one', 'One side'], ['none', 'None']], function (c, v) { c.vals.sidewalks = v; });
+    tryOpts('pedActivity', 'People walking', [['low', 'Few'], ['moderate', 'Some'], ['high', 'Lots']], function (c, v) { c.vals.pedActivity = v; });
+    out.sort(function (u, v) { return v.n - u.n; });
+    return out.slice(0, 3);
+  }
+  function quickHTML(l) {
+    var q = quickQs(l), i = l.idx; if (!q.length) return '';
+    return '<div class="q quick"><div class="qt">Confirm these first: each one changes your plan</div>' + q.map(function (x) {
+      return '<div class="qt2">' + esc(x.label) + '</div><div class="opts' + (x.opts.length > 4 ? ' sm' : '') + '">' + x.opts.map(function (o) { return opt(i, x.key, o[0], o[1], o[2] || '', false); }).join('') + '</div>';
+    }).join('') + '</div>';
+  }
   function tuneLoc(l, z, multi) {
     var i = l.idx, V = l.vals, S = l.src, ans = function (k) { return S[k] === 'user' || S[k] === 'osm'; }, h = '', cf = confidence(l);
     var chip = function (k) { return '<span class="chip ' + S[k] + '">' + (S[k] === 'osm' ? 'Map data' : S[k] === 'user' ? 'Edited' : 'Assumed') + '</span>'; };
@@ -3574,6 +3600,7 @@ function nextBar() {
       '<div class="fld"><label for="sx2' + i + '">Cross street after the work</label><input type="text" id="sx2' + i + '" value="' + esc(hd.c2 || '') + '" placeholder="Elm St" autocapitalize="words"></div>' +
       '<div class="fld"><label for="sxd' + i + '">Feet from the work to each cross street</label><input type="number" id="sxd' + i + '" inputmode="numeric" min="150" max="1500" step="25" value="' + (hd.d || 400) + '"></div></div>' +
       '<div class="go" style="margin:8px 0 0"><button type="button" data-act="drawst" data-li="' + i + '">Draw this street</button></div></details>';
+    h += quickHTML(l);
     h += '<div class="q"><div class="qt">Where is the work?' + (l.pos ? '' : ' <span class="chip">Using default</span>') + '</div><div class="opts">' + POS.map(function (p) { return opt(i, 'pos', p[0], p[1], p[2], l.pos === p[0]); }).join('') + '</div></div>';
     h += '<div class="q"><div class="qt">Work length</div><div class="opts sm">' + LENS.map(function (n) { return opt(i, 'len', n, n + ' ft', '', l.lenSet && l.len === n); }).join('') + '</div><div class="fld" style="max-width:200px"><label for="ln' + i + '">Other length (ft)</label><input type="number" id="ln' + i + '" data-num="len" data-li="' + i + '" min="10" max="5000" step="10" inputmode="numeric" value="' + (l.lenSet ? l.len : G.len) + '"></div>';
     var nt = l.night === null || l.night === undefined ? G.night : l.night;
@@ -3876,7 +3903,8 @@ function nextBar() {
     try {
       var it = z.items[0], cr = (it.loc.osm && it.loc.osm.crosses) || [], ped = z.eff.sidewalks && z.eff.sidewalks !== 'none';
       var near = cr.filter(function (c) { return ftBetween(it.loc, c) <= 150 + (z.eff.len || 0) / 2; }).length;
-      var nX = near || (p.scenario === 'intersection' && ped ? 1 : 0);
+      var why = near ? near + ' marked crosswalk' + (near > 1 ? 's' : '') + ' within ' + Math.round(150 + (z.eff.len || 0) / 2) + ' ft of the work' : (z.eff.sidewalkBlocked ? 'the work blocks the sidewalk' : (p.scenario === 'intersection' && ped ? 'work in an intersection with sidewalks (crosswalk count assumed, count them on site)' : ''));
+      var nX = near || (z.eff.sidewalkBlocked ? 1 : 0) || (p.scenario === 'intersection' && ped ? 1 : 0); p.pedWhy = why;
       if (nX && p.scenario !== 'sidewalk' && p.scenario !== 'walkway') {
         p.pedX = { n: nX, assumed: !near };
         add('R9-9', 'SIDEWALK CLOSED (use only if the sidewalk or crosswalk is closed)', 2 * nX, 'pedestrian closure');
@@ -3889,14 +3917,21 @@ function nextBar() {
   }
   function whereTxt(o) { return Object.keys(o.where).map(function (w) { return w + (o.where[w] > 1 ? ' x' + o.where[w] : ''); }).join(', '); }
   function signTotal(p) { return p.signTotal || p.signs.length; }
+  function pedLine(p) {
+    var h = '';
+    if (p.pedX) h += '<p class="cap"><b>Added for this location (' + esc(p.pedWhy) + '):</b> SIDEWALK CLOSED R9-9 x' + 2 * p.pedX.n + ', SIDEWALK CLOSED AHEAD, CROSS HERE R9-11a x' + 2 * p.pedX.n + ', Type II barricades x' + p.pedBarr + '. Use only if the sidewalk or crosswalk is closed; mark a pedestrian detour.</p>';
+    return h;
+  }
   function legsTable(p) {
-    if (!p.legs) return '';
+    if (!p.legs) return pedLine(p);
     var h = '<table class="legt"><tr><th>Approach</th><th>Flagger</th><th>Advance signs, ft before the work or junction</th></tr>';
     p.legs.forEach(function (l) {
       h += '<tr><td>' + esc(l.name) + (l.kind === 'main' ? (l.ahead === 'back' ? ' (approach)' : ' (opposite way)') : ' (side street)') + '</td><td>' + (l.flagger ? l.fid : '-') + '</td><td>' +
         (l.signs.slice().reverse().map(function (g) { return esc(g.code) + ' @' + g.dist + "'"; }).join(', ') || 'none fit') + (l.missing ? ' <b>(street too short, ' + l.missing + ' more needed, place them on the nearest road)</b>' : '') + '</td></tr>';
     });
-    return h + '</table>' + (p.legsNote ? '<p class="cap"><b>' + esc(p.legsNote) + '</b></p>' : '');
+    h += '</table>';
+    h += pedLine(p);
+    return h + (p.legsNote ? '<p class="cap"><b>' + esc(p.legsNote) + '</b></p>' : '');
   }
   function yardTotals() {
     var T = { signs: {}, total: 0, flag: [], flagN: 0, dev: 0, barr: 0, arrow: 0, tma: 0, signal: 0, pedBarr: 0, zones: 0 };
