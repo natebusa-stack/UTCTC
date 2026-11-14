@@ -2615,7 +2615,7 @@ function MapView(canvas, cb) {
     return { legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
   }
   /* driveways, parking aisles and private service roads are not streets a flagger or sign set is planned for */
-  function minorWay(w) { var t = w.tags || {}; return t.highway === 'service' && (/^(driveway|parking_aisle|drive-through|emergency_access)$/.test(t.service || '') || t.access === 'private' || t.access === 'no'); }
+  function minorWay(w) { var t = w.tags || {}; return t.highway === 'service' && (/^(alley|driveway|parking_aisle|drive-through|emergency_access)$/.test(t.service || '') || t.access === 'private' || t.access === 'no'); }
   /* a one-way street only brings traffic toward the junction from the side it comes from */
   function feeds(w, lg) { var o = (w.tags || {}).oneway; if (o === 'yes' || o === '1' || o === 'true') return lg < 0; if (o === '-1') return lg > 0; return true; }
   function flagMark(c, x, y, id) {
@@ -4330,7 +4330,7 @@ function nextBar() {
     }).join('') + '</table>';
     h += '<div class="fg" style="margin-top:10px"><div class="fld"><label for="miss0">Streets on the ground that are not listed</label><select id="miss0" data-miss="1" data-zi="0">' + [0, 1, 2, 3, 4].map(function (n) { return '<option value="' + n + '"' + ((loc && (loc.miss | 0) === n) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></div>';
     if (!(p && p.legs)) h += '<div class="fld"><label for="xt0">Intersection type</label><select id="xt0" data-xt="1" data-zi="0">' + [['', 'Main road only'], ['T-N', 'T: side street to the left of travel'], ['T-S', 'T: side street to the right of travel'], ['4', '4-way: both sides']].map(function (o) { return '<option value="' + o[0] + '"' + ((loc && (loc.xt || '') === o[0]) ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
-    return h + '</div><p class="qh">Each street added here gets its own flagger and the full set of advance signs.</p></div></details>';
+    return h + '</div><p class="qh">Each street added here gets its own flagger and the full set of advance signs. Alleys, driveways, parking aisles and private roads are not signed. If one carries real traffic into the work, count it above.</p></div></details>';
   }
   /* approval readiness: what a reviewer looks for on a TCP sheet, checked against what this plan actually holds */
   function readiness(s) {

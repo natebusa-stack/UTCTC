@@ -25,8 +25,10 @@ const SITES = [
     await p.click('#tab-plan').catch(() => {}); await p.waitForTimeout(1500);
     const streets = await p.evaluate(() => { const d = document.getElementById('streetsd'); if (d) d.open = true; return d ? d.innerText : 'no streets panel'; });
     const hint = await p.evaluate(() => (document.getElementById('mhint') || {}).innerText || '');
-    await p.screenshot({ path: 'road-test-results/' + name.replace(/\W+/g, '_') + '.png', fullPage: true }).catch(() => {});
-    out.push({ name, lat, lon, loaded, hint, requests: reqs.slice(0, 8), errors: errs, streets });
+    try { await p.evaluate(() => document.querySelectorAll('details').forEach(d => { if (/Aerial view/i.test(d.innerText.slice(0, 40))) d.open = true; })); const im = await p.$('details:has(summary:has-text("Aerial view")) img'); if (im) { await im.scrollIntoViewIfNeeded(); await im.screenshot({ path: 'road-test-results/' + name.replace(/\W+/g, '_') + '_aerial.png' }); } } catch (e) {}
+    await p.screenshot({ path: 'road-test-results/' + name.replace(/\W+/g, '_') + '.png', fullPage: false }).catch(() => {});
+    const mstat = await p.evaluate(() => (document.getElementById('mstat') || {}).innerText || '');
+    out.push({ name, lat, lon, loaded, mstat, hint, requests: reqs.slice(0, 8), errors: errs, streets });
     await ctx.close();
   }
   await b.close();
