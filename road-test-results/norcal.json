@@ -1,928 +1,288 @@
 [
   {
-    "name": "Berkeley Shattuck",
-    "lat": 37.8719,
-    "lon": -122.2678,
-    "secs": 51,
-    "loaded": true,
-    "mstat": "Map data loaded: 1789 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "Kala Bagai Way",
-      "speed": 25,
-      "lanes": 2,
-      "rec": "laneclosure",
-      "signs": 53,
-      "flaggers": 0,
-      "legs": [
-        "Kala Bagai Way:main:3"
-      ],
-      "mutcdBad": [],
-      "mutcdPass": "10/10"
-    },
-    "flags": [
-      "signs 53"
-    ],
-    "streets": "Streets read at this site (1)"
+    "name": "SF Market and Van Ness",
+    "lat": 37.7752,
+    "lon": -122.4194,
+    "mstat": "Map data loaded: 2236 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 46,
+    "streets": "Streets read at this site (2)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 1 item need attention",
+    "totals": "",
+    "matched": false,
+    "errors": []
   },
   {
-    "name": "Chico Main St",
-    "lat": 39.7285,
-    "lon": -121.8375,
-    "secs": 49,
-    "loaded": true,
-    "mstat": "Map data loaded: 1172 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "East 5th Street",
-      "speed": 25,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 45,
-      "flaggers": 4,
-      "legs": [
-        "East 5th Street:main:3",
-        "East 5th Street:main:3",
-        "Main Street:side:3",
-        "Flume Street:side:0",
-        "Flume Street:side:0",
-        "Wall Street:side:3",
-        "Side street:side:1",
-        "West 6th Street:side:1",
-        "East 6th Street:side:1",
-        "Side street:side:1",
-        "Side street:side:1",
-        "East 6th Street:side:1",
-        "East 6th Street:side:1",
-        "Side street:side:1"
-      ],
-      "legsNote": "",
-      "mutcdBad": [],
-      "mutcdPass": "12/12"
-    },
-    "flags": [],
-    "streets": "Streets read at this site (14)"
+    "name": "SF Mission and 16th",
+    "lat": 37.765,
+    "lon": -122.4196,
+    "mstat": "Map data loaded: 1559 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 47,
+    "streets": "Streets read at this site (3)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 1 item need attention",
+    "totals": "",
+    "matched": false,
+    "errors": []
   },
   {
-    "name": "Davis 3rd & B",
-    "lat": 38.5449,
-    "lon": -121.7405,
-    "secs": 49,
-    "loaded": true,
-    "mstat": "Map data loaded: 917 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "F Street",
-      "speed": 25,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 20,
-      "flaggers": 4,
-      "legs": [
-        "F Street:main:3",
-        "F Street:main:3",
-        "4th Street:side:1",
-        "4th Street:side:1",
-        "3rd Street:side:3",
-        "3rd Street:side:3",
-        "E Street:side:1",
-        "E Street:side:1",
-        "G Street:side:1"
-      ],
-      "legsNote": "",
-      "mutcdBad": [],
-      "mutcdPass": "12/12"
-    },
-    "flags": [],
-    "streets": "Streets read at this site (9)"
+    "name": "SF Irving and 9th Ave",
+    "lat": 37.764,
+    "lon": -122.466,
+    "mstat": "Map data loaded: 1304 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 47,
+    "streets": "Streets read at this site (8)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 9 of 9 rules passed",
+    "totals": "",
+    "matched": false,
+    "errors": []
   },
   {
-    "name": "Eureka 5th St",
+    "name": "SF Lombard crooked block",
+    "lat": 37.8021,
+    "lon": -122.4187,
+    "mstat": "Map data loaded: 1827 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 48,
+    "streets": "Streets read at this site (2)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 3 items need attention",
+    "totals": "33 signs, 2 flaggers)",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "SF Embarcadero and Broadway",
+    "lat": 37.7983,
+    "lon": -122.3973,
+    "mstat": "Map data loaded: 1608 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 46,
+    "streets": "Streets read at this site (1)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 10 of 10 rules passed",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "SF Geary and Divisadero",
+    "lat": 37.7821,
+    "lon": -122.4388,
+    "mstat": "Map data loaded: 1014 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 47,
+    "streets": "Streets read at this site (5)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 10 of 10 rules passed",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "SF Sunset 19th Ave",
+    "lat": 37.743,
+    "lon": -122.4758,
+    "mstat": "Map data loaded: 789 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 43,
+    "streets": "Streets read at this site (2)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 1 item need attention",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Oakland Broadway and 14th",
+    "lat": 37.8044,
+    "lon": -122.2712,
+    "mstat": "Map data loaded: 1415 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 46,
+    "streets": "Streets read at this site (4)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 1 item need attention",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "San Jose 1st and Santa Clara",
+    "lat": 37.3352,
+    "lon": -121.8905,
+    "mstat": "Map data loaded: 1970 roads and paths. Matched 0 of 1 locations to a road.",
+    "secs": 47,
+    "streets": "Streets read at this site (0)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 9 of 9 rules passed",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Santa Rosa Mendocino Ave",
+    "lat": 38.444,
+    "lon": -122.714,
+    "mstat": "Map data loaded: 1524 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 46,
+    "streets": "Streets read at this site (4)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 3 items need attention",
+    "totals": "20 signs, 2 flaggers)",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Redding Churn Creek Rd",
+    "lat": 40.5865,
+    "lon": -122.3917,
+    "mstat": "Map data loaded: 1236 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 41,
+    "streets": "Streets read at this site (5)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 1 item need attention",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Eureka 5th and H",
     "lat": 40.8021,
     "lon": -124.1637,
-    "secs": 48,
-    "loaded": true,
     "mstat": "Map data loaded: 479 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "H Street",
-      "speed": 40,
-      "lanes": 2,
-      "rec": "laneclosure",
-      "signs": 42,
-      "flaggers": 0,
-      "legs": [
-        "H Street:main:3",
-        "5th Street:side:3",
-        "4th Street:side:3",
-        "Side street:side:3",
-        "G Street:side:1",
-        "G Street:side:1",
-        "F Street:side:1",
-        "F Street:side:1",
-        "I Street:side:1",
-        "Side street:side:1",
-        "J Street:side:1",
-        "Side street:side:1",
-        "Side street:side:1",
-        "I Street:side:1",
-        "J Street:side:1",
-        "J Street:side:1"
-      ],
-      "mutcdBad": [],
-      "mutcdPass": "10/10"
-    },
-    "flags": [],
-    "streets": "Streets read at this site (16)"
+    "secs": 45,
+    "streets": "Streets read at this site (16)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 10 of 10 rules passed",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "South Lake Tahoe US-50",
+    "lat": 38.9487,
+    "lon": -119.9358,
+    "mstat": "Map data loaded: 49 roads and paths. Matched 0 of 1 locations to a road.",
+    "secs": 44,
+    "streets": "Streets read at this site (0)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 9 of 9 rules passed",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Napa Hwy 29 rural",
+    "lat": 38.498,
+    "lon": -122.315,
+    "mstat": "Map data loaded: 2 roads and paths. Matched 0 of 1 locations to a road.",
+    "secs": 44,
+    "streets": "Streets read at this site (0)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 9 of 9 rules passed",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Truckee Donner Pass Rd",
+    "lat": 39.327,
+    "lon": -120.183,
+    "mstat": "Map data loaded: 465 roads and paths. Matched 0 of 1 locations to a road.",
+    "secs": 45,
+    "streets": "Streets read at this site (0)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 9 of 9 rules passed",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Chico Mangrove",
+    "lat": 39.7285,
+    "lon": -121.8375,
+    "mstat": "Map data loaded: 1172 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 45,
+    "streets": "Streets read at this site (14)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 12 of 12 rules passed",
+    "totals": "45 signs, 4 flaggers)",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Marin Sir Francis Drake",
+    "lat": 37.9735,
+    "lon": -122.5311,
+    "mstat": "Map data loaded: 748 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 46,
+    "streets": "Streets read at this site (31)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 1 item need attention",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Stockton Pacific Ave",
+    "lat": 37.9577,
+    "lon": -121.2908,
+    "mstat": "Map data loaded: 511 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 45,
+    "streets": "Streets read at this site (6)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 1 item need attention",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Yuba rural Hwy 99",
+    "lat": 39.14,
+    "lon": -121.62,
+    "mstat": "Map data loaded: 491 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 45,
+    "streets": "Streets read at this site (4)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 1 item need attention",
+    "totals": "8 signs, 2 flaggers)",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Elk Grove residential",
+    "lat": 38.4088,
+    "lon": -121.3716,
+    "mstat": "Map data loaded: 427 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 45,
+    "streets": "Streets read at this site (0)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 5 of 5 rules passed",
+    "totals": "",
+    "matched": false,
+    "errors": []
+  },
+  {
+    "name": "Sacramento 9th and I",
+    "lat": 38.5816,
+    "lon": -121.4944,
+    "mstat": "Map data loaded: 1706 roads and paths. Matched 1 of 1 locations to a road.",
+    "secs": 46,
+    "streets": "Streets read at this site (2)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 1 item need attention",
+    "totals": "",
+    "matched": false,
+    "errors": []
   },
   {
     "name": "Folsom Sutter St",
     "lat": 38.6781,
     "lon": -121.1761,
-    "secs": 48,
-    "loaded": true,
     "mstat": "Map data loaded: 571 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "",
-      "speed": 15,
-      "lanes": 2,
-      "rec": "signal",
-      "signs": 39,
-      "flaggers": 0,
-      "legs": [
-        "Main road:main:3",
-        "Sutter Street:side:3",
-        "Sutter Street:side:1",
-        "Scott Street:side:1",
-        "Scott Street:side:1",
-        "Side street:side:1"
-      ],
-      "mutcdBad": [
-        "Device spacing in taper no more than speed in feet",
-        "Device spacing on tangent no more than twice speed",
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "6/9"
-    },
-    "flags": [
-      "MUTCD check: Device spacing in taper no more than speed in feet; Device spacing on tangent no more than twice speed; Every approach gets the full set of advance signs"
-    ],
-    "streets": "Streets read at this site (6)"
-  },
-  {
-    "name": "Grass Valley Hwy 49",
-    "lat": 39.2191,
-    "lon": -121.0614,
-    "secs": 48,
-    "loaded": true,
-    "mstat": "Map data loaded: 372 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "",
-      "speed": 15,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 29,
-      "flaggers": 2,
-      "legs": [],
-      "legsNote": "",
-      "mutcdBad": [
-        "Device spacing in taper no more than speed in feet",
-        "Device spacing on tangent no more than twice speed",
-        "One flagger on every approach"
-      ],
-      "mutcdPass": "9/12"
-    },
-    "flags": [
-      "MUTCD check: Device spacing in taper no more than speed in feet; Device spacing on tangent no more than twice speed; One flagger on every approach",
-      "no legs read"
-    ],
-    "streets": "Streets read at this site (0)"
-  },
-  {
-    "name": "Lake Tahoe Hwy 50",
-    "lat": 38.9399,
-    "lon": -119.9772,
-    "secs": 48,
-    "loaded": true,
-    "mstat": "Map data loaded: 212 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "Lake Tahoe Boulevard",
-      "speed": 40,
-      "lanes": 5,
-      "rec": "laneshift",
-      "signs": 38,
-      "flaggers": 0,
-      "legs": [
-        "Lake Tahoe Boulevard:main:4",
-        "Lake Tahoe Boulevard:main:4",
-        "Star Lake Avenue:side:1",
-        "Trout Creek Avenue:side:1",
-        "Gold Tip Avenue:side:1",
-        "Lyons Avenue:side:1",
-        "Los Angeles Avenue:side:3",
-        "Side street:side:1",
-        "Side street:side:2",
-        "Los Angeles Avenue:side:0",
-        "Modesto Avenue:side:1",
-        "Tallac Avenue:side:1",
-        "San Francisco Avenue:side:1",
-        "Side street:side:1",
-        "Side street:side:1",
-        "Trout Creek Avenue:side:1",
-        "Los Gatos Avenue:side:1",
-        "Harrison Avenue:side:1",
-        "Harrison Avenue:side:1",
-        "Side street:side:1",
-        "Side street:side:1",
-        "Side street:side:1",
-        "Harrison Avenue:side:1"
-      ],
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "7/8"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs"
-    ],
-    "streets": "Streets read at this site (23)"
-  },
-  {
-    "name": "Mendocino Hwy 1",
-    "lat": 39.3077,
-    "lon": -123.7995,
-    "secs": 48,
-    "loaded": true,
-    "mstat": "Map data loaded: 215 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "",
-      "speed": 15,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 28,
-      "flaggers": 4,
-      "legs": [
-        "Little Lake Street:side:3",
-        "Little Lake Street:side:1",
-        "Covelo Street:side:3",
-        "Covelo Street:side:2",
-        "Ford Street:side:1",
-        "Ford Street:side:1",
-        "Ford Street:side:1",
-        "Ford Street:side:1",
-        "Lansing Street:side:1",
-        "Lansing Street:side:1"
-      ],
-      "legsNote": "",
-      "mutcdBad": [
-        "Device spacing in taper no more than speed in feet",
-        "Device spacing on tangent no more than twice speed",
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "9/12"
-    },
-    "flags": [
-      "MUTCD check: Device spacing in taper no more than speed in feet; Device spacing on tangent no more than twice speed; Every approach gets the full set of advance signs"
-    ],
-    "streets": "Streets read at this site (10)"
-  },
-  {
-    "name": "Napa Main St",
-    "lat": 38.2975,
-    "lon": -122.2869,
-    "secs": 48,
-    "loaded": true,
-    "mstat": "Map data loaded: 730 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "",
-      "speed": 15,
-      "lanes": 2,
-      "rec": "laneclosure",
-      "signs": 10,
-      "flaggers": 0,
-      "legs": [
-        "Main road:main:3",
-        "2nd Street:side:1",
-        "2nd Street:side:1",
-        "Randolph Street:side:1",
-        "Randolph Street:side:1",
-        "Side street:side:1"
-      ],
-      "mutcdBad": [
-        "Device spacing in taper no more than speed in feet",
-        "Device spacing on tangent no more than twice speed"
-      ],
-      "mutcdPass": "8/10"
-    },
-    "flags": [
-      "MUTCD check: Device spacing in taper no more than speed in feet; Device spacing on tangent no more than twice speed"
-    ],
-    "streets": "Streets read at this site (6)"
-  },
-  {
-    "name": "Oakland Broadway & 14th",
-    "lat": 37.8044,
-    "lon": -122.2712,
-    "secs": 50,
-    "loaded": true,
-    "mstat": "Map data loaded: 1415 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "Broadway",
-      "speed": 20,
-      "lanes": 4,
-      "rec": "laneclosure",
-      "signs": 26,
-      "flaggers": 0,
-      "legs": [
-        "Broadway:main:3",
-        "Broadway:main:1",
-        "14th Street:side:3",
-        "14th Street:side:1"
-      ],
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "9/10"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs"
-    ],
-    "streets": "Streets read at this site (4)"
-  },
-  {
-    "name": "Redding Market St",
-    "lat": 40.5865,
-    "lon": -122.3917,
-    "secs": 49,
-    "loaded": true,
-    "mstat": "Map data loaded: 1236 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "South Market Street",
-      "speed": 30,
-      "lanes": 3,
-      "rec": "laneclosure",
-      "signs": 71,
-      "flaggers": 0,
-      "legs": [
-        "South Market Street:main:3",
-        "Shasta Street:side:1",
-        "Shasta Street:side:1",
-        "Eureka Way:side:0",
-        "Eureka Way:side:0"
-      ],
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "9/10"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs",
-      "signs 71"
-    ],
-    "streets": "Streets read at this site (5)"
-  },
-  {
-    "name": "Roseville Main St",
-    "lat": 38.7521,
-    "lon": -121.288,
-    "secs": 48,
-    "loaded": true,
-    "mstat": "Map data loaded: 674 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "",
-      "speed": 40,
-      "lanes": 2,
-      "rec": "laneclosure",
-      "signs": 51,
-      "flaggers": 0,
-      "legs": [
-        "Main Street:side:3",
-        "Washington Boulevard:side:3",
-        "Main Street:side:0",
-        "Berkeley Avenue:side:1",
-        "North Grant Street:side:1",
-        "Alta Avenue:side:1",
-        "Side street:side:1",
-        "Grove Street:side:1",
-        "Grove Street:side:1",
-        "Pleasant Street:side:1"
-      ],
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "9/10"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs",
-      "signs 51"
-    ],
-    "streets": "Streets read at this site (10)"
-  },
-  {
-    "name": "Sacramento 21st & K",
-    "lat": 38.5754,
-    "lon": -121.4731,
-    "secs": 49,
-    "loaded": true,
-    "mstat": "Map data loaded: 1128 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "25th Street",
-      "speed": 25,
-      "lanes": 2,
-      "rec": "signal",
-      "signs": 46,
-      "flaggers": 0,
-      "legs": [
-        "25th Street:main:3",
-        "25th Street:main:3",
-        "J Street:side:3",
-        "I Street:side:3",
-        "I Street:side:3",
-        "Side street:side:1",
-        "Side street:side:0",
-        "H Street:side:0",
-        "H Street:side:0",
-        "Side street:side:1"
-      ],
-      "mutcdBad": [],
-      "mutcdPass": "9/9"
-    },
-    "flags": [
-      "signs 46"
-    ],
-    "streets": "Streets read at this site (10)"
-  },
-  {
-    "name": "Sacramento Elk Grove",
-    "lat": 38.4088,
-    "lon": -121.3716,
-    "secs": 48,
-    "loaded": true,
-    "mstat": "Map data loaded: 427 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "Elk Grove Florin Road",
-      "speed": 35,
-      "lanes": 1,
-      "rec": "full",
-      "signs": 73,
-      "flaggers": 0,
-      "legs": null,
-      "mutcdBad": [],
-      "mutcdPass": "5/5"
-    },
-    "flags": [
-      "signs 73",
-      "no legs read"
-    ],
-    "streets": "Streets read at this site (0)"
-  },
-  {
-    "name": "San Jose Santa Clara St",
-    "lat": 37.3352,
-    "lon": -121.8881,
-    "secs": 51,
-    "loaded": true,
-    "mstat": "Map data loaded: 1910 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "South 2nd Street",
-      "speed": 25,
-      "lanes": 2,
-      "rec": "laneclosure",
-      "signs": 41,
-      "flaggers": 0,
-      "legs": [
-        "South 2nd Street:main:5",
-        "East San Fernando Street:side:1",
-        "East San Fernando Street:side:1",
-        "East Santa Clara Street:side:0",
-        "Side street:side:0",
-        "East Santa Clara Street:side:0"
-      ],
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "9/10"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs"
-    ],
-    "streets": "Streets read at this site (6)"
-  },
-  {
-    "name": "Santa Rosa 4th St",
-    "lat": 38.4404,
-    "lon": -122.7141,
-    "secs": 50,
-    "loaded": true,
-    "mstat": "Map data loaded: 1940 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "4th Street",
-      "speed": 35,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 35,
-      "flaggers": 3,
-      "legs": [
-        "4th Street:main:3",
-        "4th Street:main:3",
-        "Mendocino Avenue:side:0"
-      ],
-      "legsNote": "",
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs",
-        "FLAGGER AHEAD sign is the last sign before each flagger"
-      ],
-      "mutcdPass": "10/12"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs; FLAGGER AHEAD sign is the last sign before each flagger"
-    ],
-    "streets": "Streets read at this site (3)"
-  },
-  {
-    "name": "SF 19th Ave & Taraval",
-    "lat": 37.743,
-    "lon": -122.4755,
-    "secs": 50,
-    "loaded": true,
-    "mstat": "Map data loaded: 801 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "Taraval Street",
-      "speed": 25,
-      "lanes": 2,
-      "rec": "laneclosure",
-      "signs": 76,
-      "flaggers": 0,
-      "legs": [
-        "Taraval Street:main:3",
-        "19th Avenue:side:3"
-      ],
-      "mutcdBad": [],
-      "mutcdPass": "10/10"
-    },
-    "flags": [
-      "signs 76"
-    ],
-    "streets": "Streets read at this site (2)"
-  },
-  {
-    "name": "SF 24th & Church",
-    "lat": 37.7517,
-    "lon": -122.4275,
-    "secs": 35,
-    "loaded": true,
-    "mstat": "Map data loaded: 303 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "24th Street",
-      "speed": 20,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 64,
-      "flaggers": 6,
-      "legs": [
-        "24th Street:main:3",
-        "24th Street:main:3",
-        "Church Street:side:3",
-        "Church Street:side:2",
-        "Vicksburg Street:side:1",
-        "Vicksburg Street:side:1",
-        "Church Street:side:2",
-        "Church Street:side:3",
-        "Chattanooga Street:side:1",
-        "Chattanooga Street:side:1",
-        "Dolores Street:side:0",
-        "Jersey Street:side:1",
-        "Jersey Street:side:1",
-        "Elizabeth Street:side:1"
-      ],
-      "legsNote": "",
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "11/12"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs",
-      "signs 64"
-    ],
-    "streets": "Streets read at this site (14)"
-  },
-  {
-    "name": "SF Bayshore Blvd",
-    "lat": 37.729,
-    "lon": -122.4,
-    "secs": 50,
-    "loaded": true,
-    "mstat": "Map data loaded: 554 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "Carroll Avenue",
-      "speed": 25,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 16,
-      "flaggers": 3,
-      "legs": [
-        "Carroll Avenue:main:3",
-        "Carroll Avenue:main:3",
-        "Phelps Street:side:1",
-        "Phelps Street:side:1",
-        "Newhall Street:side:1",
-        "Newhall Street:side:1",
-        "Side street:side:1"
-      ],
-      "legsNote": "",
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "11/12"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs"
-    ],
-    "streets": "Streets read at this site (7)"
-  },
-  {
-    "name": "SF Embarcadero & Broadway",
-    "lat": 37.7981,
-    "lon": -122.3979,
-    "secs": 50,
-    "loaded": true,
-    "mstat": "Map data loaded: 1753 roads and paths. Matched 0 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": false,
-      "speed": 40,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 4,
-      "flaggers": 2,
-      "legs": null,
-      "mutcdBad": [],
-      "mutcdPass": "9/9"
-    },
-    "flags": [
-      "no road matched at the pin"
-    ],
-    "streets": "Streets read at this site (0)"
-  },
-  {
-    "name": "SF Geary & Divisadero",
-    "lat": 37.7822,
-    "lon": -122.4375,
-    "secs": 50,
-    "loaded": true,
-    "mstat": "Map data loaded: 1103 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "",
-      "speed": 15,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 30,
-      "flaggers": 3,
-      "legs": [
-        "Main road:main:3",
-        "Scott Street:side:3",
-        "Scott Street:side:3",
-        "Ellis Street:side:1",
-        "Ellis Street:side:1",
-        "O'Farrell Street:side:1",
-        "O'Farrell Street:side:1"
-      ],
-      "legsNote": "",
-      "mutcdBad": [
-        "Device spacing in taper no more than speed in feet",
-        "Device spacing on tangent no more than twice speed"
-      ],
-      "mutcdPass": "10/12"
-    },
-    "flags": [
-      "MUTCD check: Device spacing in taper no more than speed in feet; Device spacing on tangent no more than twice speed"
-    ],
-    "streets": "Streets read at this site (7)"
-  },
-  {
-    "name": "SF Lombard Crooked St",
-    "lat": 37.8021,
-    "lon": -122.4187,
-    "secs": 34,
-    "loaded": true,
-    "mstat": "Map data loaded: 524 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "",
-      "speed": 15,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 33,
-      "flaggers": 2,
-      "legs": [
-        "Lombard Street:side:3",
-        "Montclair Terrace:side:1"
-      ],
-      "legsNote": "",
-      "mutcdBad": [
-        "Device spacing in taper no more than speed in feet",
-        "Device spacing on tangent no more than twice speed",
-        "One flagger on every approach"
-      ],
-      "mutcdPass": "9/12"
-    },
-    "flags": [
-      "MUTCD check: Device spacing in taper no more than speed in feet; Device spacing on tangent no more than twice speed; One flagger on every approach"
-    ],
-    "streets": "Streets read at this site (2)"
-  },
-  {
-    "name": "SF Market & Van Ness",
-    "lat": 37.7752,
-    "lon": -122.4194,
-    "secs": 50,
-    "loaded": true,
-    "mstat": "Map data loaded: 2236 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "Van Ness Avenue",
-      "speed": 25,
-      "lanes": 3,
-      "rec": "laneclosure",
-      "signs": 61,
-      "flaggers": 0,
-      "legs": [
-        "Van Ness Avenue:main:3",
-        "Market Street:side:0"
-      ],
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "9/10"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs",
-      "signs 61"
-    ],
-    "streets": "Streets read at this site (2)"
-  },
-  {
-    "name": "SF Mission & 16th",
-    "lat": 37.765,
-    "lon": -122.4197,
-    "secs": 50,
-    "loaded": true,
-    "mstat": "Map data loaded: 1563 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "Mission Street",
-      "speed": 20,
-      "lanes": 4,
-      "rec": "laneclosure",
-      "signs": 26,
-      "flaggers": 0,
-      "legs": [
-        "Mission Street:main:3",
-        "Mission Street:main:1",
-        "16th Street:side:0"
-      ],
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "9/10"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs"
-    ],
-    "streets": "Streets read at this site (3)"
-  },
-  {
-    "name": "Truckee Donner Pass Rd",
-    "lat": 39.328,
-    "lon": -120.1833,
-    "secs": 30,
-    "loaded": true,
-    "mstat": "Map data loaded: 236 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "",
-      "speed": 15,
-      "lanes": 2,
-      "rec": "signal",
-      "signs": 27,
-      "flaggers": 0,
-      "legs": [
-        "Main road:main:3",
-        "Donner Pass Road:side:0",
-        "Side street:side:1",
-        "Donner Pass Road:side:1",
-        "Donner Pass Road:side:1"
-      ],
-      "mutcdBad": [
-        "Device spacing in taper no more than speed in feet",
-        "Device spacing on tangent no more than twice speed",
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "6/9"
-    },
-    "flags": [
-      "MUTCD check: Device spacing in taper no more than speed in feet; Device spacing on tangent no more than twice speed; Every approach gets the full set of advance signs"
-    ],
-    "streets": "Streets read at this site (5)"
-  },
-  {
-    "name": "Yuba City Hwy 99",
-    "lat": 39.14,
-    "lon": -121.62,
-    "secs": 48,
-    "loaded": true,
-    "mstat": "Map data loaded: 491 roads and paths. Matched 1 of 1 locations to a road.",
-    "dbg": {
-      "i": 0,
-      "name": "A",
-      "osm": true,
-      "road": "Chestnut Street",
-      "speed": 25,
-      "lanes": 2,
-      "rec": "flagging",
-      "signs": 8,
-      "flaggers": 2,
-      "legs": [
-        "Chestnut Street:main:3",
-        "Rosalind Avenue:side:2",
-        "Church Street:side:1",
-        "Church Street:side:1"
-      ],
-      "legsNote": "",
-      "mutcdBad": [
-        "Every approach gets the full set of advance signs"
-      ],
-      "mutcdPass": "11/12"
-    },
-    "flags": [
-      "MUTCD check: Every approach gets the full set of advance signs"
-    ],
-    "streets": "Streets read at this site (4)"
+    "secs": 45,
+    "streets": "Streets read at this site (6)",
+    "head": "Site 1",
+    "chk": "MUTCD check: 3 items need attention",
+    "totals": "",
+    "matched": false,
+    "errors": []
   }
 ]
