@@ -383,7 +383,7 @@ label.xfl input{width:22px;height:22px}
 <header>
   <div class="brand"><span class="mark" aria-hidden="true"></span>
     <div><h1>UTCTC</h1><p class="sub">Ultimate Traffic Control Technician Companion. Enter job coordinates, check what you see, and get a site-specific setup for every location.</p></div></div>
-  <span class="badge">Field aid, not an issued plan</span><button type="button" class="ghost only-d" id="jsabtn" style="min-height:40px">3 Paperwork</button><button type="button" class="ghost only-d" id="guidebtn" style="min-height:40px">Guide</button>
+  <span class="badge">Field aid, not an issued plan</span><button type="button" class="ghost" id="refreshapp" style="min-height:40px" title="Get the newest version of the app. Your saved sites stay.">Refresh app</button><button type="button" class="ghost only-d" id="jsabtn" style="min-height:40px">3 Paperwork</button><button type="button" class="ghost only-d" id="guidebtn" style="min-height:40px">Guide</button>
 </header>
 
 <nav class="tabs" aria-label="Sections">
@@ -4658,6 +4658,16 @@ function nextBar() {
     $('xtcp').onclick = function () { openSheet(sites.slice(0, 300)); };
     $('xcad').onclick = function () { if (!sites.length) { say('xstat', 'Create a plan first.'); return; } try { exportFile('traffic-control-plans.dxf', cadDoc(sites.slice(0, 40))); } catch (e) { say('xstat', 'CAD export failed: ' + e.message); } };
     $('sheetcad').onclick = function () { try { exportFile('traffic-control-plan.dxf', cadDoc((sheetSites || []).slice(0, 40))); } catch (e) { say('sheetnote', 'CAD export failed: ' + e.message); } };
+    $('refreshapp').onclick = function () {
+      var b = this; b.disabled = true; b.textContent = 'Refreshing...';
+      var done = function () { try { location.reload(); } catch (e) { location.href = location.href; } };
+      try {
+        var jobs = [];
+        if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); }));
+        if (window.caches && caches.keys) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }));
+        Promise.all(jobs).then(done, done); setTimeout(done, 2500);
+      } catch (e) { done(); }
+    };
     $('xtxt').onclick = function () { exportFile('traffic-control-plans.txt', summaryText(sites)); };
     $('xpy').onclick = function () { exportFile('fetch_map_data.py', FETCH_SCRIPT); };
     build(saved);

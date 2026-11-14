@@ -15,11 +15,11 @@ const SITES = [
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const p = await ctx.newPage(); const errs = [];
     p.on('pageerror', e => errs.push(e.message));
-    const reqs = []; p.on('response', r => { if (/overpass|arcgis/.test(r.url())) reqs.push(r.status() + ' ' + r.url().slice(0, 80)); });
+    const reqs = []; p.on('requestfailed', r => { if (/overpass|arcgis/.test(r.url())) reqs.push('FAILED ' + r.failure().errorText + ' ' + r.url().slice(0, 60)); }); p.on('response', r => { if (/overpass|arcgis/.test(r.url())) reqs.push(r.status() + ' ' + r.url().slice(0, 80)); });
     await p.goto('http://localhost:8123/index.html'); await p.waitForTimeout(800);
     await p.fill('#pts', lat.toFixed(6) + ', ' + lon.toFixed(6) + ' ' + name);
     await p.waitForTimeout(1500);
-    for (let i = 0; i < 2; i++) { try { await p.click('#nextbtn', { timeout: 3000 }); } catch (e) {} await p.waitForTimeout(400); }
+    for (let i = 0; i < 3; i++) { try { await p.click('#nextbtn', { timeout: 3000 }); } catch (e) {} await p.waitForTimeout(400); }
     let loaded = false;
     for (let t = 0; t < 45 && !loaded; t++) { await p.waitForTimeout(1000); loaded = await p.evaluate(() => /Roads matched|roads loaded|Map data loaded/i.test(document.body.innerText)); }
     await p.click('#tab-plan').catch(() => {}); await p.waitForTimeout(1500);
