@@ -964,7 +964,7 @@ function lookup(loc, osm) {
     var n = nearestOnLine(loc.lat, loc.lon, w.geometry); if (!n) return;
     if (!best || n.d < best.n.d) best = { w: w, n: n };
   });
-  if (!best || best.n.d > 130) return { found: false };
+  if (!best || best.n.d > 330) return { found: false, nearest: best ? Math.round(best.n.d) : null };
   var t = best.w.tags, r = { found: true, tags: t, wayId: best.w.id, offset: Math.round(best.n.d), geom: best.w.geometry, s: best.n.s };
   r.latCr = best.n.dy * best.n.cx - best.n.dx * best.n.cy; r.rev = t.oneway === '-1';
   r.hw = t.highway.replace('_link', '');
@@ -4334,6 +4334,7 @@ function nextBar() {
     var z = s.zones[0], r = z && z.ev.rec, p = r && r.plan, loc = z && z.items[0].loc, h = '', legs = (p && p.legs) || [];
     var ws = (loc && loc.osm && loc.osm.found) ? 1 : 0;
     h += '<details class="dg" id="streetsd"><summary>Streets read at this site (' + (legs.length || 0) + ')</summary><div style="padding:0 20px 14px">';
+    if (ws && loc.osm.offset > 80) h += '<div class="nt high"><b>The pin is ' + loc.osm.offset + ' ft from the nearest road (' + esc((loc.osm.tags && (loc.osm.tags.name || loc.osm.tags.ref)) || 'unnamed road') + ').</b> Check on the Map tab that this is the road you are working on. If not, drag the pin onto the right road.</div>';
     if (!ws) h += '<div class="nt high"><b>No roads are loaded for this spot.</b> Open the hosted app and load the roads on the Map tab. Side streets cannot be signed until they are read. Until then, pick the intersection type below.</div>';
     if (legs.length) h += '<table class="legt"><tr><th>Street</th><th>How it meets the work</th><th>Signs and where</th></tr>' + legs.map(function (l) {
       var how = l.kind === 'main' ? (l.ahead === 'back' ? 'main road, approach' : 'main road, opposite way') : (l.via ? 'joins ' + l.via : 'side street' + (l.alongMain !== undefined ? ', ' + Math.abs(l.alongMain) + ' ft ' + (l.alongMain < 0 ? 'before' : 'past') + ' the work centre' : ''));
