@@ -1,0 +1,23 @@
+name: road-read-test
+on:
+  workflow_dispatch:
+  push:
+    paths: ['tests/**', '.github/workflows/road-test.yml', 'index.html']
+permissions:
+  contents: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm i playwright@1.48.0 && npx playwright install --with-deps chromium
+      - run: (python3 -m http.server 8123 >/dev/null 2>&1 &) ; sleep 2; node tests/road-test.js
+      - uses: actions/upload-artifact@v4
+        with: { name: road-test, path: road-test-results }
+      - name: Save results to the repo
+        run: |
+          git config user.name "road-test"; git config user.email "road-test@users.noreply.github.com"
+          git add -f road-test-results; git commit -m "Road read test results" || exit 0
+          git pull --rebase origin ${{ github.ref_name }} && git push

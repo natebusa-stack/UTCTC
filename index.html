@@ -343,8 +343,8 @@ ol.steps>li.done::before{content:"\2713";background:var(--ok);color:#fff}
 @page tcpl{size:landscape;margin:.4in}
 .sheet.tcp{page:tcpl;max-width:1100px;padding:12px}
 .tcpbox{position:relative;border:2px solid #111;background:#fff;display:grid;grid-template-columns:minmax(0,1fr) 270px;align-items:stretch}
-.tcpmain{grid-column:1;grid-row:1/3;min-width:0;border-right:1px solid #111}
-.tcpbox>.tcpnotes{grid-column:2;grid-row:1}.tcpbox>.tcplegend{grid-column:2;grid-row:2;align-self:end}
+.tcpmain{grid-column:1;grid-row:1;min-width:0;border-right:1px solid #111}
+.tcpbox>.tcpnotes{grid-column:2;grid-row:1/3}.tcpbox>.tcplegend{grid-column:1;grid-row:2;align-self:end;display:grid;grid-template-columns:1fr 1fr;gap:10px;border-right:1px solid #111}.tcplegend .lgx,.tcplegend .lgi{display:block}.tcplegend .lgi{columns:2;column-gap:10px}.tcplegend .lgi>div{display:flex;break-inside:avoid}.tcplegend .lgi>b{column-span:all;display:block}.tcplegend .tcpxs svg{max-height:70px;width:100%}
 .tcpmain>img,.tcpmain .zsv svg{display:block;width:100%;height:auto;max-height:640px;object-fit:contain;border:0}
 .tcpmain .zsv{border-bottom:1px solid #9aa5ad}
 .tcpnotes,.tcplegend{background:#fff;border:0;padding:8px 10px;font-size:11px;line-height:1.35}
@@ -355,15 +355,17 @@ label.xfl{display:flex;align-items:center;gap:6px;min-height:44px;font-weight:60
 label.xfl input{width:22px;height:22px}
 .legt{width:100%;border-collapse:collapse;margin-top:6px}.legt th,.legt td{border:1px solid #333;padding:2px 4px;font-size:10px;text-align:left;vertical-align:top}.tcpnotes ol{margin:2px 0 0;padding-left:16px}.tcplegend .tcpxs{display:block;margin:0 0 6px;padding:0}.jobpane{padding:4px 2px 20px}.jh{font-size:17px;margin:20px 0 6px}.jgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.qs{font-weight:700;margin:16px 0 0;color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:.06em}.crewrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.crewadd{display:flex;gap:8px;margin-top:8px}.crewadd input{flex:1}
 .sheet.jsa h1{font-size:22px}.sheet .jt th{width:18%}.sheet .sigt td{height:34px}.sheet .sigt td.sgn{width:34%}.sheet .sigt td.tm{width:12%}.sheet .sigline{border-bottom:1.5px solid #111;height:34px;margin-top:4px}.sheet .notebox{border:1px solid #9aa5ad;height:90px}.sheet .pb2,.sheet.pb2{page-break-before:always;break-before:page}
+.tb2{border-top:0;grid-template-columns:1.3fr 1.6fr 1fr 1.6fr .8fr .8fr}.tb2 small{margin-top:0}
+.rdy{border:1.5px solid #111;padding:5px 7px;margin:0 0 6px;font-size:10.5px;line-height:1.3}.rdy ul{list-style:none;margin:3px 0 0;padding:0}.rdy li.no{color:#b42318;font-weight:600}.rdy li.ok{color:#1b5e20}.rdy small{font-weight:400;color:#444}
 .tcpwarn{border:2px solid #b42318;color:#b42318;font-weight:700;padding:5px 7px;margin:0 0 6px;font-size:11px;line-height:1.3}
 .tcplegend div{display:flex;gap:6px;align-items:center;margin-top:2px}
 .sw{display:inline-block;width:14px;height:10px;border:1px solid #111;flex:none}
 .sw.w{background:#F08A2E}.sw.c{background:#F08A2E;border-radius:50%;width:10px}.sw.d{background:#F08A2E;transform:rotate(45deg);width:9px;height:9px}.sw.f{background:#D4480B;border-radius:50%;width:10px}
 .tb{display:grid;grid-template-columns:.9fr 1.6fr 1.3fr 1.1fr 1.3fr 1fr;border:2px solid #111;border-top:0}
-.tb>div{border-left:1px solid #111;padding:4px 6px;min-height:50px}
+.tb>div{border-left:1px solid #111;padding:3px 6px;min-height:36px}
 .tb>div:first-child{border-left:0}
 .tb small{display:block;font-size:8.5px;color:#4a5560;text-transform:uppercase;letter-spacing:.03em}
-.tb b{display:block;font-size:13px;line-height:1.2;color:#111;overflow-wrap:anywhere}
+.tb b{display:block;font-size:12px;line-height:1.2;color:#111;overflow-wrap:anywhere}
 @page{size:landscape}
 @media (max-width:700px){.sheet table{display:block;overflow-x:auto;max-width:100%}.sheet{padding:16px 12px}}
 .sw.a{background:#E9B800;width:14px}.sw.t{background:#fff;width:14px}.sw.p{background:#0F7C80;height:3px;border:0}
@@ -474,7 +476,12 @@ label.xfl input{width:22px;height:22px}
     <p class="hint" id="mhint" role="status" style="margin:8px 0 0"></p>
     <div class="mbar"><div class="grow" id="msel"></div></div>
     <div class="mbar" id="alinks"></div>
-    <p class="hint">Aerial photos cannot load inside this page. Open one above, take a screenshot, and lay it under the map below.</p>
+    <div class="mbar" id="mapstyle" role="radiogroup" aria-label="Map style"><span class="sm" style="margin-right:8px"><b>Map style</b></span>
+      <label class="sm"><input type="radio" name="mstyle" value="drawn" checked> Drawn map</label>
+      <label class="sm" style="margin-left:12px"><input type="radio" name="mstyle" value="sat"> Satellite</label></div>
+    <p class="hint" id="sathint" hidden></p>
+    <p class="hint">Satellite imagery loads from Esri when you use the installed or hosted app with a connection. Inside the preview page it may be blocked; the drawn map is used automatically then.
+    <p class="hint" hidden>Aerial photos cannot load inside this page. Open one above, take a screenshot, and lay it under the map below.</p>
     <details class="more"><summary>Aerial screenshot overlay</summary>
       <div class="go"><label class="btnlink" style="cursor:pointer;margin:0">Add screenshot<input type="file" id="ovfile" accept="image/*" style="display:none"></label></div>
       <div id="ovbox" hidden>
@@ -837,7 +844,8 @@ function buildQuery(locs) {
   locs.forEach(function (l) {
     var c = l.lat.toFixed(6) + ',' + l.lon.toFixed(6);
     q += 'way(around:150,' + c + ')["highway"];' +
-      'way(around:600,' + c + ')["highway"~"^(trunk|primary|secondary|tertiary|unclassified|residential|living_street|trunk_link|primary_link|secondary_link|tertiary_link)$"];' +
+      'way(around:400,' + c + ')["highway"~"^(service|road|motorway_link)$"];' +
+      'way(around:800,' + c + ')["highway"~"^(trunk|primary|secondary|tertiary|unclassified|residential|living_street|trunk_link|primary_link|secondary_link|tertiary_link)$"];' +
       'node(around:130,' + c + ')["highway"~"^(crossing|traffic_signals|bus_stop)$"];' +
       'node(around:100,' + c + ')["railway"~"^(level_crossing|crossing)$"];' +
       'nwr(around:160,' + c + ')["amenity"~"^(school|kindergarten|hospital)$"];';
@@ -2111,34 +2119,53 @@ function corridorSvg(s) {
 
 
 
-/* intersection: four approaches around a work area */
+/* Intersection work. Every leg comes from the roads read at the pin (p.legs, with real bearings and the signs each one needs), or from the approaches the person declared (p.xlegs). Nothing is drawn that is not known. */
 function drawInt(p, v, opt) {
-  var W = 1080, H = 640, cx = W / 2, cy = 300, len = v.len, sp = p.space, S = p.speed;
-  var E = p.firstSign + len / 2 + 140, k = Math.min(1.4, (W / 2 - 60) / E, (cy - 70) / E), rw = Math.max(70, p.roadWidth * k * 2.2), R = function (n) { return Math.round(n * 10) / 10; };
-  var half = Math.max(16, Math.min(len * k / 2, rw * 0.9)), o = [], cones = [], i;
-  o.push('<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Plan view of intersection work, four approaches">');
+  var W = 1080, H = 640, cx = W / 2, cy = 292, len = v.len, S = p.speed, rw0 = Math.max(24, p.roadWidth || 24), R = function (n) { return Math.round(n * 10) / 10; }, o = [], i;
+  var legs = [], real = !!(p.legs && p.legs.some(function (l) { return l.ang !== undefined; })), extra = [];
+  if (real) {
+    p.legs.forEach(function (l) { if (l.ang === undefined) { if (l.level === 2 || l.kind === 'side') extra.push(l); return; } legs.push({ ang: l.ang, name: l.name, signs: l.signs || [], flagger: !!l.flagger, main: l.kind === 'main', missing: l.missing || 0, xf: l.xf }); });
+  } else {
+    var xt = p.xlegs, def = { '4': [90, 270], 'T-N': [90], 'T-S': [270] };
+    legs.push({ ang: 180, name: 'Main road', signs: p.signs.filter(function (q) { return !q.end && q.dist > 0 && !q.opp; }), flagger: true, main: true }, { ang: 0, name: 'Main road', signs: p.signs.filter(function (q) { return !q.end && q.dist > 0 && !q.opp; }), flagger: true, main: true });
+    (def[xt] || []).forEach(function (a) { legs.push({ ang: a, name: 'Side street', signs: p.signs.filter(function (q) { return !q.end && q.dist > 0 && !q.opp; }), flagger: true, main: false }); });
+  }
+  var dmax = 0; legs.forEach(function (g) { g.off = g.main ? len / 2 + 100 : 0; g.far = g.off + g.signs.reduce(function (m, q) { return Math.max(m, q.dist); }, 0) + 90; dmax = Math.max(dmax, g.far); });
+  var k = 1.4; legs.forEach(function (g) { var a = g.ang * Math.PI / 180, c = Math.abs(Math.cos(a)), sn = Math.abs(Math.sin(a)), av = Math.min(c > 0.01 ? (W / 2 - 30) / c : 1e9, sn > 0.01 ? (cy - 40) / sn : 1e9); g.av = av; k = Math.min(k, av / g.far); });
+  var rw = Math.max(46, rw0 * k * 1.6), half = Math.max(14, Math.min(len * k / 2, rw * 0.9));
+  o.push('<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Plan view of intersection work. Legs are drawn from the roads read at the site.">');
   o.push('<defs><pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="9" height="9" style="fill:var(--work);opacity:.3"/><line x1="0" y1="0" x2="0" y2="9" style="stroke:var(--work);stroke-width:4"/></pattern></defs>');
-  o.push('<rect class="s-road" x="0" y="' + R(cy - rw / 2) + '" width="' + W + '" height="' + R(rw) + '"/><rect class="s-road" x="' + R(cx - rw / 2) + '" y="0" width="' + R(rw) + '" height="' + H + '"/>');
-  o.push('<line class="s-yel" x1="0" x2="' + R(cx - rw / 2) + '" y1="' + cy + '" y2="' + cy + '"/><line class="s-yel" x1="' + R(cx + rw / 2) + '" x2="' + W + '" y1="' + cy + '" y2="' + cy + '"/><line class="s-yel" y1="0" y2="' + R(cy - rw / 2) + '" x1="' + cx + '" x2="' + cx + '"/><line class="s-yel" y1="' + R(cy + rw / 2) + '" y2="' + H + '" x1="' + cx + '" x2="' + cx + '"/>');
+  legs.forEach(function (g) { var L = g.av - 6; o.push('<g transform="translate(' + cx + ',' + cy + ') rotate(' + g.ang + ')"><rect class="s-road" x="0" y="' + R(-rw / 2) + '" width="' + R(L) + '" height="' + R(rw) + '"/><line class="s-yel" x1="' + R(rw / 2) + '" x2="' + R(L) + '" y1="0" y2="0"/></g>'); });
+  o.push('<rect class="s-road" x="' + R(cx - rw / 2) + '" y="' + R(cy - rw / 2) + '" width="' + R(rw) + '" height="' + R(rw) + '"/>');
   o.push('<rect class="s-work" x="' + R(cx - half) + '" y="' + R(cy - half) + '" width="' + R(half * 2) + '" height="' + R(half * 2) + '"/><rect class="s-workb" x="' + R(cx - half) + '" y="' + R(cy - half) + '" width="' + R(half * 2) + '" height="' + R(half * 2) + '"/>');
-  var legs = [{ n: 'W', dx: -1, dy: 0, off: 1 }, { n: 'E', dx: 1, dy: 0, off: -1 }, { n: 'N', dx: 0, dy: -1, off: -1 }, { n: 'S', dx: 0, dy: 1, off: 1 }];
+  var up = function (x, y, ang, inner) { return '<g transform="translate(' + R(x) + ',' + R(y) + ')">' + inner + '</g>'; };
+  var fn = 0;
   legs.forEach(function (g, gi) {
-    var pt = function (s, lat) { return g.dx ? [cx + g.dx * s * k, cy + lat] : [cx + lat, cy + g.dy * s * k]; };
-    var lane = g.off * rw / 4, edge = g.off * rw / 2, s0 = len / 2 + 100, s1 = len / 2, n = Math.ceil(100 / S) + 1, j, a, b, q;
-    for (j = 0; j < n; j++) { q = n > 1 ? j / (n - 1) : 0; a = pt(s0 - (s0 - s1) * q, edge * (1 - q)); cones.push('<circle class="s-cone" cx="' + R(a[0]) + '" cy="' + R(a[1]) + '" r="3.6"/>'); }
-    var f = pt(s0 + 12, lane * 1.0);
-    cones.push('<circle class="s-fl" cx="' + R(f[0]) + '" cy="' + R(f[1]) + '" r="7"/><text class="s-tb" x="' + R(f[0] + 11) + '" y="' + R(f[1] + 4) + '">F' + (gi + 1) + '</text>');
-    p.signs.forEach(function (sg) {
-      var b2 = pt(len / 2 + 100 + sg.dist, lane * 2.2 * (g.dx ? 1 : 1)), r = 13;
-      cones.push('<polygon class="s-sign" points="' + R(b2[0]) + ',' + R(b2[1] - r - 3) + ' ' + R(b2[0] + r + 3) + ',' + R(b2[1]) + ' ' + R(b2[0]) + ',' + R(b2[1] + r + 3) + ' ' + R(b2[0] - r - 3) + ',' + R(b2[1]) + '"/><text class="s-t" font-size="10" text-anchor="middle" x="' + R(b2[0]) + '" y="' + R(b2[1] + r + 15) + '">' + sg.code + '</text>' + (opt.det ? '<text class="s-tm" font-size="8" text-anchor="middle" x="' + R(b2[0]) + '" y="' + R(b2[1] + r + 26) + '">' + (len / 2 + 100 + sg.dist) + ' ft from center</text>' : ''));
-    });
-    var lab = pt(len / 2 + 100 + p.firstSign + 60, g.dx ? -rw / 2 - 12 : rw / 2 + 14);
-    cones.push('<text class="s-tm" text-anchor="middle" x="' + R(lab[0]) + '" y="' + R(lab[1]) + '">' + (g.dx ? (g.dx < 0 ? 'West' : 'East') : (g.dy < 0 ? 'North' : 'South')) + ' approach</text>');
+    var side = -(rw / 2 + 16), n = Math.ceil(100 / Math.max(S, 15)) + 1, body = [], j, q, a = g.ang;
+    if (g.main) for (j = 0; j < n; j++) { q = n > 1 ? j / (n - 1) : 0; body.push('<circle class="s-cone" cx="' + R((len / 2 + 100 - 100 * q) * k) + '" cy="' + R(-rw / 2 * (1 - q) * 0.9) + '" r="3.4"/>'); }
+    if (g.flagger) { fn++; var fx = (g.main ? len / 2 + 112 : 40) * k + (g.main ? 0 : rw / 2); body.push('<circle class="s-fl" cx="' + R(fx) + '" cy="' + R(-rw / 4) + '" r="7"/>'); body.push('@@F' + fn + '@@' + R(fx) + '@@' + R(-rw / 4)); }
+    var inner = body.filter(function (b) { return b.indexOf('@@') !== 0; }).join('');
+    var lab = body.filter(function (b) { return b.indexOf('@@') === 0; }).map(function (b) { var t = b.split('@@'); var pt = [+t[2] * 1, +t[3] * 1]; var ca = Math.cos(a * Math.PI / 180), sa = Math.sin(a * Math.PI / 180); return up(cx + pt[0] * ca - pt[1] * sa, cy + pt[0] * sa + pt[1] * ca, a, '<text class="s-tb" x="10" y="4">' + t[1] + '</text>'); }).join('');
+    var sg = g.signs.map(function (q) {
+      var d = (g.off + q.dist) * k, ca = Math.cos(a * Math.PI / 180), sa = Math.sin(a * Math.PI / 180), px = d, py = side;
+      var X = cx + px * ca - py * sa, Y = cy + px * sa + py * ca, r = 12;
+      return up(X, Y, a, '<polygon class="s-sign" points="0,' + (-r - 3) + ' ' + (r + 3) + ',0 0,' + (r + 3) + ' ' + (-r - 3) + ',0"/><text class="s-t" font-size="10" text-anchor="middle" y="' + (r + 17) + '">' + q.code + '</text><text class="s-tm" font-size="9" text-anchor="middle" y="' + (r + 28) + '">' + q.dist + ' ft</text>');
+    }).join('');
+    o.push('<g transform="translate(' + cx + ',' + cy + ') rotate(' + a + ')">' + inner + '</g>' + lab + sg);
+    var la = a * Math.PI / 180, ca2 = Math.cos(la), sa2 = Math.sin(la), lp = g.av - 60, lat = rw / 2 + 18, lx = cx + lp * ca2 - lat * sa2, ly = cy + lp * sa2 + lat * ca2 + 4;
+    o.push(up(lx, ly, a, '<text class="s-tb" font-size="11" text-anchor="middle">' + esc(String(g.name).toUpperCase()) + (g.main ? '' : ' (SIDE STREET)') + '</text>'));
   });
-  var perim = Math.ceil(2 * (len + 30) / p.devSpacingTangent) + 4, pc = Math.min(perim, 24);
-  for (i = 0; i < pc; i++) { var th = i / pc * 4, side = Math.floor(th), u = th - side, hh = half + 8, xx, yy; if (side === 0) { xx = cx - hh + 2 * hh * u; yy = cy - hh; } else if (side === 1) { xx = cx + hh; yy = cy - hh + 2 * hh * u; } else if (side === 2) { xx = cx + hh - 2 * hh * u; yy = cy + hh; } else { xx = cx - hh; yy = cy + hh - 2 * hh * u; } cones.push('<circle class="s-cone" cx="' + R(xx) + '" cy="' + R(yy) + '" r="3.6"/>'); }
-  o.push(cones.join(''));
-  o.push('<text class="s-tm" x="40" y="' + (H - 10) + '">Schematic. Each approach has its own signs, taper and flagger. Distances along each leg are to scale from the center of the intersection.</text></svg>');
+  var perim = Math.ceil(2 * (len + 30) / p.devSpacingTangent) + 4, pc = Math.max(8, Math.min(perim, Math.round(half / 4) * 4));
+  for (i = 0; i < pc; i++) { var th = i / pc * 4, sd = Math.floor(th), u = th - sd, hh = half + 8, xx, yy; if (sd === 0) { xx = cx - hh + 2 * hh * u; yy = cy - hh; } else if (sd === 1) { xx = cx + hh; yy = cy - hh + 2 * hh * u; } else if (sd === 2) { xx = cx + hh - 2 * hh * u; yy = cy + hh; } else { xx = cx - hh; yy = cy + hh - 2 * hh * u; } o.push('<circle class="s-cone" cx="' + R(xx) + '" cy="' + R(yy) + '" r="3.4"/>'); }
+  if (!real) o.push('<rect x="20" y="14" width="470" height="62" style="fill:#fde8e8;stroke:#b42318;stroke-width:2"/><text class="s-tb" font-size="13" x="30" y="36" style="fill:#b42318">SIDE STREETS NOT VERIFIED. NO ROAD DATA.</text><text class="s-tm" font-size="11" x="30" y="53">' + (p.xlegs ? 'Drawn from the intersection type you chose.' : 'Only the main road is drawn.') + ' Load the roads or choose the</text><text class="s-tm" font-size="11" x="30" y="67">intersection type, then every side street gets its signs and flagger.</text>');
+  if (real && extra.length) o.push('<text class="s-tm" font-size="10" x="24" y="' + (H - 62) + '">Also signed: ' + esc(extra.slice(0, 4).map(function (l) { return (l.name || 'Street') + (l.via ? ' (joins ' + l.via + ')' : '') + ' ' + (l.signs || []).map(function (q) { return q.code + ' @' + q.dist + "'"; }).join(', '); }).join('; ')) + '</text>');
+  var sb = [50, 100, 200, 250, 500].filter(function (vv) { return vv * k <= 170; }).pop() || 50, bx = 24, by = H - 10;
+  o.push('<rect x="0" y="' + (H - 56) + '" width="' + W + '" height="56" style="fill:var(--panel,#fff)"/><line x1="0" x2="' + W + '" y1="' + (H - 56) + '" y2="' + (H - 56) + '" style="stroke:var(--ink,#111);stroke-width:1.5"/>');
+  o.push('<path d="M' + bx + ',' + (by - 6) + 'V' + by + 'H' + R(bx + sb * k) + 'V' + (by - 6) + '" style="fill:none;stroke:var(--ink,#111);stroke-width:2"/><text class="s-tb" font-size="12" x="' + bx + '" y="' + (by - 14) + '">SCALE: ' + sb + ' ft</text>');
+  var lx2 = 300, ly2 = H - 28;
+  o.push('<polygon class="s-sign" points="' + lx2 + ',' + (ly2 - 9) + ' ' + (lx2 + 9) + ',' + ly2 + ' ' + lx2 + ',' + (ly2 + 9) + ' ' + (lx2 - 9) + ',' + ly2 + '"/><text class="s-t" font-size="11" x="' + (lx2 + 14) + '" y="' + (ly2 + 4) + '">Warning sign (ft = distance before the work or corner)</text>');
+  o.push('<circle class="s-fl" cx="' + (lx2 + 330) + '" cy="' + ly2 + '" r="7"/><text class="s-t" font-size="11" x="' + (lx2 + 343) + '" y="' + (ly2 + 4) + '">Flagger</text><circle class="s-cone" cx="' + (lx2 + 420) + '" cy="' + ly2 + '" r="3.6"/><text class="s-t" font-size="11" x="' + (lx2 + 430) + '" y="' + (ly2 + 4) + '">Cone or drum</text><rect class="s-work" x="' + (lx2 + 530) + '" y="' + (ly2 - 8) + '" width="16" height="16"/><text class="s-t" font-size="11" x="' + (lx2 + 552) + '" y="' + (ly2 + 4) + '">Work area</text>');
+  o.push('<text class="s-tm" font-size="10" x="24" y="' + (H - 42) + '">' + (real ? 'Legs drawn at their mapped angles. Distances along each leg are to scale.' : 'Schematic. Distances along each leg are to scale.') + '</text></svg>');
   return o.join('');
 }
 
@@ -2307,6 +2334,42 @@ function MapView(canvas, cb) {
     c.globalAlpha = alpha; c.strokeStyle = color; c.lineWidth = wpx; c.lineCap = cap || 'butt'; c.lineJoin = 'round'; c.stroke(); c.globalAlpha = 1;
   }
 
+  /* ---------- satellite imagery (Esri World Imagery tiles, shared cache) ---------- */
+  var SATURL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+  function n2ll(x, y, z) { var n = Math.PI - 2 * Math.PI * y / Math.pow(2, z); return { lat: 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))), lon: x / Math.pow(2, z) * 360 - 180 }; }
+  function satTile(z, x, y, want) {
+    var T = MapView.tiles = MapView.tiles || {}, key = z + '/' + x + '/' + y, t = T[key];
+    if (!t) {
+      t = T[key] = { ok: 0, err: 0, img: new Image() }; t.img.crossOrigin = 'anonymous';
+      t.img.onload = function () { t.ok = 1; MapView.satOk = (MapView.satOk || 0) + 1; (t.cbs || []).forEach(function (f) { f(); }); t.cbs = null; dirty(); };
+      t.img.onerror = function () { t.err = 1; MapView.satErr = (MapView.satErr || 0) + 1; (t.cbs || []).forEach(function (f) { f(); }); t.cbs = null; dirty(); };
+      t.img.src = SATURL.replace('{z}', z).replace('{y}', y).replace('{x}', x);
+    }
+    if (want && !t.ok && !t.err) { t.cbs = t.cbs || []; t.cbs.push(want); }
+    return t;
+  }
+  function satList() {
+    var cl = S.o.cl, z = Math.round(Math.log(156543.03 * 3.28084 * cl * S.k) / Math.LN2); z = Math.max(1, Math.min(19, z));
+    var cs = [toLL(wx(0), wy(0)), toLL(wx(S.W), wy(0)), toLL(wx(0), wy(S.H)), toLL(wx(S.W), wy(S.H))], n = Math.pow(2, z), xs = [], ys = [];
+    cs.forEach(function (q) { var r = q.lat * Math.PI / 180; xs.push((q.lon + 180) / 360 * n); ys.push((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n); });
+    var x0 = Math.floor(Math.min.apply(null, xs)), x1 = Math.floor(Math.max.apply(null, xs)), y0 = Math.floor(Math.min.apply(null, ys)), y1 = Math.floor(Math.max.apply(null, ys)), out = [];
+    if ((x1 - x0 + 1) * (y1 - y0 + 1) > 60) return { z: z, list: [], big: true };
+    for (var x = x0; x <= x1; x++) for (var y = y0; y <= y1; y++) out.push([z, x, y]);
+    return { z: z, list: out };
+  }
+  function satFailed() { return !!(MapView.satErr >= 3 && !MapView.satOk); }
+  function satOn() { return !!(S.sat && !satFailed()); }
+  function drawSat(c, want) {
+    var L = satList(), got = 0, miss = 0;
+    L.list.forEach(function (q) {
+      var t = satTile(q[0], q[1], q[2], want); if (!t.ok) { if (!t.err) miss++; return; }
+      var a = n2ll(q[1], q[2], q[0]), b = n2ll(q[1] + 1, q[2], q[0]), d = n2ll(q[1], q[2] + 1, q[0]), A = toW(a.lat, a.lon), B = toW(b.lat, b.lon), D = toW(d.lat, d.lon);
+      c.save(); c.transform((sx(B.x) - sx(A.x)) / 256, (sy(B.y) - sy(A.y)) / 256, (sx(D.x) - sx(A.x)) / 256, (sy(D.y) - sy(A.y)) / 256, sx(A.x), sy(A.y));
+      c.drawImage(t.img, 0, 0, 256.6, 256.6); c.restore(); got++;
+    });
+    return { got: got, miss: miss, total: L.list.length };
+  }
+
   /* ---------- draw ---------- */
   function frame() {
     S.raf = 0;
@@ -2316,11 +2379,11 @@ function MapView(canvas, cb) {
     if (S.ov) {
       var o = S.ov, k = S.k * o.f;
       c.save(); c.globalAlpha = o.a; c.translate(sx(o.x), sy(o.y)); c.drawImage(o.img, -o.img.width * k / 2, -o.img.height * k / 2, o.img.width * k, o.img.height * k); c.restore();
-    } else if (!cb.fixed) drawGrid(c, C);
+    } else if (S.sat && !satFailed()) { var sr = drawSat(c); S.satHave = sr.got; if (!sr.got && !sr.miss) S.satHave = 0; } else if (!cb.fixed) drawGrid(c, C);
     var cs4 = [toLL(wx(0), wy(H)), toLL(wx(W), wy(0)), toLL(wx(0), wy(0)), toLL(wx(W), wy(H))];
     var la0 = { lat: Math.min.apply(null, cs4.map(function (q) { return q.lat; })), lon: Math.min.apply(null, cs4.map(function (q) { return q.lon; })) }, la1 = { lat: Math.max.apply(null, cs4.map(function (q) { return q.lat; })), lon: Math.max.apply(null, cs4.map(function (q) { return q.lon; })) }, data = null;
     if (S.store && S.store.count()) data = S.store.inBox(la0.lat - 0.0005, la0.lon - 0.0005, la1.lat + 0.0005, la1.lon + 0.0005, 9000);
-    var overlay = !!S.ov;
+    var overlay = !!S.ov || (satOn() && S.satHave > 0);
     if (data && S.L.roads) drawRoads(c, C, data.ways, overlay);
     if (data && S.L.walk) drawWalk(c, C, data.ways);
     if (data) drawNodes(c, C, data);
@@ -2330,6 +2393,8 @@ function MapView(canvas, cb) {
     if (S.L.pins) drawPins(c, C);
     drawScale(c, C);
     if (data && data.tooBig) { c.fillStyle = C.txt; c.font = '12px sans-serif'; c.fillText('Zoom in to see roads', 12, 22); }
+    if (satOn() && S.satHave > 0) { c.fillStyle = '#fff'; c.strokeStyle = '#000'; c.lineWidth = 3; c.font = '11px sans-serif'; c.textAlign = 'right'; c.strokeText('Imagery © Esri, Maxar, Earthstar Geographics', W - 8, H - 22); c.fillText('Imagery © Esri, Maxar, Earthstar Geographics', W - 8, H - 22); c.textAlign = 'left'; }
+    if (S.sat && satFailed() && !cb.fixed) { c.fillStyle = C.bad; c.font = '600 12px sans-serif'; c.fillText('Satellite imagery could not load. Showing the drawn map.', 12, 40); }
     if (S.store && S.store.count()) { c.fillStyle = C.txt; c.globalAlpha = 0.75; c.font = '11px sans-serif'; c.textAlign = 'right'; c.fillText('Map data © OpenStreetMap contributors', W - 8, H - 8); c.textAlign = 'left'; c.globalAlpha = 1; }
     else { c.fillStyle = C.txt; c.font = '13px sans-serif'; c.globalAlpha = 0.8; c.fillText('No road data loaded yet. Pins are shown on a plain grid.', 12, 22); c.globalAlpha = 1; }
     if (S.pinMode) { c.fillStyle = C.acc; c.fillRect(0, 0, W, 4); c.fillStyle = C.acc; c.font = '600 13px sans-serif'; c.fillText('Tap the exact spot for the pin', 12, 44); }
@@ -2537,6 +2602,16 @@ function MapView(canvas, cb) {
       });
     }
     var fn = 0; legs.forEach(function (l) { if (l.flagger) { l.fid = 'F' + (++fn); l.xf = XF[l.key] ? 1 : 0; l.fx = l.xf ? l.fid + 'b' : ''; } });
+    /* bearing of every leg as drawn on a sheet: the main road runs left to right in the direction of travel, angles are clockwise degrees (screen) */
+    var ma = atS(g.pts, g.cum, g.s0).a + (dir < 0 ? Math.PI : 0), nrm = function (d) { d = ((d % 360) + 360) % 360; return Math.round(d * 10) / 10; };
+    legs.forEach(function (l) {
+      if (l.kind === 'main') { l.ang = l.ahead === 'back' ? 180 : 0; return; }
+      if (!l.pts) return;
+      var a0 = atS(l.pts, l.cum, l.sj), a1 = atS(l.pts, l.cum, l.sj + l.lg * 25);
+      l.ang = nrm(-(Math.atan2(a1.y - a0.y, a1.x - a0.x) - ma) * 180 / Math.PI);
+      var jm = (function () { var best = 0, bd = 1e18; for (var i = 0; i < g.pts.length; i++) { var dd = Math.hypot(g.pts[i].x - a0.x, g.pts[i].y - a0.y); if (dd < bd) { bd = dd; best = g.cum[i]; } } return best; })();
+      l.alongMain = Math.round(dir * (jm - g.s0));
+    });
     return { legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
   }
   /* driveways, parking aisles and private service roads are not streets a flagger or sign set is planned for */
@@ -2706,6 +2781,12 @@ function MapView(canvas, cb) {
       });
       if (!z.eff.oneway && (sc === 'laneclosure' || sc === 'twolanes' || sc === 'shoulder')) p.signs.forEach(function (sg) { if (sg.code === 'W20-1' || sg.opp) placeSign(sg.code, sg.legend, tE + sg.dist, { side: -1 }); });
       if (bothWays) p.signs.forEach(function (sg) { if (!sg.end && sg.dist > 0) placeSign(sg.code, sg.legend, tE + sg.dist, { side: -1 }); });
+      if (p.pedX && sc !== 'full') {
+        /* pedestrian closure signs at both ends of the work, on the sidewalk side of each direction */
+        var pl = 'SIDEWALK CLOSED AHEAD, CROSS HERE', pc = 'SIDEWALK CLOSED';
+        placeSign('R9-11a', pl, tW0 - 30, { side: 1 }); placeSign('R9-11a', pl, tW1 + 30, { side: -1 });
+        placeSign('R9-9', pc, tW0 + 4, { side: -1 }); placeSign('R9-9', pc, tW1 - 4, { side: 1 });
+      }
       var coned = ['laneclosure', 'twolanes', 'laneshift', 'shoulder', 'flagging', 'signal'].indexOf(sc) >= 0;
       if (coned) {
         var edge = RWf / 2, off0 = edge, offI = (sc === 'flagging' || sc === 'signal') ? 0 : Math.max(0, edge - (sc === 'shoulder' ? (z.eff.shoulderW || 6) : (z.eff.laneW || 12)));
@@ -2863,6 +2944,9 @@ function MapView(canvas, cb) {
     snapshot: function () { frame(); return canvas.toDataURL('image/png'); },
     overlayInfo: function () { if (!S.ov) return null; var l = toLL(S.ov.x, S.ov.y); return { img: S.ov.img, lat: l.lat, lon: l.lon, f: S.ov.f, a: S.ov.a }; },
     setData: setData, legs: function (n, zi) { var s = S.sites[n], z = s && s.zones[zi]; return z ? legsOf(z, s) : null; }, setRot: setRot, fitAll: fitAll, focusSite: focusSite, select: select, zoom: zoom, center: center, resize: resize, redraw: dirty,
+    setSat: function (b) { S.sat = !!b; dirty(); }, satOn: satOn, satFailed: satFailed,
+    /* fixed sheets: request the tiles this view needs, then call done (ready = all drawn) */
+    preloadSat: function (done) { if (!S.sat || satFailed()) { done(false, false); return; } var L = satList(), left = 0, fin = false, waited = false; L.list.forEach(function (q) { var t = satTile(q[0], q[1], q[2]); if (!t.ok && !t.err) left++; }); if (!left) { done(!satFailed(), false); return; } waited = true; L.list.forEach(function (q) { var t = satTile(q[0], q[1], q[2], function () { if (--left === 0 && !fin) { fin = true; done(!satFailed(), true); } }); }); },
     setLayer: function (n, v) { S.L[n] = v; dirty(); }, setPinMode: function (b) { S.pinMode = !!b; dirty(); }, setAdjust: function (b) { S.adjust = !!b; },
     setOverlay: setOverlay, ovParam: ovParam, hasOverlay: function () { return !!S.ov; },
     flip: function (n) { S.flip[n] = !S.flip[n]; dirty(); return !!S.flip[n]; }, flipped: function (n) { return !!S.flip[n]; },
@@ -3039,6 +3123,7 @@ function signWhere(signs, g, ref) {
   return (adv[k - 1].dist - g.dist) + ' ft after the previous sign (' + g.dist + ' ft before ' + ref + ')';
 }
 var JURS = { CA: 'California MUTCD 2026 Edition (FHWA MUTCD 2023, as amended for California)', FHWA: 'FHWA MUTCD 2023 Edition', OTHER: 'MUTCD as adopted by the agency (state supplement)' };
+var SAT = { on: false }; try { SAT.on = localStorage.getItem('tcp5sat') === '1'; } catch (e) {}
 var JUR = 'CA'; try { JUR = localStorage.getItem('tcp5jur') || 'CA'; } catch (e) {}
 function jurName() { return JURS[JUR] || JURS.CA; }
 
@@ -3773,6 +3858,8 @@ function nextBar() {
       h += '<div class="notes"><div class="nt high"><b>Closing the road is the last choice.</b> Answer these so the plan can try a shoulder closure, lane shift, lane closure or flagging first.' + qq('whole', 'Does the work block the whole road, both directions?') + qq('room', 'Is there a parking lane or wide shoulder (about 10 ft) to shift traffic into?') + qq('hold', 'Can flaggers hold traffic for a few minutes at a time?') + '</div></div>';
     }
     if (s.notes.length) h += '<div class="notes">' + s.notes.map(function (n) { return '<div class="nt ' + n.sev + '">' + esc(n.text) + '</div>'; }).join('') + '</div>';
+    h += streetsHTML(s);
+    h += '<details class="dg" id="rdyd"><summary>Approval readiness</summary><div style="padding:0 20px 14px">' + readinessHTML(s, false) + '</div></details>';
     h += sdForm();
     h += '<details class="dg" id="tune"' + ((open === null ? needs : open) ? ' open' : '') + '><summary>Check what you see' + (needs ? ' (' + s.items.filter(function (it) { return confidence(it.loc).level !== 'high'; }).length + ' to confirm)' : '') + '</summary><div style="padding:0 20px 12px">';
     s.zones.forEach(function (z) { z.items.forEach(function (it) { h += tuneLoc(it.loc, z, z.items.length > 1); }); });
@@ -3873,6 +3960,15 @@ function nextBar() {
     });
     $('zin').onclick = function () { mv.zoom(1.6); }; $('zout').onclick = function () { mv.zoom(1 / 1.6); };
     $('fitall').onclick = function () { mv.fitAll(); }; $('fitsite').onclick = function () { mv.focusSite(sel); };
+    function applySat(on) {
+      SAT.on = on; try { localStorage.setItem('tcp5sat', on ? '1' : '0'); } catch (e) {}
+      mv.setSat(on); PIC.k = ''; document.querySelectorAll('input[name=mstyle]').forEach(function (r) { r.checked = (r.value === 'sat') === on; });
+      var h = $('sathint'); h.hidden = !on; h.textContent = on ? 'Satellite is on. If the picture does not appear, imagery is blocked here and the drawn map is used. Plans and printed sheets follow this choice.' : '';
+      if (on) setTimeout(function () { if (mv.satFailed()) { h.textContent = 'Satellite imagery could not load here, so the drawn map is being used. Open the hosted app to use imagery.'; } }, 4000);
+      renderPlan();
+    }
+    document.querySelectorAll('input[name=mstyle]').forEach(function (r) { r.onchange = function () { applySat(r.value === 'sat'); }; });
+    if (SAT.on) applySat(true);
     ['roads', 'walk', 'cross', 'zone', 'names'].forEach(function (n) { $('ly-' + n).onchange = function (e) { mv.setLayer(n, e.target.checked); }; });
     $('flipb').onclick = function () { mv.flip(sel); renderMapUI(); };
     $('nudgeb').onclick = armNudge;
@@ -3988,13 +4084,13 @@ function nextBar() {
 
   /* ---------- sheet details and TCP page ---------- */
   var DEFNOTES = ['Traffic control per the ' + jurName() + ' and agency requirements.', 'All flaggers to communicate through hand signals and radio devices.', 'Pedestrian, bicycle and driveway access to remain open unless noted on the plan.'];
-  var SD = { job: '', agency: '', loc: '', contractor: '', by: '', initials: '', phone: '', hours: '', notes: DEFNOTES.join('\n'), noPark: false, flash: false };
+  var SD = { job: '', agency: '', loc: '', contractor: '', by: '', initials: '', phone: '', hours: '', permit: '', tcs: '', cert: '', emerg: '', approver: '', notes: DEFNOTES.join('\n'), noPark: false, flash: false };
   try { var sdv = JSON.parse(localStorage.getItem('tcp5s') || 'null'); if (sdv) SD = Object.assign(SD, sdv); } catch (e) {}
   function sdSave() { try { localStorage.setItem('tcp5s', JSON.stringify(SD)); } catch (e) {} }
   var PAL = { bg: '#FFFFFF', road: '#8C9299', cas: '#8C9299', walk: '#D3D7DA', txt: '#111111', acc: '#D4480B', work: '#F08A2E', ok: '#1B7A43', bad: '#B42318', yel: '#E9B800', ped: '#0F7C80', ink: '#111111', panel: '#FFFFFF' };
   function sdForm() {
     var f = function (k, label, ph) { return '<div class="fld"><label for="sd-' + k + '">' + label + '</label><input type="text" id="sd-' + k + '" data-sd="' + k + '" value="' + esc(SD[k]) + '" placeholder="' + esc(ph || '') + '" autocomplete="off"></div>'; };
-    return '<details class="dg" id="sdet"><summary>Sheet details for printing</summary><div style="padding:0 20px 14px"><p class="qh">These fill the title block on the printed TCP. They are saved on this device.</p><div class="fg">' + f('job', 'Job / PM number') + f('agency', 'Agency') + f('loc', 'Project location', 'Defaults to the street') + f('contractor', 'Prime contractor') + f('by', 'Prepared by') + f('initials', 'Initials') + f('phone', 'TCP questions call') + f('hours', 'Hours of work', 'Set by agency') + '</div>' +
+    return '<details class="dg" id="sdet"><summary>Sheet details for printing</summary><div style="padding:0 20px 14px"><p class="qh">These fill the title block on the printed TCP. They are saved on this device.</p><div class="fg">' + f('job', 'Job / PM number') + f('agency', 'Agency') + f('loc', 'Project location', 'Defaults to the street') + f('contractor', 'Prime contractor') + f('by', 'Prepared by') + f('initials', 'Initials') + f('phone', 'TCP questions call') + f('hours', 'Hours of work', 'Set by agency') + f('permit', 'Permit / encroachment no.') + f('tcs', 'Traffic control supervisor name') + f('cert', 'TCS certificate no.') + f('emerg', '24-hour emergency contact') + f('approver', 'Agency approver') + '</div>' +
       '<div class="fld" style="margin-top:10px"><label for="sd-notes">Notes on the sheet</label><textarea id="sd-notes" data-sd="notes" rows="4">' + esc(SD.notes) + '</textarea></div>' +
       '<div class="opts w"><label class="tile' + (SD.noPark ? ' on' : '') + '" style="cursor:pointer"><input type="checkbox" data-sdc="noPark"' + (SD.noPark ? ' checked' : '') + ' style="width:20px;height:20px;margin-right:8px">Add the no-parking note (72 hours)</label><label class="tile' + (SD.flash ? ' on' : '') + '" style="cursor:pointer"><input type="checkbox" data-sdc="flash"' + (SD.flash ? ' checked' : '') + ' style="width:20px;height:20px;margin-right:8px">Add the flashing warning light note</label></div></div></details>';
   }
@@ -4039,10 +4135,10 @@ function nextBar() {
     var cnt = {}, add = function (code, legend, n, where) { var o = cnt[code] || (cnt[code] = { code: code, legend: legend, n: 0, where: {} }); o.n += n; o.where[where] = (o.where[where] || 0) + n; };
     if (p.flaggers0 === undefined) p.flaggers0 = p.flaggers || 0;
     if (!L) {
-      var k = p.approaches || 1; p.legs = null;
+      var k = p.approaches || 1; p.legs = null; p.xlegs = (z.items[0].loc && z.items[0].loc.xt) || null;
       p.signs.forEach(function (g) { add(g.code, g.legend, k, k > 1 ? 'each of ' + k + ' approaches' : 'at the work'); });
     } else {
-      p.legs = L.legs.map(function (l) { return { kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0 }; });
+      p.legs = L.legs.map(function (l) { return { ang: l.ang, alongMain: l.alongMain, level: l.level, kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0 }; });
       L.legs.forEach(function (l) { l.signs.forEach(function (g) { add(g.code, g.legend, 1, l.name); }); });
       L.zoneSigns.forEach(function (g) { add(g.code, g.legend, 1, 'at the work'); });
       if (p.scenario === 'flagging' || p.scenario === 'intersection') {
@@ -4051,6 +4147,16 @@ function nextBar() {
         p.legsNote = p.scenario === 'intersection' && fl < 4 ? 'The map shows ' + fl + ' approaches here. Confirm the number of approaches on site and add a flagger and signs for any that are missing.' : '';
       }
     }
+    /* streets the person says the map missed: each gets a flagger and the full set of advance signs */
+    try {
+      var mi = Math.max(0, Math.min(6, (z.items[0].loc && z.items[0].loc.miss) | 0));
+      p.missed = mi;
+      if (mi && (p.scenario === 'flagging' || p.scenario === 'intersection')) {
+        p.signs.filter(function (g) { return !g.end && g.dist > 0 && !g.opp && !g.buf; }).forEach(function (g) { add(g.code, g.legend, mi, mi + ' street' + (mi > 1 ? 's' : '') + ' the map missed'); });
+        p.flaggers = (p.flaggers || 0) + mi;
+        p.legsNote = (p.legsNote ? p.legsNote + ' ' : '') + mi + ' street' + (mi > 1 ? 's' : '') + ' added by hand, each with a flagger and the full set of advance signs. Place them on site.';
+      }
+    } catch (e) {}
     /* pedestrian signs when a crosswalk or sidewalk is affected */
     p.pedX = null;
     try {
@@ -4114,7 +4220,7 @@ function nextBar() {
   }
 
   function planImageCached(s) {
-    var k = sites.indexOf(s) + JSON.stringify(s.zones.map(function (z) { return [z.eff, z.ev.rec && z.ev.rec.id, z.ev.rec && z.ev.rec.plan.signs, z.items[0].loc.xf]; })) + s.items.map(function (it) { return it.loc.osm && it.loc.osm.found ? 1 : 0; }).join('');
+    var k = (SAT.on ? 'S' : 'D') + sites.indexOf(s) + JSON.stringify(s.zones.map(function (z) { return [z.eff, z.ev.rec && z.ev.rec.id, z.ev.rec && z.ev.rec.plan.signs, z.items[0].loc.xf]; })) + s.items.map(function (it) { return it.loc.osm && it.loc.osm.found ? 1 : 0; }).join('');
     if (PIC.k !== k) { PIC.k = k; PIC.v = planImage(s); }
     return PIC.v;
   }
@@ -4127,6 +4233,11 @@ function nextBar() {
       var ov = mv && mv.overlayInfo(); if (ov) { m.setOverlay(ov.img, ov.lat, ov.lon, ov.f); m.ovParam({ a: ov.a }); }
       if (mv && mv.flipped(n)) m.flip(n);
       m.setCallouts(siteNotes(s).map(function (x, i) { return x.kind ? { n: i + 1, kind: x.kind, label: x.label, lat: x.lat, lon: x.lon } : null; }).filter(Boolean));
+      if (SAT.on) {
+        m.setSat(true); m.focusSite(n);
+        if (!PIC.pend) { PIC.pend = 1; m.preloadSat(function (ok, waited) { PIC.pend = 0; if (ok && waited) { PIC.k = ''; try { renderPlan(); } catch (e) {} } }); }
+        return m.snapshot();
+      }
       m.focusSite(n); return m.snapshot();
     } catch (e) { return null; }
   }
@@ -4179,24 +4290,70 @@ function nextBar() {
     out += '<text x="8" y="12" font-size="8" fill="#111">LEFT</text><text x="' + (W - 8) + '" y="12" font-size="8" text-anchor="end" fill="#111">RIGHT (looking in the direction of travel)</text>';
     return out + '</svg>';
   }
+  /* every street the app read around the work, so a missing one is easy to spot */
+  function streetsHTML(s) {
+    var z = s.zones[0], r = z && z.ev.rec, p = r && r.plan, loc = z && z.items[0].loc, h = '', legs = (p && p.legs) || [];
+    var ws = (loc && loc.osm && loc.osm.found) ? 1 : 0;
+    h += '<details class="dg" id="streetsd"><summary>Streets read at this site (' + (legs.length || 0) + ')</summary><div style="padding:0 20px 14px">';
+    if (!ws) h += '<div class="nt high"><b>No roads are loaded for this spot.</b> Open the hosted app and load the roads on the Map tab. Side streets cannot be signed until they are read. Until then, pick the intersection type below.</div>';
+    if (legs.length) h += '<table class="legt"><tr><th>Street</th><th>How it meets the work</th><th>Signs and where</th></tr>' + legs.map(function (l) {
+      var how = l.kind === 'main' ? (l.ahead === 'back' ? 'main road, approach' : 'main road, opposite way') : (l.via ? 'joins ' + l.via : 'side street' + (l.alongMain !== undefined ? ', ' + Math.abs(l.alongMain) + ' ft ' + (l.alongMain < 0 ? 'before' : 'past') + ' the work centre' : ''));
+      return '<tr><td>' + esc(l.name) + '</td><td>' + esc(how) + '</td><td>' + ((l.signs || []).length ? l.signs.map(function (g) { return esc(g.code) + " @" + g.dist + "'"; }).join(', ') : 'none needed') + (l.flagger ? ' + flagger' : '') + (l.missing ? ' <b>(short by ' + l.missing + ': no room before the next street)</b>' : '') + '</td></tr>';
+    }).join('') + '</table>';
+    h += '<div class="fg" style="margin-top:10px"><div class="fld"><label for="miss0">Streets on the ground that are not listed</label><select id="miss0" data-miss="1" data-zi="0">' + [0, 1, 2, 3, 4].map(function (n) { return '<option value="' + n + '"' + ((loc && (loc.miss | 0) === n) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></div>';
+    if (!(p && p.legs)) h += '<div class="fld"><label for="xt0">Intersection type</label><select id="xt0" data-xt="1" data-zi="0">' + [['', 'Main road only'], ['T-N', 'T: side street to the left of travel'], ['T-S', 'T: side street to the right of travel'], ['4', '4-way: both sides']].map(function (o) { return '<option value="' + o[0] + '"' + ((loc && (loc.xt || '') === o[0]) ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
+    return h + '</div><p class="qh">Each street added here gets its own flagger and the full set of advance signs.</p></div></details>';
+  }
+  /* approval readiness: what a reviewer looks for on a TCP sheet, checked against what this plan actually holds */
+  function readiness(s) {
+    var z0 = s.zones[0], r = z0 && z0.ev.rec, p = r && r.plan, o = [];
+    function add(ok, label, fix) { o.push({ ok: !!ok, label: label, fix: fix || '' }); }
+    var tb = [['job', 'job / PM no.'], ['agency', 'agency'], ['contractor', 'prime contractor'], ['by', 'prepared by'], ['phone', 'TCP questions phone'], ['permit', 'permit / encroachment no.'], ['tcs', 'TCS name'], ['cert', 'TCS cert no.'], ['emerg', '24-hour emergency contact'], ['hours', 'hours of work']].filter(function (x) { return !String(SD[x[0]] || '').trim(); });
+    add(!tb.length, 'Title block filled in', tb.length ? 'Missing: ' + tb.map(function (x) { return x[1]; }).join(', ') + ' (Plan tab, Sheet details).' : '');
+    add(!!r, 'A standard setup fits these inputs', 'Engineering judgment is required.');
+    var matched = s.items.every(function (it) { return it.loc.osm && it.loc.osm.found; });
+    add(matched, 'Roads, street names and road data matched to the pin', 'Load the roads (Map tab) so street names, lanes and speed come from the site.');
+    var asm = []; s.items.forEach(function (it) { confidence(it.loc).missing.forEach(function (m) { if (asm.indexOf(m) < 0) asm.push(m); }); });
+    add(!asm.length, 'Speed, lanes, lane width, sidewalks confirmed (nothing assumed)', asm.length ? 'Assumed: ' + asm.join(', ') + '. Confirm on site.' : '');
+    var img = !!planImageCached(s);
+    add(img, 'Plan drawn on the real road with north arrow and scale bar', 'Without road data the sheet is a schematic, marked NOT TO SCALE.');
+    add(!!p && p.signs.length > 0, 'Advance warning signs with distances and legends', '');
+    add(!!p && p.flaggers >= 2, 'Flagger on every approach', 'Add flagger stations.');
+    var walk = s.zones.some(function (z) { return z.eff.sidewalks && z.eff.sidewalks !== 'none'; });
+    add(!walk || !!(p && (p.pedX || s.zones.some(function (z) { return (z.ev.comp || []).some(function (c) { return c.kind === 'ped'; }); }))) || s.zones.some(function (z) { return z.ev.rec && /pedestrian|sidewalk/i.test((z.ev.rec.plan.notes || []).join(' ')); }), 'Pedestrian route or crosswalk closure shown', 'Sidewalks are present: show the pedestrian route or closure.');
+    var det = s.zones.filter(function (z) { return z.ev.rec && z.ev.rec.id === 'full'; });
+    add(!det.length || det.every(function (z) { var d = getDet(z); return d && d.ok; }), 'Detour planned when a road is closed', 'Detour not planned: road data is missing.');
+    var mc = mutcdSite(s); add(!mc.bad.length, 'MUTCD check: ' + mc.pass + ' of ' + mc.all.length + ' rules pass', mc.bad.map(function (c) { return c.rule || c.msg || ''; }).filter(Boolean).slice(0, 3).join('; '));
+    add(!!SD.approver && false, 'Agency approval signature and date', 'Signed by the approver on the printed sheet. Not something the app can do.');
+    return o;
+  }
+  function readinessHTML(s, compact) {
+    var R = readiness(s), done = R.filter(function (x) { return x.ok; }).length;
+    return '<div class="rdy"><b>Approval readiness: ' + done + ' of ' + R.length + (compact && done < R.length ? ' (open items)' : '') + '</b><ul>' + R.filter(function (x) { return !compact || !x.ok; }).map(function (x) { return '<li class="' + (x.ok ? 'ok' : 'no') + '">' + (x.ok ? '&#10003; ' : '&#9744; ') + esc(x.label) + (!x.ok && x.fix && !compact ? ' <small>' + esc(x.fix) + '</small>' : '') + '</li>'; }).join('') + '</ul></div>';
+  }
   function tcpPage(s, idx, withImg) {
     var z0 = s.zones[0], r = z0 && z0.ev.rec, p = r && r.plan, img = withImg ? planImage(s) : null, date = new Date().toLocaleDateString('en-US');
     var plan;
     if (img) plan = '<img src="' + img + '" alt="Plan view of the work zone on the road network">';
     else plan = s.zones.map(function (z) { var rr = z.ev.rec; return rr ? '<div class="zsv">' + draw(rr.plan, z.eff) + '</div>' : '<p>No standard setup fits.</p>'; }).join('');
     var NT = siteNotes(s), notes = NT.map(function (x) { return x.t; });
-    var sg = []; s.zones.forEach(function (z) { var rr = z.ev.rec; if (rr) rr.plan.signs.forEach(function (g) { if (sg.indexOf(g.code) < 0) sg.push(g.code); }); }); s.zones.forEach(function (z) { var dd = getDet(z); if (dd && dd.ok) detourSigns(dd, z.ev.rec.plan).forEach(function (g) { if (sg.indexOf(g.code) < 0) sg.push(g.code); }); });
+    var sg = []; s.zones.forEach(function (z) { var rr = z.ev.rec; if (rr) rr.plan.signs.forEach(function (g) { if (sg.indexOf(g.code) < 0) sg.push(g.code); }); if (rr.plan.pedX) ['R9-11a', 'R9-9'].forEach(function (cd) { if (sg.indexOf(cd) < 0) sg.push(cd); }); }); s.zones.forEach(function (z) { var dd = getDet(z); if (dd && dd.ok) detourSigns(dd, z.ev.rec.plan).forEach(function (g) { if (sg.indexOf(g.code) < 0) sg.push(g.code); }); });
     var lgAll = s.zones.map(function (z) { var rr = z.ev.rec; return rr ? legsTable(rr.plan) : ''; }).join('');
     var h = '<article class="sheet tcp pb"><div class="tcpbox"><div class="tcpmain">' + plan + '<div class="tcpleg">' + lgAll + '</div></div>';
-    h += '<div class="tcpnotes">' + (warnFor(s) ? '<div class="tcpwarn">' + esc(warnFor(s)) + '</div>' : '') + '<div class="tcpwarn" style="background:' + (mutcdSite(s).bad.length ? '#fde8e8' : '#e7f5ec') + '">MUTCD check: ' + mutcdSite(s).pass + ' of ' + mutcdSite(s).all.length + ' rules passed' + (mutcdSite(s).bad.length ? ' (REVIEW: ' + esc(mutcdSite(s).bad.map(function (c) { return c.rule; }).join('; ')) + ')' : '') + '</div><b>NOTES</b><ol>' + notes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>' + s.zones.map(function (z, zi) { var rr = z.ev.rec; if (!rr) return ''; var pp = rr.plan; return '<table class="tcpt"><tr><th colspan="2">' + (s.zones.length > 1 ? 'Zone ' + (zi + 1) + ': ' : '') + esc(rr.name) + ' at ' + z.eff.speed + ' mph</th></tr><tr><td>Taper</td><td>' + pp.taper + "'</td></tr><tr><td>Buffer</td><td>" + pp.buffer + "'</td></tr><tr><td>Sign spacing</td><td>" + pp.space + "'</td></tr><tr><td>Downstream taper</td><td>" + pp.downstream + "'</td></tr><tr><td>" + (getDet(z) && getDet(z).ok ? 'Closed length' : 'Work length') + "</td><td>" + (getDet(z) && getDet(z).ok ? getDet(z).closedFt : z.eff.len) + "'</td></tr><tr><td>Devices</td><td>" + (rr.id === 'full' ? pp.barricades + ' barricades' : pp.devTotal) + '</td></tr>' + (pp.flaggers ? '<tr><td>Flaggers</td><td>' + pp.flaggers + '</td></tr>' : '') + '<tr><td>Signs, all approaches</td><td>' + signTotal(pp) + '</td></tr></table>'; }).join('') + '</div>';
+    h += '<div class="tcpnotes">' + readinessHTML(s, true) + (warnFor(s) ? '<div class="tcpwarn">' + esc(warnFor(s)) + '</div>' : '') + '<div class="tcpwarn" style="background:' + (mutcdSite(s).bad.length ? '#fde8e8' : '#e7f5ec') + '">MUTCD check: ' + mutcdSite(s).pass + ' of ' + mutcdSite(s).all.length + ' rules passed' + (mutcdSite(s).bad.length ? ' (REVIEW: ' + esc(mutcdSite(s).bad.map(function (c) { return c.rule; }).join('; ')) + ')' : '') + '</div><b>NOTES</b><ol>' + notes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>' + s.zones.map(function (z, zi) { var rr = z.ev.rec; if (!rr) return ''; var pp = rr.plan; return '<table class="tcpt"><tr><th colspan="2">' + (s.zones.length > 1 ? 'Zone ' + (zi + 1) + ': ' : '') + esc(rr.name) + ' at ' + z.eff.speed + ' mph</th></tr><tr><td>Taper</td><td>' + pp.taper + "'</td></tr><tr><td>Buffer</td><td>" + pp.buffer + "'</td></tr><tr><td>Sign spacing</td><td>" + pp.space + "'</td></tr><tr><td>Downstream taper</td><td>" + pp.downstream + "'</td></tr><tr><td>" + (getDet(z) && getDet(z).ok ? 'Closed length' : 'Work length') + "</td><td>" + (getDet(z) && getDet(z).ok ? getDet(z).closedFt : z.eff.len) + "'</td></tr><tr><td>Devices</td><td>" + (rr.id === 'full' ? pp.barricades + ' barricades' : pp.devTotal) + '</td></tr>' + (pp.flaggers ? '<tr><td>Flaggers</td><td>' + pp.flaggers + '</td></tr>' : '') + '<tr><td>Signs, all approaches</td><td>' + signTotal(pp) + '</td></tr></table>'; }).join('') + '</div>';
     var di0 = mv && mv.dirInfo ? mv.dirInfo(sites.indexOf(s)) : null;
-    h += '<div class="tcplegend">' + (z0 ? '<div class="tcpxs"><b>TYPICAL SECTION</b>' + xsecSVG(z0, di0 ? di0.side : 'R') + '</div>' : '') + '<b>LEGEND</b><div><i class="sw w"></i>Work area</div><div><i class="sw c"></i>Cone or drum</div><div><i class="sw d"></i>Sign: ' + esc(sg.join(', ')) + '</div>' + (z0 && z0.ev.rec && z0.ev.rec.plan.flaggers ? '<div><i class="sw f"></i>Flagger</div>' : '') + (p && p.arrowBoard ? '<div><i class="sw a"></i>Arrow board' + (p.arrowBoards > 1 ? 's' : '') + '</div>' : '') + (p && p.tma ? '<div><i class="sw t"></i>Shadow vehicle with attenuator</div>' : '') + (s.zones.some(function (z) { return z.ev.rec && (z.ev.rec.id === 'sidewalk' || z.ev.rec.id === 'walkway') || (z.ev.comp || []).some(function (c) { return c.kind === 'ped'; }); }) ? '<div><i class="sw p"></i>Pedestrian route</div>' : '') + '<div>Distances in feet. Map is to scale. Devices and signs are shown at their planned stations.</div></div>' + (SD.noPark ? '<div class="tcpnp"><svg viewBox="0 0 60 80" width="46" height="62" aria-hidden="true"><rect x="2" y="2" width="56" height="76" rx="5" fill="#fff" stroke="#111" stroke-width="3"/><circle cx="30" cy="26" r="17" fill="#fff" stroke="#B42318" stroke-width="5"/><text x="30" y="34" text-anchor="middle" font-size="22" font-weight="700" font-family="sans-serif">P</text><line x1="18" y1="38" x2="42" y2="14" stroke="#B42318" stroke-width="5"/><rect x="6" y="52" width="48" height="20" fill="#B42318"/><text x="30" y="66" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="sans-serif">TOW-AWAY</text></svg><div><b>NO PARKING</b><br>Barricade mounted, both sides of the street, 72 hours before work.</div></div>' : '') + '</div>';
+    h += '<div class="tcplegend"><div class="lgx">' + (z0 ? '<div class="tcpxs"><b>TYPICAL SECTION</b>' + xsecSVG(z0, di0 ? di0.side : 'R') + '</div>' : '') + '</div><div class="lgi"><b>LEGEND</b><div><i class="sw w"></i>Work area</div><div><i class="sw c"></i>Cone or drum</div><div><i class="sw d"></i>Sign: ' + esc(sg.join(', ')) + '</div>' + (z0 && z0.ev.rec && z0.ev.rec.plan.flaggers ? '<div><i class="sw f"></i>Flagger</div>' : '') + (p && p.arrowBoard ? '<div><i class="sw a"></i>Arrow board' + (p.arrowBoards > 1 ? 's' : '') + '</div>' : '') + (p && p.tma ? '<div><i class="sw t"></i>Shadow vehicle with attenuator</div>' : '') + (s.zones.some(function (z) { return z.ev.rec && (z.ev.rec.id === 'sidewalk' || z.ev.rec.id === 'walkway') || (z.ev.comp || []).some(function (c) { return c.kind === 'ped'; }); }) ? '<div><i class="sw p"></i>Pedestrian route</div>' : '') + '<div>Distances in feet. Map is to scale. Devices and signs are shown at their planned stations.</div></div>' + (SD.noPark ? '<div class="tcpnp"><svg viewBox="0 0 60 80" width="46" height="62" aria-hidden="true"><rect x="2" y="2" width="56" height="76" rx="5" fill="#fff" stroke="#111" stroke-width="3"/><circle cx="30" cy="26" r="17" fill="#fff" stroke="#B42318" stroke-width="5"/><text x="30" y="34" text-anchor="middle" font-size="22" font-weight="700" font-family="sans-serif">P</text><line x1="18" y1="38" x2="42" y2="14" stroke="#B42318" stroke-width="5"/><rect x="6" y="52" width="48" height="20" fill="#B42318"/><text x="30" y="66" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="sans-serif">TOW-AWAY</text></svg><div><b>NO PARKING</b><br>Barricade mounted, both sides of the street, 72 hours before work.</div></div>' : '') + '</div></div>';
     h += '<div class="tb"><div><small>Job / PM #</small><b>' + esc(SD.job) + '</b><small style="margin-top:4px">Sheet</small><b>TC-' + (idx + 1) + '</b></div>';
     h += '<div><small>Agency</small><b>' + esc(SD.agency) + '</b><small style="margin-top:4px">Project location</small><b>' + esc(SD.loc || (s.road || '') + (s.items[0].loc.label ? ' ' + s.items[0].loc.label : '')) + '</b></div>';
     h += '<div><small>Prime contractor</small><b>' + esc(SD.contractor) + '</b><small style="margin-top:4px">Prepared by / initials</small><b>' + esc(SD.by) + ' ' + esc(SD.initials) + '</b></div>';
     h += '<div><small>Date prepared</small><b>' + esc(date) + '</b><small style="margin-top:4px">TCP questions call</small><b>' + esc(SD.phone) + '</b></div>';
     h += '<div><small>Setup</small><b>' + esc(s.recNames.join(', ')) + '</b><small style="margin-top:4px">Cone spacing taper / tangent</small><b>' + (p ? p.devSpacingTaper + "' / " + p.devSpacingTangent + "'" : '') + '</b></div>';
-    h += '<div><small>Scale</small><b>' + (img ? 'See bar on plan' : 'NOT TO SCALE') + '</b><small style="margin-top:4px">Hours of work</small><b>' + esc(SD.hours || 'Set by agency') + '</b></div></div></article>';
+    h += '<div><small>Scale</small><b>' + (img ? 'See bar on plan' : 'NOT TO SCALE') + '</b><small style="margin-top:4px">Hours of work</small><b>' + esc(SD.hours || 'Set by agency') + '</b></div></div>';
+    h += '<div class="tb tb2"><div><small>Permit / encroachment no.</small><b>' + esc(SD.permit) + '</b><small style="margin-top:4px">Posted speed</small><b>' + (z0 ? z0.eff.speed + ' mph' : '') + '</b></div>';
+    h += '<div><small>Traffic control supervisor / cert no.</small><b>' + esc(SD.tcs) + ' ' + esc(SD.cert) + '</b><small style="margin-top:4px">24-hour emergency contact</small><b>' + esc(SD.emerg) + '</b></div>';
+    h += '<div><small>Sheet</small><b>TC-' + (idx + 1) + ' of ' + sites.length + '</b><small style="margin-top:4px">Revision</small><b>0 ' + esc(date) + '</b></div>';
+    h += '<div style="grid-column:span 2"><small>Approved by (agency) / signature</small><b>' + esc(SD.approver) + '</b><div style="border-bottom:1px solid #111;height:18px"></div></div>';
+    h += '<div><small>Approval date</small><div style="border-bottom:1px solid #111;height:30px"></div></div></div></article>';
     return h;
   }
 
@@ -4481,7 +4638,12 @@ function nextBar() {
     $('sort').onchange = function () { LS.sort = this.value; LS.page = 0; renderList(); };
     $('app').addEventListener('click', onAct);
     $('app').addEventListener('change', function (e) {
-      var t = e.target; if (!t || !t.getAttribute || t.getAttribute('data-xf') === null) return;
+      var t = e.target; if (t && t.getAttribute && (t.getAttribute('data-miss') !== null || t.getAttribute('data-xt') !== null)) {
+        var s0 = sites[sel], z0 = s0 && s0.zones[0]; if (!z0) return; var l0 = z0.items[0].loc, y0 = window.pageYOffset;
+        if (t.getAttribute('data-miss') !== null) l0.miss = +t.value; else l0.xt = t.value;
+        save(); compute(); if (mv) mv.focusSite(sel); try { var dd = document.getElementById('streetsd'); if (dd) dd.open = true; window.scrollTo(0, y0); } catch (x) {} return;
+      }
+      if (!t || !t.getAttribute || t.getAttribute('data-xf') === null) return;
       var s = sites[sel], z = s && s.zones[+t.getAttribute('data-zi')]; if (!z) return;
       var loc = z.items[0].loc, y = window.pageYOffset; loc.xf = loc.xf || {}; loc.xf[t.getAttribute('data-xf')] = t.checked ? 1 : 0;
       save(); compute(); if (mv) mv.focusSite(sel); try { window.scrollTo(0, y); } catch (x) {}
