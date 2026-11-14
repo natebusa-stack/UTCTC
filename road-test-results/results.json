@@ -4,44 +4,63 @@
     "lat": 38.5816,
     "lon": -121.4944,
     "loaded": false,
+    "mstat": "Map data loaded: 1706 roads and paths. Matched 1 of 1 locations to a road.",
     "hint": "",
     "requests": [
       "502 https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A40%5D%",
       "502 https://overpass-api.de/api/interpreter",
-      "502 https://overpass-api.de/api/interpreter",
       "FAILED net::ERR_FAILED https://overpass.openstreetmap.fr/api/interpreter?data=%5Bou",
+      "FAILED net::ERR_ABORTED https://overpass-api.de/api/interpreter",
       "FAILED net::ERR_ABORTED https://overpass.private.coffee/api/interpreter?data=%5Bout%",
       "FAILED net::ERR_ABORTED https://overpass.kumi.systems/api/interpreter?data=%5Bout%3A",
       "FAILED net::ERR_ABORTED https://lz4.overpass-api.de/api/interpreter?data=%5Bout%3Ajs",
       "200 https://api.openstreetmap.org/api/0.6/map.json?bbox=-121.501436,38.576100,-121.4"
     ],
     "errors": [],
-    "streets": "Streets read at this site (2)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\n9th Street\tmain road, approach\tW11-1 @100', W16-1P @100', W4-2R @200', W20-5 @300', W20-1 @400'\nI Street\tside street, 60 ft before the work centre\tW11-1 @100', W16-1P @200', W4-2R @300' (short by 1: no room before the next street)\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs."
+    "streets": "Streets read at this site (2)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\n9th Street\tmain road, approach\tW11-1 @100', W16-1P @100', W4-2R @200', W20-5 @300', W20-1 @400'\nI Street\tside street, 60 ft before the work centre\tW11-1 @100', W16-1P @200', W4-2R @300' (short by 1: no room before the next street)\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Alleys, driveways, parking aisles and private roads are not signed. If one carries real traffic into the work, count it above."
   },
   {
     "name": "Elk Grove residential",
     "lat": 38.4088,
     "lon": -121.3716,
     "loaded": false,
+    "mstat": "Map data loaded: 335 roads and paths. Matched 1 of 1 locations to a road.",
     "hint": "",
     "requests": [
       "502 https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A40%5D%",
-      "502 https://overpass-api.de/api/interpreter",
       "FAILED net::ERR_FAILED https://overpass.openstreetmap.fr/api/interpreter?data=%5Bou",
-      "502 https://lz4.overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A40",
-      "502 https://lz4.overpass-api.de/api/interpreter",
-      "200 https://overpass-api.de/api/interpreter",
+      "FAILED net::ERR_ABORTED https://overpass-api.de/api/interpreter",
       "FAILED net::ERR_ABORTED https://overpass.private.coffee/api/interpreter?data=%5Bout%",
-      "FAILED net::ERR_ABORTED https://overpass.kumi.systems/api/interpreter?data=%5Bout%3A"
+      "FAILED net::ERR_ABORTED https://overpass.kumi.systems/api/interpreter?data=%5Bout%3A",
+      "200 https://lz4.overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A40",
+      "200 https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A25%5D%"
     ],
     "errors": [],
-    "streets": "Streets read at this site (0)\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\nIntersection type\nMain road only\nT: side street to the left of travel\nT: side street to the right of travel\n4-way: both sides\n\nEach street added here gets its own flagger and the full set of advance signs."
+    "streets": "Streets read at this site (0)\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\nIntersection type\nMain road only\nT: side street to the left of travel\nT: side street to the right of travel\n4-way: both sides\n\nEach street added here gets its own flagger and the full set of advance signs. Alleys, driveways, parking aisles and private roads are not signed. If one carries real traffic into the work, count it above."
   },
   {
     "name": "Folsom Blvd",
     "lat": 38.6781,
     "lon": -121.1761,
     "loaded": false,
+    "mstat": "Map data loaded: 250 roads and paths. Matched 1 of 1 locations to a road.",
+    "hint": "",
+    "requests": [
+      "FAILED net::ERR_FAILED https://overpass.openstreetmap.fr/api/interpreter?data=%5Bou",
+      "FAILED net::ERR_ABORTED https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5",
+      "FAILED net::ERR_ABORTED https://overpass.private.coffee/api/interpreter?data=%5Bout%",
+      "FAILED net::ERR_ABORTED https://overpass.kumi.systems/api/interpreter?data=%5Bout%3A",
+      "200 https://lz4.overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A40"
+    ],
+    "errors": [],
+    "streets": "Streets read at this site (6)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nMain road\tmain road, opposite way\tW3-3 @100', W20-4 @200', W20-1 @300'\nSutter Street\tside street, 44 ft past the work centre\tW3-3 @100', W20-4 @200', W20-1 @300'\nSutter Street\tside street, 44 ft past the work centre\tW3-3 @100' (short by 2: no room before the next street)\nScott Street\tjoins Sutter Street\tW20-1 @100'\nScott Street\tjoins Sutter Street\tW20-1 @100'\nSide street\tjoins Sutter Street\tW3-3 @90'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Alleys, driveways, parking aisles and private roads are not signed. If one carries real traffic into the work, count it above."
+  },
+  {
+    "name": "Roseville intersection",
+    "lat": 38.7521,
+    "lon": -121.288,
+    "loaded": false,
+    "mstat": "Map data loaded: 327 roads and paths. Matched 1 of 1 locations to a road.",
     "hint": "",
     "requests": [
       "FAILED net::ERR_FAILED https://overpass.openstreetmap.fr/api/interpreter?data=%5Bou",
@@ -51,28 +70,9 @@
       "200 https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A40%5D%",
       "FAILED net::ERR_ABORTED https://overpass.private.coffee/api/interpreter?data=%5Bout%",
       "FAILED net::ERR_ABORTED https://overpass.kumi.systems/api/interpreter?data=%5Bout%3A",
-      "200 https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A25%5D%"
+      "502 https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A25%5D%"
     ],
     "errors": [],
-    "streets": "Streets read at this site (6)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nMain road\tmain road, opposite way\tW3-3 @100', W20-4 @200', W20-1 @300'\nSutter Street\tside street, 44 ft past the work centre\tW3-3 @100', W20-4 @200', W20-1 @300'\nSutter Street\tside street, 44 ft past the work centre\tW3-3 @100' (short by 2: no room before the next street)\nScott Street\tjoins Sutter Street\tW20-1 @100'\nScott Street\tjoins Sutter Street\tW20-1 @100'\nSide street\tjoins Sutter Street\tW3-3 @90'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs."
-  },
-  {
-    "name": "Roseville intersection",
-    "lat": 38.7521,
-    "lon": -121.288,
-    "loaded": false,
-    "hint": "",
-    "requests": [
-      "502 https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A40%5D%",
-      "502 https://overpass-api.de/api/interpreter",
-      "502 https://overpass-api.de/api/interpreter",
-      "FAILED net::ERR_FAILED https://overpass.openstreetmap.fr/api/interpreter?data=%5Bou",
-      "502 https://lz4.overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A40",
-      "502 https://lz4.overpass-api.de/api/interpreter",
-      "502 https://lz4.overpass-api.de/api/interpreter",
-      "FAILED net::ERR_ABORTED https://overpass.private.coffee/api/interpreter?data=%5Bout%"
-    ],
-    "errors": [],
-    "streets": "Streets read at this site (17)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nGuava Alley\tside street, 126 ft before the work centre\tW4-2R @250', W20-5 @500', W20-1 @750'\nMain Street\tside street, 58 ft past the work centre\tW4-2R @250', W20-5 @500', W20-1 @750'\nWashington Boulevard\tside street, 126 ft before the work centre\tW4-2R @250', W20-5 @500', W20-1 @750'\nMain Street\tside street, 58 ft past the work centre\tnone needed (short by 3: no room before the next street)\nAlta Avenue\tjoins Guava Alley\tW20-1 @171'\nAlta Avenue\tjoins Guava Alley\tW20-1 @170'\nSide street\tjoins Guava Alley\tW20-1 @170'\nSide street\tjoins Guava Alley\tW20-1 @70'\nBerkeley Avenue\tjoins Main Street\tW20-1 @470'\nNorth Grant Street\tjoins Main Street\tW20-1 @250'\nAlta Avenue\tjoins Main Street\tW20-1 @250'\nSide street\tjoins Main Street\tW20-1 @97'\nGrove Street\tjoins Washington Boulevard\tW20-1 @570'\nGrove Street\tjoins Washington Boulevard\tW20-1 @570'\nMango Alley\tjoins Washington Boulevard\tW20-1 @390'\nPleasant Street\tjoins Washington Boulevard\tW20-1 @250'\nPapaya Alley\tjoins Washington Boulevard\tW20-1 @139'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs."
+    "streets": "Streets read at this site (10)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nMain Street\tside street, 58 ft past the work centre\tW4-2R @250', W20-5 @500', W20-1 @750'\nWashington Boulevard\tside street, 126 ft before the work centre\tW4-2R @250', W20-5 @500', W20-1 @750'\nMain Street\tside street, 58 ft past the work centre\tnone needed (short by 3: no room before the next street)\nBerkeley Avenue\tjoins Main Street\tW20-1 @470'\nNorth Grant Street\tjoins Main Street\tW20-1 @250'\nAlta Avenue\tjoins Main Street\tW20-1 @250'\nSide street\tjoins Main Street\tW20-1 @97'\nGrove Street\tjoins Washington Boulevard\tW20-1 @570'\nGrove Street\tjoins Washington Boulevard\tW20-1 @570'\nPleasant Street\tjoins Washington Boulevard\tW20-1 @250'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Alleys, driveways, parking aisles and private roads are not signed. If one carries real traffic into the work, count it above."
   }
 ]
