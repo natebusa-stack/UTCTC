@@ -2551,6 +2551,7 @@ function MapView(canvas, cb) {
     var remFront = dir > 0 ? (gTot - sFront) + (contHi ? cLenHi : 0) : sFront + (contLo ? cLenLo : 0);
     var remBack = dir > 0 ? sBack + (contLo ? cLenLo : 0) : (gTot - sBack) + (contHi ? cLenHi : 0);
     var endFront = flagSc && both && remFront < needLen, endBack = flagSc && remBack < needLen;
+    legs.forEach(function (l) { if (l.kind === 'main') l.room = Math.round(l.ahead === 'front' ? remFront : remBack); });
     var mainGone = 0;
     if (endFront) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'front'); }); mainGone++; }
     if (endBack) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'back'); }); mainGone++; }
@@ -3103,6 +3104,13 @@ function mutcdCheck(rec, eff) {
   if (id === 'laneclosure' && (+p.lanes || +eff.lanes) >= 2 && S >= 45) T(p.arrowBoard, 'Arrow board for multilane closure', p.arrowBoard ? 'yes' : 'missing');
   if (id === 'flagging') T(p.flaggers >= 2, 'Two flaggers for two-way flagging', (p.flaggers || 0) + ' flaggers');
   if (p.legs) {
+    var farOf = function (l) { return (l.signs || []).reduce(function (m, q) { return Math.max(m, q.dist); }, 0); };
+    var noRoad = p.legs.filter(function (l) { return l.kind === 'main' && l.signs.length && l.room !== undefined && l.room < farOf(l); });
+    T(!noRoad.length, 'Every sign sits on a road that is there (none past a road end)', noRoad.length ? noRoad.map(function (l) { return l.name + ' has ' + l.room + " ft of road for signs out to " + farOf(l) + " ft"; }).join('; ') : p.legs.length + ' approaches checked');
+    var offRd = p.legs.filter(function (l) { return l.kind !== 'main' && l.avail !== undefined && l.signs.length && farOf(l) > l.avail; });
+    T(!offRd.length, 'No sign is placed beyond the end of its street', offRd.length ? offRd.map(function (l) { return l.name; }).join(', ') : 'ok');
+    var tight = p.legs.filter(function (l) { var d = (l.signs || []).map(function (q) { return q.dist; }).sort(function (a, b) { return a - b; }); for (var i = 1; i < d.length; i++) if (d[i] - d[i - 1] < (S > 25 ? 99 : 49)) return true; return false; });
+    T(!tight.length, 'Signs on each approach are spaced at least ' + (S > 25 ? 100 : 50) + ' ft apart', tight.length ? tight.map(function (l) { return l.name; }).join(', ') : 'ok');
     var sh = p.legs.filter(function (l) { return l.missing > 0; });
     T(!sh.length, 'Every approach gets the full set of advance signs', sh.length ? sh.map(function (l) { return l.name; }).join(', ') + ' too short for all signs. Carry the rest onto the next street out' : p.legs.length + ' approaches covered');
     if (id === 'flagging' || id === 'intersection') {
@@ -3900,6 +3908,7 @@ function nextBar() {
     var yb = yardHTML().replace('<article class="sheet pb yard">', '<div class="yardbox">').replace('</article>', '</div>').replace(/<h1>.*?<\/h1>/, '');
     if (yb) h += '<details class="dg" open><summary>Load list for the day: every approach, every zone</summary><div style="padding:0 14px 10px">' + yb + '</div></details>';
     var mc = mutcdSite(s);
+    h += gateHTML(s);
     h += '<div class="notes"><div class="nt ' + (mc.bad.length ? 'high' : 'ok') + '" id="mutcdchk"><b>' + (mc.bad.length ? 'MUTCD check: ' + mc.bad.length + ' item' + (mc.bad.length > 1 ? 's' : '') + ' need attention' : 'MUTCD check: ' + mc.pass + ' of ' + mc.all.length + ' rules passed') + '</b>' + (mc.bad.length ? mc.bad.map(function (c) { return '<div>' + esc(c.rule) + ': ' + esc(c.det) + '</div>'; }).join('') : '<div>Sign count and spacing, buffer, taper, device spacing, downstream taper, end sign, arrow board and flaggers were tested against the tables in this app. A person still has to confirm the road details.</div>') + '</div></div>';
     h += '<div class="notes" id="aiwrap" hidden><button type="button" class="ghost" id="aibtn">Ask Claude to review this plan</button><div id="aiout" class="nt" hidden style="white-space:pre-wrap"></div></div>';
     var fullHere = s.zones.some(function (z) { return z.ev.rec && z.ev.rec.id === 'full'; }), jj = G.j || {};
@@ -4188,7 +4197,7 @@ function nextBar() {
       var k = p.approaches || 1; p.legs = null; p.xlegs = (z.items[0].loc && z.items[0].loc.xt) || null;
       p.signs.forEach(function (g) { add(g.code, g.legend, k, k > 1 ? 'each of ' + k + ' approaches' : 'at the work'); });
     } else {
-      p.mainGone = L.mainGone || 0; p.legs = L.legs.map(function (l) { return { ang: l.ang, alongMain: l.alongMain, level: l.level, kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0 }; });
+      p.mainGone = L.mainGone || 0; p.legs = L.legs.map(function (l) { return { room: l.room, avail: l.avail, ang: l.ang, alongMain: l.alongMain, level: l.level, kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0 }; });
       L.legs.forEach(function (l) { l.signs.forEach(function (g) { add(g.code, g.legend, 1, l.name); }); });
       L.zoneSigns.forEach(function (g) { add(g.code, g.legend, 1, 'at the work'); });
       if (p.scenario === 'flagging' || p.scenario === 'intersection') {
@@ -4355,6 +4364,14 @@ function nextBar() {
     if (!(p && p.legs)) h += '<div class="fld"><label for="xt0">Intersection type</label><select id="xt0" data-xt="1" data-zi="0">' + [['', 'Main road only'], ['T-N', 'T: side street to the left of travel'], ['T-S', 'T: side street to the right of travel'], ['4', '4-way: both sides']].map(function (o) { return '<option value="' + o[0] + '"' + ((loc && (loc.xt || '') === o[0]) ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
     return h + '</div><p class="qh">Each street added here gets its own flagger and the full set of advance signs. Alleys, driveways, parking aisles and private roads are not signed. If one carries real traffic into the work, count it above.</p></div></details>';
   }
+  /* Compliance gate. Every plan is checked against the MUTCD rules and the road geometry before it is shown; a plan with open items is stamped NOT CLEARED everywhere it appears. */
+  function gateOf(s) { var mc = mutcdSite(s); return { ok: !mc.bad.length, bad: mc.bad, n: mc.all.length }; }
+  function gateAll() { return sites.every(function (s) { return gateOf(s).ok; }); }
+  function gateHTML(s) {
+    var g = gateOf(s);
+    if (g.ok) return '<div class="notes"><div class="nt ok"><b>CLEARED: all ' + g.n + ' MUTCD and road checks passed before this plan was shown.</b> A person still has to confirm the road details on site.</div></div>';
+    return '<div class="notes"><div class="nt high" style="border-width:3px"><b>NOT CLEARED: ' + g.bad.length + ' compliance issue' + (g.bad.length > 1 ? 's' : '') + ' found before this plan was shown.</b> Do not set up from this plan until each is fixed or a qualified person approves the exception.<ul style="margin:6px 0 0 18px">' + g.bad.map(function (c) { return '<li>' + esc((c.rule || 'Rule') + (c.det ? ': ' + c.det : '')) + '</li>'; }).join('') + '</ul></div></div>';
+  }
   /* approval readiness: what a reviewer looks for on a TCP sheet, checked against what this plan actually holds */
   function readiness(s) {
     var z0 = s.zones[0], r = z0 && z0.ev.rec, p = r && r.plan, o = [];
@@ -4390,7 +4407,7 @@ function nextBar() {
     var NT = siteNotes(s), notes = NT.map(function (x) { return x.t; });
     var sg = []; s.zones.forEach(function (z) { var rr = z.ev.rec; if (rr) rr.plan.signs.forEach(function (g) { if (sg.indexOf(g.code) < 0) sg.push(g.code); }); if (rr.plan.pedX) ['R9-11a', 'R9-9'].forEach(function (cd) { if (sg.indexOf(cd) < 0) sg.push(cd); }); }); s.zones.forEach(function (z) { var dd = getDet(z); if (dd && dd.ok) detourSigns(dd, z.ev.rec.plan).forEach(function (g) { if (sg.indexOf(g.code) < 0) sg.push(g.code); }); });
     var lgAll = s.zones.map(function (z) { var rr = z.ev.rec; return rr ? legsTable(rr.plan) : ''; }).join('');
-    var h = '<article class="sheet tcp pb"><div class="tcpbox"><div class="tcpmain">' + plan + '<div class="tcpleg">' + lgAll + '</div></div>';
+    var h = '<article class="sheet tcp pb">' + (gateOf(s).ok ? '' : '<div style="border:3px solid #b42318;color:#b42318;font-weight:800;text-align:center;padding:2px;font-size:13px">NOT CLEARED: ENGINEERING REVIEW REQUIRED (' + gateOf(s).bad.length + ' open item' + (gateOf(s).bad.length > 1 ? 's' : '') + ')</div>') + '<div class="tcpbox"><div class="tcpmain">' + plan + '<div class="tcpleg">' + lgAll + '</div></div>';
     h += '<div class="tcpnotes">' + readinessHTML(s, true) + (warnFor(s) ? '<div class="tcpwarn">' + esc(warnFor(s)) + '</div>' : '') + '<div class="tcpwarn" style="background:' + (mutcdSite(s).bad.length ? '#fde8e8' : '#e7f5ec') + '">MUTCD check: ' + mutcdSite(s).pass + ' of ' + mutcdSite(s).all.length + ' rules passed' + (mutcdSite(s).bad.length ? ' (REVIEW: ' + esc(mutcdSite(s).bad.map(function (c) { return c.rule; }).join('; ')) + ')' : '') + '</div><b>NOTES</b><ol>' + notes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>' + s.zones.map(function (z, zi) { var rr = z.ev.rec; if (!rr) return ''; var pp = rr.plan; return '<table class="tcpt"><tr><th colspan="2">' + (s.zones.length > 1 ? 'Zone ' + (zi + 1) + ': ' : '') + esc(rr.name) + ' at ' + z.eff.speed + ' mph</th></tr><tr><td>Taper</td><td>' + pp.taper + "'</td></tr><tr><td>Buffer</td><td>" + pp.buffer + "'</td></tr><tr><td>Sign spacing</td><td>" + pp.space + "'</td></tr><tr><td>Downstream taper</td><td>" + pp.downstream + "'</td></tr><tr><td>" + (getDet(z) && getDet(z).ok ? 'Closed length' : 'Work length') + "</td><td>" + (getDet(z) && getDet(z).ok ? getDet(z).closedFt : z.eff.len) + "'</td></tr><tr><td>Devices</td><td>" + (rr.id === 'full' ? pp.barricades + ' barricades' : pp.devTotal) + '</td></tr>' + (pp.flaggers ? '<tr><td>Flaggers</td><td>' + pp.flaggers + '</td></tr>' : '') + '<tr><td>Signs, all approaches</td><td>' + signTotal(pp) + '</td></tr></table>'; }).join('') + '</div>';
     var di0 = mv && mv.dirInfo ? mv.dirInfo(sites.indexOf(s)) : null;
     h += '<div class="tcplegend"><div class="lgx">' + (z0 ? '<div class="tcpxs"><b>TYPICAL SECTION</b>' + xsecSVG(z0, di0 ? di0.side : 'R') + '</div>' : '') + '</div><div class="lgi"><b>LEGEND</b><div><i class="sw w"></i>Work area</div><div><i class="sw c"></i>Cone or drum</div><div><i class="sw d"></i>Sign: ' + esc(sg.join(', ')) + '</div>' + (z0 && z0.ev.rec && z0.ev.rec.plan.flaggers ? '<div><i class="sw f"></i>Flagger</div>' : '') + (p && p.arrowBoard ? '<div><i class="sw a"></i>Arrow board' + (p.arrowBoards > 1 ? 's' : '') + '</div>' : '') + (p && p.tma ? '<div><i class="sw t"></i>Shadow vehicle with attenuator</div>' : '') + (s.zones.some(function (z) { return z.ev.rec && (z.ev.rec.id === 'sidewalk' || z.ev.rec.id === 'walkway') || (z.ev.comp || []).some(function (c) { return c.kind === 'ped'; }); }) ? '<div><i class="sw p"></i>Pedestrian route</div>' : '') + '<div>Distances in feet. Map is to scale. Devices and signs are shown at their planned stations.</div></div>' + (SD.noPark ? '<div class="tcpnp"><svg viewBox="0 0 60 80" width="46" height="62" aria-hidden="true"><rect x="2" y="2" width="56" height="76" rx="5" fill="#fff" stroke="#111" stroke-width="3"/><circle cx="30" cy="26" r="17" fill="#fff" stroke="#B42318" stroke-width="5"/><text x="30" y="34" text-anchor="middle" font-size="22" font-weight="700" font-family="sans-serif">P</text><line x1="18" y1="38" x2="42" y2="14" stroke="#B42318" stroke-width="5"/><rect x="6" y="52" width="48" height="20" fill="#B42318"/><text x="30" y="66" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="sans-serif">TOW-AWAY</text></svg><div><b>NO PARKING</b><br>Barricade mounted, both sides of the street, 72 hours before work.</div></div>' : '') + '</div></div>';
@@ -4452,7 +4469,7 @@ function nextBar() {
     $('sheetbody').innerHTML = sheetHTML(arr); ov.hidden = false; ov.scrollTop = 0;
     $('sheetnote').textContent = arr.length > 1 ? arr.length + ' sites, one page group each.' : arr[0].name + '.';
   }
-  function printSheet() { try { window.print(); } catch (e) { say('sheetnote', 'Printing is blocked here. Tap Save as file, open the file in your browser, and print from there.'); } }
+  function printSheet() { if (!gateAll() && !window.confirm('This plan is NOT CLEARED. It has open MUTCD or road issues. Print it anyway? The sheet will carry a NOT CLEARED stamp.')) return; try { window.print(); } catch (e) { say('sheetnote', 'Printing is blocked here. Tap Save as file, open the file in your browser, and print from there.'); } }
   /* ---------- exports ---------- */
   function csvCell(x) { x = String(x === null || x === undefined ? '' : x); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }
   function buildCSV() {
