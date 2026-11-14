@@ -1,0 +1,278 @@
+[
+  {
+    "m": "https://overpass-api.de/api/interpreter",
+    "k": "light",
+    "method": "GET",
+    "status": 406,
+    "ms": 765,
+    "bytes": 156,
+    "elements": -1,
+    "head": "<html> <head><title>406 Not Acceptable</title></head> <body> <center><h1>406 Not Acceptable</h1></center> <hr><cente"
+  },
+  {
+    "m": "https://overpass-api.de/api/interpreter",
+    "k": "light",
+    "method": "POST",
+    "status": 406,
+    "ms": 1209,
+    "bytes": 156,
+    "elements": -1,
+    "head": "<html> <head><title>406 Not Acceptable</title></head> <body> <center><h1>406 Not Acceptable</h1></center> <hr><cente"
+  },
+  {
+    "m": "https://overpass-api.de/api/interpreter",
+    "k": "v73",
+    "method": "GET",
+    "status": 406,
+    "ms": 149,
+    "bytes": 156,
+    "elements": -1,
+    "head": "<html> <head><title>406 Not Acceptable</title></head> <body> <center><h1>406 Not Acceptable</h1></center> <hr><cente"
+  },
+  {
+    "m": "https://overpass-api.de/api/interpreter",
+    "k": "v73",
+    "method": "POST",
+    "status": 406,
+    "ms": 296,
+    "bytes": 156,
+    "elements": -1,
+    "head": "<html> <head><title>406 Not Acceptable</title></head> <body> <center><h1>406 Not Acceptable</h1></center> <hr><cente"
+  },
+  {
+    "m": "https://overpass-api.de/api/interpreter",
+    "k": "v75",
+    "method": "GET",
+    "status": 406,
+    "ms": 148,
+    "bytes": 156,
+    "elements": -1,
+    "head": "<html> <head><title>406 Not Acceptable</title></head> <body> <center><h1>406 Not Acceptable</h1></center> <hr><cente"
+  },
+  {
+    "m": "https://overpass-api.de/api/interpreter",
+    "k": "v75",
+    "method": "POST",
+    "err": "The operation was aborted due to timeout",
+    "ms": 45150
+  },
+  {
+    "m": "https://overpass.private.coffee/api/interpreter",
+    "k": "light",
+    "method": "GET",
+    "status": 429,
+    "ms": 1207,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.private.coffee/api/interpreter",
+    "k": "light",
+    "method": "POST",
+    "status": 429,
+    "ms": 1594,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.private.coffee/api/interpreter",
+    "k": "v73",
+    "method": "GET",
+    "err": "The operation was aborted due to timeout",
+    "ms": 45001
+  },
+  {
+    "m": "https://overpass.private.coffee/api/interpreter",
+    "k": "v73",
+    "method": "POST",
+    "status": 429,
+    "ms": 45388,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.private.coffee/api/interpreter",
+    "k": "v75",
+    "method": "GET",
+    "status": 429,
+    "ms": 128,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.private.coffee/api/interpreter",
+    "k": "v75",
+    "method": "POST",
+    "status": 429,
+    "ms": 257,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.kumi.systems/api/interpreter",
+    "k": "light",
+    "method": "GET",
+    "status": 429,
+    "ms": 2894,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.kumi.systems/api/interpreter",
+    "k": "light",
+    "method": "POST",
+    "status": 429,
+    "ms": 3291,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.kumi.systems/api/interpreter",
+    "k": "v73",
+    "method": "GET",
+    "status": 429,
+    "ms": 127,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.kumi.systems/api/interpreter",
+    "k": "v73",
+    "method": "POST",
+    "status": 429,
+    "ms": 259,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.kumi.systems/api/interpreter",
+    "k": "v75",
+    "method": "GET",
+    "status": 429,
+    "ms": 127,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.kumi.systems/api/interpreter",
+    "k": "v75",
+    "method": "POST",
+    "status": 429,
+    "ms": 260,
+    "bytes": 89,
+    "elements": -1,
+    "head": "Please include a meaningful User-Agent string with your requests to avoid rate-limiting. "
+  },
+  {
+    "m": "https://overpass.openstreetmap.fr/api/interpreter",
+    "k": "light",
+    "method": "GET",
+    "status": 403,
+    "ms": 608,
+    "bytes": 53,
+    "elements": -1,
+    "head": "This service is only available to white-listed usages"
+  },
+  {
+    "m": "https://overpass.openstreetmap.fr/api/interpreter",
+    "k": "light",
+    "method": "POST",
+    "status": 403,
+    "ms": 938,
+    "bytes": 53,
+    "elements": -1,
+    "head": "This service is only available to white-listed usages"
+  },
+  {
+    "m": "https://overpass.openstreetmap.fr/api/interpreter",
+    "k": "v73",
+    "method": "GET",
+    "status": 403,
+    "ms": 108,
+    "bytes": 53,
+    "elements": -1,
+    "head": "This service is only available to white-listed usages"
+  },
+  {
+    "m": "https://overpass.openstreetmap.fr/api/interpreter",
+    "k": "v73",
+    "method": "POST",
+    "status": 403,
+    "ms": 217,
+    "bytes": 53,
+    "elements": -1,
+    "head": "This service is only available to white-listed usages"
+  },
+  {
+    "m": "https://overpass.openstreetmap.fr/api/interpreter",
+    "k": "v75",
+    "method": "GET",
+    "status": 403,
+    "ms": 109,
+    "bytes": 53,
+    "elements": -1,
+    "head": "This service is only available to white-listed usages"
+  },
+  {
+    "m": "https://overpass.openstreetmap.fr/api/interpreter",
+    "k": "v75",
+    "method": "POST",
+    "status": 403,
+    "ms": 218,
+    "bytes": 53,
+    "elements": -1,
+    "head": "This service is only available to white-listed usages"
+  },
+  {
+    "m": "https://lz4.overpass-api.de/api/interpreter",
+    "k": "light",
+    "method": "GET",
+    "err": "fetch failed",
+    "ms": 500
+  },
+  {
+    "m": "https://lz4.overpass-api.de/api/interpreter",
+    "k": "light",
+    "method": "POST",
+    "err": "fetch failed",
+    "ms": 753
+  },
+  {
+    "m": "https://lz4.overpass-api.de/api/interpreter",
+    "k": "v73",
+    "method": "GET",
+    "err": "fetch failed",
+    "ms": 253
+  },
+  {
+    "m": "https://lz4.overpass-api.de/api/interpreter",
+    "k": "v73",
+    "method": "POST",
+    "err": "fetch failed",
+    "ms": 506
+  },
+  {
+    "m": "https://lz4.overpass-api.de/api/interpreter",
+    "k": "v75",
+    "method": "GET",
+    "err": "fetch failed",
+    "ms": 253
+  },
+  {
+    "m": "https://lz4.overpass-api.de/api/interpreter",
+    "k": "v75",
+    "method": "POST",
+    "err": "fetch failed",
+    "ms": 506
+  }
+]

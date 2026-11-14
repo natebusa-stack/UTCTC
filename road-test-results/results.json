@@ -5,7 +5,13 @@
     "lon": -121.4944,
     "loaded": false,
     "hint": "",
-    "requests": [],
+    "requests": [
+      "FAILED net::ERR_FAILED https://overpass.openstreetmap.fr/api/interpreter?data=%5Bou",
+      "FAILED net::ERR_ABORTED https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5",
+      "FAILED net::ERR_ABORTED https://overpass.private.coffee/api/interpreter?data=%5Bout%",
+      "FAILED net::ERR_ABORTED https://overpass.kumi.systems/api/interpreter?data=%5Bout%3A",
+      "FAILED net::ERR_ABORTED https://lz4.overpass-api.de/api/interpreter?data=%5Bout%3Ajs"
+    ],
     "errors": [],
     "streets": "Streets read at this site (0)\nNo roads are loaded for this spot. Open the hosted app and load the roads on the Map tab. Side streets cannot be signed until they are read. Until then, pick the intersection type below.\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\nIntersection type\nMain road only\nT: side street to the left of travel\nT: side street to the right of travel\n4-way: both sides\n\nEach street added here gets its own flagger and the full set of advance signs."
   },
@@ -15,7 +21,13 @@
     "lon": -121.3716,
     "loaded": false,
     "hint": "",
-    "requests": [],
+    "requests": [
+      "FAILED net::ERR_FAILED https://overpass.openstreetmap.fr/api/interpreter?data=%5Bou",
+      "FAILED net::ERR_ABORTED https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5",
+      "FAILED net::ERR_ABORTED https://overpass.private.coffee/api/interpreter?data=%5Bout%",
+      "FAILED net::ERR_ABORTED https://overpass.kumi.systems/api/interpreter?data=%5Bout%3A",
+      "FAILED net::ERR_ABORTED https://lz4.overpass-api.de/api/interpreter?data=%5Bout%3Ajs"
+    ],
     "errors": [],
     "streets": "Streets read at this site (0)\nNo roads are loaded for this spot. Open the hosted app and load the roads on the Map tab. Side streets cannot be signed until they are read. Until then, pick the intersection type below.\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\nIntersection type\nMain road only\nT: side street to the left of travel\nT: side street to the right of travel\n4-way: both sides\n\nEach street added here gets its own flagger and the full set of advance signs."
   },
@@ -26,7 +38,11 @@
     "loaded": false,
     "hint": "",
     "requests": [
-      "502 https://lz4.overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A40"
+      "FAILED net::ERR_FAILED https://overpass.openstreetmap.fr/api/interpreter?data=%5Bou",
+      "FAILED net::ERR_ABORTED https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5",
+      "FAILED net::ERR_ABORTED https://overpass.private.coffee/api/interpreter?data=%5Bout%",
+      "FAILED net::ERR_ABORTED https://overpass.kumi.systems/api/interpreter?data=%5Bout%3A",
+      "FAILED net::ERR_ABORTED https://lz4.overpass-api.de/api/interpreter?data=%5Bout%3Ajs"
     ],
     "errors": [],
     "streets": "Streets read at this site (0)\nNo roads are loaded for this spot. Open the hosted app and load the roads on the Map tab. Side streets cannot be signed until they are read. Until then, pick the intersection type below.\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\nIntersection type\nMain road only\nT: side street to the left of travel\nT: side street to the right of travel\n4-way: both sides\n\nEach street added here gets its own flagger and the full set of advance signs."
@@ -38,9 +54,11 @@
     "loaded": false,
     "hint": "",
     "requests": [
-      "502 https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A40%5D%",
-      "502 https://overpass-api.de/api/interpreter",
-      "502 https://overpass-api.de/api/interpreter"
+      "FAILED net::ERR_FAILED https://overpass.openstreetmap.fr/api/interpreter?data=%5Bou",
+      "FAILED net::ERR_ABORTED https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5",
+      "FAILED net::ERR_ABORTED https://overpass.private.coffee/api/interpreter?data=%5Bout%",
+      "FAILED net::ERR_ABORTED https://overpass.kumi.systems/api/interpreter?data=%5Bout%3A",
+      "FAILED net::ERR_ABORTED https://lz4.overpass-api.de/api/interpreter?data=%5Bout%3Ajs"
     ],
     "errors": [],
     "streets": "Streets read at this site (0)\nNo roads are loaded for this spot. Open the hosted app and load the roads on the Map tab. Side streets cannot be signed until they are read. Until then, pick the intersection type below.\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\nIntersection type\nMain road only\nT: side street to the left of travel\nT: side street to the right of travel\n4-way: both sides\n\nEach street added here gets its own flagger and the full set of advance signs."
