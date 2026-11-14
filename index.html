@@ -3325,6 +3325,29 @@ function signCell(g) {
     var u = MIRRORS[0];
     try { fetch(u + '?data=' + encodeURIComponent(hq)).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) { if (t && t.indexOf('"elements"') > 0 && ingest(t)) afterData(); }).catch(function () {}); } catch (e) {}
   }
+  /* Backup road source: the official OpenStreetMap API (no key, allows browser requests). Used when every Overpass server fails. Ways come back as node lists, so the geometry is rebuilt here. */
+  function loadViaOsmApi(few, done) {
+    var left = few.length, got = 0, els = [], seenW = {}, seenN = {}, errs = [];
+    function fin() {
+      if (--left > 0) return;
+      if (!els.length) { done(false, errs.join('; ') || 'no data'); return; }
+      done(ingest(JSON.stringify({ elements: els })), '');
+    }
+    few.forEach(function (l) {
+      var dl = 0.0055, dn = dl / Math.cos(l.lat * Math.PI / 180), bb = [(l.lon - dn).toFixed(6), (l.lat - dl).toFixed(6), (l.lon + dn).toFixed(6), (l.lat + dl).toFixed(6)].join(',');
+      var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null, to = setTimeout(function () { if (ctl) ctl.abort(); }, 40000);
+      fetch('https://api.openstreetmap.org/api/0.6/map.json?bbox=' + bb, { signal: ctl ? ctl.signal : undefined }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(function (j) {
+        clearTimeout(to); var nodes = {};
+        (j.elements || []).forEach(function (e) { if (e.type === 'node') { nodes[e.id] = e; if (e.tags && /^(crossing|traffic_signals|bus_stop)$/.test(e.tags.highway || '') && !seenN[e.id]) { seenN[e.id] = 1; els.push({ type: 'node', id: e.id, lat: e.lat, lon: e.lon, tags: e.tags }); } } });
+        (j.elements || []).forEach(function (e) {
+          if (e.type !== 'way' || !e.tags || !e.tags.highway || seenW[e.id]) return; seenW[e.id] = 1;
+          var g = (e.nodes || []).map(function (n) { return nodes[n]; }).filter(Boolean).map(function (n) { return { lat: n.lat, lon: n.lon }; });
+          if (g.length > 1) els.push({ type: 'way', id: e.id, tags: e.tags, geometry: g });
+        });
+        got++; fin();
+      }).catch(function (e) { clearTimeout(to); errs.push(e && e.message === 'Failed to fetch' ? 'could not connect' : (e && e.message) || 'failed'); fin(); });
+    });
+  }
   var autoTried = {}, autoTimer = null, autoBusy = false;
   function autoMap() {
     clearTimeout(autoTimer);
@@ -3335,8 +3358,13 @@ function signCell(g) {
       say('mstat', 'Looking up the roads around your location...');
       loadRoads(q, function (ok, why) {
         autoBusy = false;
-        if (ok) { say('mstat', 'Roads loaded automatically.'); afterData(); loadHospitals(few); }
-        else { delete autoTried[q]; renderMapStatus(); say('mstat', 'Roads did not load. ' + why + (/could not connect/.test(why) && !/^https?:/.test(location.protocol + '//') ? '' : '') + (location.protocol === 'https:' && /github\.io/.test(location.host) ? ' Check your signal.' : ' Pages opened inside Claude cannot reach map servers. Open the app from your GitHub link instead (natebusa-stack.github.io), then try again.')); say('ostat', 'Tap "Load roads now" on the Map tab to try again, or use the manual steps below. You can also draw the street yourself under each location.'); renderMapUI(); }
+        if (ok) { say('mstat', 'Roads loaded automatically.'); afterData(); loadHospitals(few); return; }
+        autoBusy = true; say('mstat', 'The main map servers did not answer. Trying the OpenStreetMap backup...');
+        loadViaOsmApi(few, function (ok2, why2) {
+          autoBusy = false;
+          if (ok2) { say('mstat', 'Roads loaded from the OpenStreetMap backup.'); afterData(); loadHospitals(few); return; }
+          why = why + ' Backup: ' + why2 + '.';
+          delete autoTried[q]; renderMapStatus(); say('mstat', 'Roads did not load. ' + why + (/could not connect/.test(why) && !/^https?:/.test(location.protocol + '//') ? '' : '') + (location.protocol === 'https:' && /github\.io/.test(location.host) ? ' Check your signal.' : ' Pages opened inside Claude cannot reach map servers. Open the app from your GitHub link instead (natebusa-stack.github.io), then try again.')); say('ostat', 'Tap "Load roads now" on the Map tab to try again, or use the manual steps below. You can also draw the street yourself under each location.'); renderMapUI(); });
       });
     }, 1200);
   }
