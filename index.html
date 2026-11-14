@@ -3334,9 +3334,12 @@ function signCell(g) {
       done(ingest(JSON.stringify({ elements: els })), '');
     }
     few.forEach(function (l) {
-      var dl = 0.0055, dn = dl / Math.cos(l.lat * Math.PI / 180), bb = [(l.lon - dn).toFixed(6), (l.lat - dl).toFixed(6), (l.lon + dn).toFixed(6), (l.lat + dl).toFixed(6)].join(',');
+      var sizes = [0.0055, 0.0038, 0.0026, 0.0017];
+      (function attempt(si) {
+      var dl = sizes[si], dn = dl / Math.cos(l.lat * Math.PI / 180), bb = [(l.lon - dn).toFixed(6), (l.lat - dl).toFixed(6), (l.lon + dn).toFixed(6), (l.lat + dl).toFixed(6)].join(',');
       var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null, to = setTimeout(function () { if (ctl) ctl.abort(); }, 40000);
-      fetch('https://api.openstreetmap.org/api/0.6/map.json?bbox=' + bb, { signal: ctl ? ctl.signal : undefined }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(function (j) {
+      fetch('https://api.openstreetmap.org/api/0.6/map.json?bbox=' + bb, { signal: ctl ? ctl.signal : undefined }).then(function (r) { if ((r.status === 400 || r.status === 413) && si + 1 < sizes.length) { clearTimeout(to); attempt(si + 1); return null; } if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(function (j) {
+        if (!j) return;
         clearTimeout(to); var nodes = {};
         (j.elements || []).forEach(function (e) { if (e.type === 'node') { nodes[e.id] = e; if (e.tags && /^(crossing|traffic_signals|bus_stop)$/.test(e.tags.highway || '') && !seenN[e.id]) { seenN[e.id] = 1; els.push({ type: 'node', id: e.id, lat: e.lat, lon: e.lon, tags: e.tags }); } } });
         (j.elements || []).forEach(function (e) {
@@ -3346,6 +3349,7 @@ function signCell(g) {
         });
         got++; fin();
       }).catch(function (e) { clearTimeout(to); errs.push(e && e.message === 'Failed to fetch' ? 'could not connect' : (e && e.message) || 'failed'); fin(); });
+      })(0);
     });
   }
   var autoTried = {}, autoTimer = null, autoBusy = false;
@@ -3555,6 +3559,13 @@ function nextBar() {
   }
 
   /* ---------- compute and render ---------- */
+  window.UTCTC_DEBUG = function () {
+    return sites.map(function (st, i) {
+      var z = st.zones[0], r = z && z.ev.rec, p = r && r.plan, l = st.items[0].loc, mc = null;
+      try { mc = mutcdSite(st); } catch (e) {}
+      return { i: i, name: l.name, osm: !!(l.osm && l.osm.found), road: l.osm && l.osm.name, hw: l.osm && l.osm.highway, speed: z && z.eff.speed, lanes: z && z.eff.lanes, rec: r && r.id, signs: p && p.signTotal, flaggers: p && p.flaggers, legs: p && p.legs ? p.legs.map(function (g) { return (g.name || '?') + ':' + (g.kind || '') + ':' + ((g.signs || []).length); }) : null, legsNote: p && p.legsNote, mutcdBad: mc ? mc.bad.map(function (c) { return c.rule || c.msg; }) : null, mutcdPass: mc ? mc.pass + '/' + mc.all.length : null };
+    });
+  };
   function compute() {
     sites = analyzeAll(locs, thr, G);
     annotateLegs();
