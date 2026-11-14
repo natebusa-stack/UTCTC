@@ -2532,7 +2532,7 @@ function MapView(canvas, cb) {
     var far = adv.reduce(function (m, q) { return Math.max(m, q.dist); }, 0), ext = Math.max(far, 100);
     var a0 = Math.min(tS - ext, tS), a1 = Math.max(tE + (both ? ext : 80), tE);
     var lo = g.s0 + Math.min(dir * a0, dir * a1) - 40, hi = g.s0 + Math.max(dir * a0, dir * a1) + 40;
-    var gTot = g.cum[g.cum.length - 1], contLo = false, contHi = false;
+    var gTot = g.cum[g.cum.length - 1], contLo = false, contHi = false, cLenLo = 0, cLenHi = 0;
     var rc = it.loc, data = S.store && S.store.count() ? S.store.inBox(rc.lat - 0.012, rc.lon - 0.012, rc.lat + 0.012, rc.lon + 0.012, 9000) : null, found = [], n = 0;
     if (data) data.ways.forEach(function (w) {
       if (w.id === mainId || !RW[w.tags.highway] || minorWay(w) || n > 24) return;
@@ -2540,19 +2540,26 @@ function MapView(canvas, cb) {
       for (var i = 0; i < pts.length; i++) { var m = nearMain(g, pts[i]);
         if (m.d < 24 && m.s >= lo && m.s <= hi) {
           var j2 = i < pts.length - 1 ? i + 1 : i - 1, sa = Math.atan2(pts[j2].y - pts[i].y, pts[j2].x - pts[i].x), ma = atS(g.pts, g.cum, m.s).a, df = Math.abs(((sa - ma) % Math.PI + Math.PI) % Math.PI);
-          if (Math.min(df, Math.PI - df) < 0.5) { if (m.s <= 6) contLo = true; else if (m.s >= gTot - 6) contHi = true; break; }
+          if (Math.min(df, Math.PI - df) < 0.5) { var cl2 = Math.max(w._c[i], w._c[w._c.length - 1] - w._c[i]); if (m.s <= 6) { contLo = true; cLenLo = Math.max(cLenLo, cl2); } else if (m.s >= gTot - 6) { contHi = true; cLenHi = Math.max(cLenHi, cl2); } break; }
           found.push({ w: w, i: i, tJ: dir * (m.s - g.s0) }); n++; break;
         } }
     });
     /* a main-road direction only exists if the road goes on that way (a dead end or a T has no traffic coming from beyond) */
     var onRoad = function (t) { var sx2 = g.s0 + dir * t; return sx2 >= -6 && sx2 <= gTot + 6 ? true : (sx2 > gTot ? contHi : contLo); };
+    /* the road may end (or turn into a short court) just past the work. Then the traffic that reaches the work from that end comes up the cross street, so that street is the approach: flagger and the whole set of signs */
+    var sFront = g.s0 + dir * tE, sBack = g.s0 + dir * tS, needLen = (far || 0) + 20;
+    var remFront = dir > 0 ? (gTot - sFront) + (contHi ? cLenHi : 0) : sFront + (contLo ? cLenLo : 0);
+    var remBack = dir > 0 ? sBack + (contLo ? cLenLo : 0) : (gTot - sBack) + (contHi ? cLenHi : 0);
+    var endFront = flagSc && both && remFront < needLen, endBack = flagSc && remBack < needLen;
     var mainGone = 0;
-    if (!onRoad(tE)) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'front'); }); mainGone++; }
-    if (!onRoad(tS)) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'back'); }); mainGone++; }
+    if (endFront) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'front'); }); mainGone++; }
+    if (endBack) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'back'); }); mainGone++; }
+    if (!endFront && !onRoad(tE)) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'front'); }); mainGone++; }
+    if (!endBack && !onRoad(tS)) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'back'); }); mainGone++; }
     var D = Math.min(p.space, 350), seqAsc = adv.filter(function (q) { return q.code.charAt(0) === 'W'; }).slice(0, 4);
     found.forEach(function (f) {
       var w = f.w, pts = w._w, cum = w._c, tot = cum[cum.length - 1], sj = cum[f.i];
-      var need = (sc === 'intersection' && f.tJ >= tW0 - 100 && f.tJ <= tW1 + 100) || (sc === 'flagging' && f.tJ >= tS - 10 && f.tJ <= tE + 10);
+      var need = (sc === 'intersection' && f.tJ >= tW0 - 100 && f.tJ <= tW1 + 100) || (sc === 'flagging' && f.tJ >= tS - 10 && f.tJ <= tE + 10) || (flagSc && ((endFront && f.tJ >= tE - 10) || (endBack && f.tJ <= tS + 10)));
       var inside = f.tJ >= tS - 10 && f.tJ <= tE + 10;
       /* how far this junction is from the work, along the road traffic travels to reach it */
       var jd = f.tJ < tS - 10 ? tS - f.tJ : (f.tJ > tE + 10 ? f.tJ - tE : 0);
