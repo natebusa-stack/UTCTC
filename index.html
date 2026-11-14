@@ -349,7 +349,9 @@ ol.steps>li.done::before{content:"\2713";background:var(--ok);color:#fff}
 .tcpmain .zsv{border-bottom:1px solid #9aa5ad}
 .tcpnotes,.tcplegend{background:#fff;border:0;padding:8px 10px;font-size:11px;line-height:1.35}
 .tcplegend{border-top:1px solid #111}
-.quick{background:#fff6e8;border:1px solid #f0c27a;border-radius:10px;padding:10px 12px;margin:10px 0}.qt2{font-weight:600;margin:8px 0 4px}label.xfl{display:flex;align-items:center;gap:6px;min-height:44px;font-weight:600}
+.quick{background:#fff6e8;border:1px solid #f0c27a;border-radius:10px;padding:10px 12px;margin:10px 0}.qt2{font-weight:600;margin:8px 0 4px}@media screen{.yard table,.yardbox table{min-width:0;width:100%;max-width:100%;table-layout:auto}.yard td,.yard th,.yardbox td,.yardbox th{overflow-wrap:anywhere;word-break:normal;white-space:normal}.yardbox td:first-child,.yardbox th:first-child{width:3.2em}}
+@media screen{.dg .legt,.dg .legt{min-width:0;width:100%;table-layout:auto}.dg .legt th{font-size:9.5px;letter-spacing:0;text-transform:uppercase;white-space:nowrap}.dg .legt th:nth-child(4),.dg .legt th:nth-child(3):last-child{white-space:normal}.dg .legt td{font-size:12.5px;padding:5px 6px;overflow-wrap:break-word}.dg .legt td small{font-size:11px;opacity:.75}}
+label.xfl{display:flex;align-items:center;gap:6px;min-height:44px;font-weight:600}
 label.xfl input{width:22px;height:22px}
 .legt{width:100%;border-collapse:collapse;margin-top:6px}.legt th,.legt td{border:1px solid #333;padding:2px 4px;font-size:10px;text-align:left;vertical-align:top}.tcpnotes ol{margin:2px 0 0;padding-left:16px}.tcplegend .tcpxs{display:block;margin:0 0 6px;padding:0}.jobpane{padding:4px 2px 20px}.jh{font-size:17px;margin:20px 0 6px}.jgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.qs{font-weight:700;margin:16px 0 0;color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:.06em}.crewrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.crewadd{display:flex;gap:8px;margin-top:8px}.crewadd input{flex:1}
 .sheet.jsa h1{font-size:22px}.sheet .jt th{width:18%}.sheet .sigt td{height:34px}.sheet .sigt td.sgn{width:34%}.sheet .sigt td.tm{width:12%}.sheet .sigline{border-bottom:1.5px solid #111;height:34px;margin-top:4px}.sheet .notebox{border:1px solid #9aa5ad;height:90px}.sheet .pb2{page-break-before:always;break-before:page}
@@ -3552,7 +3554,7 @@ function nextBar() {
     if (p.pedBarr) k.push([p.pedBarr, 'Type II barricades', 'To close the crosswalk or sidewalk, with a marked pedestrian detour']);
     if (r.id === 'full') k.push([p.barricades, 'Type III barricades', 'Across the full road width']);
     else if (p.devTotal) k.push([p.devTotal, 'Cones or drums', (night || p.speed >= 45) ? '28 in minimum at night or 45 mph and above' : '18 in minimum in daylight']);
-    if (p.flaggers) k.push([p.flaggers, 'Flaggers', 'One on every approach' + (p.legs ? ': ' + p.legs.filter(function (l) { return l.flagger; }).map(function (l) { return l.fid + ' ' + l.name; }).join(', ') : '') + '. STOP/SLOW paddles and high-visibility clothing']);
+    if (p.flaggers) k.push([p.flaggers, 'Flaggers', 'One on every approach' + (p.legs ? ': ' + p.legs.filter(function (l) { return l.flagger; }).map(function (l) { return l.fid + (l.xf ? ' + ' + l.fx : '') + ' ' + l.name; }).join(', ') : '') + (p.extraFlag ? '. Includes ' + p.extraFlag + ' extra station' + (p.extraFlag > 1 ? 's' : '') + ' you turned on' : '') + '. STOP/SLOW paddles and high-visibility clothing']);
     if (p.signals) k.push([p.signals, 'Signal trailers', 'With power and a backup']);
     if (p.arrowBoard) k.push([String(p.arrowBoards || 1), p.arrowBoards > 1 ? 'Arrow boards' : 'Arrow board', p.arrowBoards > 1 ? 'One at each taper' : 'At the start of the taper']);
     if (p.tma) k.push(['1', 'Shadow vehicle', 'With truck-mounted attenuator']);
@@ -3975,6 +3977,7 @@ function nextBar() {
       sites.forEach(function (s, n) {
         if (mv && mv.flipped && mv.flipped(n)) m.flip(n);
         s.zones.forEach(function (z, zi) { var r = z.ev.rec; if (!r) return; var L = null; try { L = m.legs(n, zi); } catch (e) {} applyLegs(r.plan, L, z); });
+        if (s.totals) { var ts = 0, tf = 0; s.zones.forEach(function (z) { var r = z.ev.rec; if (!r) return; ts += signTotal(r.plan); tf += r.plan.flaggers || 0; }); s.totals.signs = ts; s.totals.flaggers = tf; }
       });
     } catch (e) {}
   }
@@ -4029,7 +4032,7 @@ function nextBar() {
     var ctl = zi !== undefined;
     var h = '<table class="legt"><tr><th>Approach</th><th>Flagger</th>' + (ctl ? '<th>Extra flagger</th>' : '') + '<th>Advance signs, ft before the work or junction</th></tr>';
     p.legs.forEach(function (l) {
-      h += '<tr><td>' + esc(l.name) + (l.kind === 'main' ? (l.ahead === 'back' ? ' (approach)' : ' (opposite way)') : ' (side street)') + '</td><td>' + (l.flagger ? l.fid + (l.xf ? ' + ' + l.fx : '') : '-') + '</td>' + (ctl ? '<td>' + (l.flagger ? '<label class="xfl"><input type="checkbox" data-xf="' + esc(l.key) + '" data-zi="' + zi + '"' + (l.xf ? ' checked' : '') + '> Add</label>' : '-') + '</td>' : '') + '<td>' +
+      h += '<tr><td>' + esc(l.name) + '<br><small>' + (l.kind === 'main' ? (l.ahead === 'back' ? 'approach' : 'opposite way') : 'side street') + '</small>' + '</td><td>' + (l.flagger ? l.fid + (l.xf ? ' + ' + l.fx : '') : '-') + '</td>' + (ctl ? '<td>' + (l.flagger ? '<label class="xfl"><input type="checkbox" data-xf="' + esc(l.key) + '" data-zi="' + zi + '"' + (l.xf ? ' checked' : '') + '> Add</label>' : '-') + '</td>' : '') + '<td>' +
         (l.signs.slice().reverse().map(function (g) { return esc(g.code) + ' @' + g.dist + "'"; }).join(', ') || 'none fit') + (l.missing ? ' <b>(street too short, ' + l.missing + ' more needed, place them on the nearest road)</b>' : '') + '</td></tr>';
     });
     h += '</table>';
