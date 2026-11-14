@@ -349,7 +349,9 @@ ol.steps>li.done::before{content:"\2713";background:var(--ok);color:#fff}
 .tcpmain .zsv{border-bottom:1px solid #9aa5ad}
 .tcpnotes,.tcplegend{background:#fff;border:0;padding:8px 10px;font-size:11px;line-height:1.35}
 .tcplegend{border-top:1px solid #111}
-.quick{background:#fff6e8;border:1px solid #f0c27a;border-radius:10px;padding:10px 12px;margin:10px 0}.qt2{font-weight:600;margin:8px 0 4px}.legt{width:100%;border-collapse:collapse;margin-top:6px}.legt th,.legt td{border:1px solid #333;padding:2px 4px;font-size:10px;text-align:left;vertical-align:top}.tcpnotes ol{margin:2px 0 0;padding-left:16px}.tcplegend .tcpxs{display:block;margin:0 0 6px;padding:0}.jobpane{padding:4px 2px 20px}.jh{font-size:17px;margin:20px 0 6px}.jgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.qs{font-weight:700;margin:16px 0 0;color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:.06em}.crewrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.crewadd{display:flex;gap:8px;margin-top:8px}.crewadd input{flex:1}
+.quick{background:#fff6e8;border:1px solid #f0c27a;border-radius:10px;padding:10px 12px;margin:10px 0}.qt2{font-weight:600;margin:8px 0 4px}label.xfl{display:flex;align-items:center;gap:6px;min-height:44px;font-weight:600}
+label.xfl input{width:22px;height:22px}
+.legt{width:100%;border-collapse:collapse;margin-top:6px}.legt th,.legt td{border:1px solid #333;padding:2px 4px;font-size:10px;text-align:left;vertical-align:top}.tcpnotes ol{margin:2px 0 0;padding-left:16px}.tcplegend .tcpxs{display:block;margin:0 0 6px;padding:0}.jobpane{padding:4px 2px 20px}.jh{font-size:17px;margin:20px 0 6px}.jgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.qs{font-weight:700;margin:16px 0 0;color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:.06em}.crewrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.crewadd{display:flex;gap:8px;margin-top:8px}.crewadd input{flex:1}
 .sheet.jsa h1{font-size:22px}.sheet .jt th{width:18%}.sheet .sigt td{height:34px}.sheet .sigt td.sgn{width:34%}.sheet .sigt td.tm{width:12%}.sheet .sigline{border-bottom:1.5px solid #111;height:34px;margin-top:4px}.sheet .notebox{border:1px solid #9aa5ad;height:90px}.sheet .pb2{page-break-before:always;break-before:page}
 .tcpwarn{border:2px solid #b42318;color:#b42318;font-weight:700;padding:5px 7px;margin:0 0 6px;font-size:11px;line-height:1.3}
 .tcplegend div{display:flex;gap:6px;align-items:center;margin-top:2px}
@@ -2121,7 +2123,6 @@ function drawInt(p, v, opt) {
   legs.forEach(function (g, gi) {
     var pt = function (s, lat) { return g.dx ? [cx + g.dx * s * k, cy + lat] : [cx + lat, cy + g.dy * s * k]; };
     var lane = g.off * rw / 4, edge = g.off * rw / 2, s0 = len / 2 + 100, s1 = len / 2, n = Math.ceil(100 / S) + 1, j, a, b, q;
-    if (g.dy) { lane = -g.off * rw / 4; edge = -g.off * rw / 2; }
     for (j = 0; j < n; j++) { q = n > 1 ? j / (n - 1) : 0; a = pt(s0 - (s0 - s1) * q, edge * (1 - q)); cones.push('<circle class="s-cone" cx="' + R(a[0]) + '" cy="' + R(a[1]) + '" r="3.6"/>'); }
     var f = pt(s0 + 12, lane * 1.0);
     cones.push('<circle class="s-fl" cx="' + R(f[0]) + '" cy="' + R(f[1]) + '" r="7"/><text class="s-tb" x="' + R(f[0] + 11) + '" y="' + R(f[1] + 4) + '">F' + (gi + 1) + '</text>');
@@ -2409,9 +2410,9 @@ function MapView(canvas, cb) {
       }
       if (x < 20 || y < 12 || x > S.W - 20 || y > S.H - 12) continue;
       var ms = parseInt(w.tags.maxspeed, 10), nm2 = nm + (ms ? ' ' + ms : ''), tw = c.measureText(nm2).width + 6, hit = false;
-      for (var j = 0; j < used.length; j++) if (Math.abs(used[j][0] - x) < (used[j][2] + tw) / 2 && Math.abs(used[j][1] - y) < 12) { hit = true; break; }
+      for (var j = 0; j < used.length; j++) { var dj = Math.hypot(used[j][0] - x, used[j][1] - y); if ((Math.abs(used[j][0] - x) < (used[j][2] + tw) / 2 && Math.abs(used[j][1] - y) < 12) || dj < Math.min(used[j][2], tw) / 2 + 16 || (used[j][3] === nm && dj < 280)) { hit = true; break; } }
       if (hit) continue;
-      used.push([x, y, tw]); n++;
+      used.push([x, y, tw, nm]); n++;
       var ang = -m.a; if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
       c.save(); c.translate(x, y); c.rotate(ang); c.lineWidth = 3; c.strokeStyle = C.road; c.strokeText(nm2, 0, 0); c.fillStyle = C.txt; c.fillText(nm2, 0, 0); c.restore();
     }
@@ -2456,9 +2457,9 @@ function MapView(canvas, cb) {
     var it = z.items[Math.floor(z.items.length / 2)], mname = (it.loc.osm && it.loc.osm.name) || 'Main road', mainId = it.loc.osm && it.loc.osm.wayId;
     var adv = p.signs.filter(function (q) { return !q.end && !q.buf && !q.opp && q.dist > 0; }).sort(function (u, v) { return u.dist - v.dist; });
     var cp = function (q) { return { code: q.code, legend: q.legend, dist: q.dist }; };
-    var legs = [], zoneSigns = [];
-    legs.push({ kind: 'main', ahead: 'back', name: mname, flagger: flagSc, signs: adv.map(cp), t: tS });
-    if (both) legs.push({ kind: 'main', ahead: 'front', name: mname, flagger: flagSc, signs: adv.map(cp), t: tE });
+    var legs = [], zoneSigns = [], XF = (z.items[0].loc && z.items[0].loc.xf) || {};
+    legs.push({ kind: 'main', ahead: 'back', key: 'mb', name: mname, flagger: flagSc, signs: adv.map(cp), t: tS });
+    if (both) legs.push({ kind: 'main', ahead: 'front', key: 'mf', name: mname, flagger: flagSc, signs: adv.map(cp), t: tE });
     else if (two && ['laneclosure', 'twolanes', 'shoulder'].indexOf(sc) >= 0) legs.push({ kind: 'main', ahead: 'front', name: mname, flagger: false, signs: p.signs.filter(function (q) { return !q.end && q.dist > 0 && (q.code === 'W20-1' || q.opp); }).sort(function (u, v) { return u.dist - v.dist; }).map(cp), t: tE });
     p.signs.forEach(function (q) { if (q.end || q.buf || (q.dist === 0 && q.code !== 'R11-2')) zoneSigns.push(cp(q)); });
     var far = adv.reduce(function (m, q) { return Math.max(m, q.dist); }, 0), ext = Math.max(far, 100);
@@ -2482,11 +2483,11 @@ function MapView(canvas, cb) {
       [-1, 1].forEach(function (lg) {
         var avail = lg < 0 ? sj : tot - sj; if (avail < 45) return;
         var F = need ? 50 : 0, m = Math.max(0, Math.min(seqAsc.length, Math.floor((avail - F - 8) / D)));
-        var sg = seqAsc.slice(0, m).map(function (q, k) { return { code: q.code, legend: q.legend, dist: F + (k + 1) * D }; });
-        legs.push({ kind: 'side', name: w.tags.name || 'Side street', flagger: need, signs: sg, missing: seqAsc.length - m, w: w, pts: pts, cum: cum, sj: sj, lg: lg, avail: avail, F: F, D: D, tJ: f.tJ });
+        var sg = seqAsc.slice(0, m).map(function (q, k) { var sd = need && q.code === 'W20-4'; return { code: sd ? 'W20-1' : q.code, legend: sd ? 'ROAD WORK AHEAD' : q.legend, dist: F + (k + 1) * D }; });
+        legs.push({ kind: 'side', key: 's' + w.id + (lg < 0 ? 'n' : 'p'), name: w.tags.name || 'Side street', flagger: need, signs: sg, missing: seqAsc.length - m, w: w, pts: pts, cum: cum, sj: sj, lg: lg, avail: avail, F: F, D: D, tJ: f.tJ });
       });
     });
-    var fn = 0; legs.forEach(function (l) { if (l.flagger) l.fid = 'F' + (++fn); });
+    var fn = 0; legs.forEach(function (l) { if (l.flagger) { l.fid = 'F' + (++fn); l.xf = XF[l.key] ? 1 : 0; l.fx = l.xf ? l.fid + 'b' : ''; } });
     return { legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
   }
   function flagMark(c, x, y, id) {
@@ -2504,6 +2505,7 @@ function MapView(canvas, cb) {
         var jx = sx(j.x), jy = sy(j.y), tvx = jx - x, tvy = jy - y, tl2 = Math.hypot(tvx, tvy) || 1; tvx /= tl2; tvy /= tl2;
         var rx = -tvy, ry = tvx, FH = Math.max(30, Math.min(46, lg.D * S.k * 0.7)), off2 = 18 + FH / 2;
         if (lg.flagger) { var fq = atS(pts, cum, sj + L0 * lg.F), fx = sx(fq.x), fy = sy(fq.y); flagMark(c, fx + rx * 26, fy + ry * 26, lg.fid); }
+        if (lg.flagger && lg.xf) { var fq2 = atS(pts, cum, sj + L0 * (lg.F + 50)), fx2 = sx(fq2.x), fy2 = sy(fq2.y); flagMark(c, fx2 - rx * 26, fy2 - ry * 26, lg.fx); }
         lg.signs.slice().reverse().forEach(function (sgn) {
           var qq = atS(pts, cum, sj + L0 * sgn.dist), px2 = sx(qq.x), py2 = sy(qq.y);
           
@@ -2688,7 +2690,7 @@ function MapView(canvas, cb) {
         if (!dt) lab(tW0, 'Road ' + Math.round(p.roadWidth) + "' wide", -44);
       }
       if (LG) {{
-        LG.legs.forEach(function (lg) { if (lg.kind !== 'main' || !lg.flagger) return; var side = lg.ahead === 'back' ? 1 : -1, q = atS(g.pts, g.cum, g.s0 + dir * lg.t), ang = q.a + (dir < 0 ? Math.PI : 0), off = side * (RWf / 2 + 8) + side * 4; flagMark(c, sx(q.x + Math.sin(ang) * off), sy(q.y - Math.cos(ang) * off), lg.fid); });
+        LG.legs.forEach(function (lg) { if (lg.kind !== 'main' || !lg.flagger) return; var side = lg.ahead === 'back' ? 1 : -1, q = atS(g.pts, g.cum, g.s0 + dir * lg.t), ang = q.a + (dir < 0 ? Math.PI : 0), off = side * (RWf / 2 + 8) + side * 4; flagMark(c, sx(q.x + Math.sin(ang) * off), sy(q.y - Math.cos(ang) * off), lg.fid); if (lg.xf) { var t2 = lg.t + (lg.ahead === 'back' ? -50 : 50), q2 = atS(g.pts, g.cum, g.s0 + dir * t2), ang2 = q2.a + (dir < 0 ? Math.PI : 0); flagMark(c, sx(q2.x - Math.sin(ang2) * off), sy(q2.y + Math.cos(ang2) * off), lg.fx); } });
       } }
       if (sc === 'flagging') { mark(tS - 40, 'F1', 'c', C.acc); mark(tE + 40, 'F2', 'c', C.acc); }
       if (sc === 'signal') { mark(tS - 40, 'S1', 's', C.bad); mark(tE + 40, 'S2', 's', C.bad); }
@@ -3097,7 +3099,7 @@ function signCell(g) {
   function save() {
     try {
       if (locs.length > 300) { localStorage.removeItem('tcp5'); return; }
-      var m = {}; locs.forEach(function (l) { m[l.id] = { vals: l.vals, src: l.src, pos: l.pos, len: l.len, lenSet: l.lenSet, night: l.night, label: l.label, ovr: l.ovr, gd: l.gd, laneSide: l.laneSide }; });
+      var m = {}; locs.forEach(function (l) { m[l.id] = { vals: l.vals, src: l.src, pos: l.pos, len: l.len, lenSet: l.lenSet, night: l.night, label: l.label, ovr: l.ovr, gd: l.gd, laneSide: l.laneSide, xf: l.xf }; });
       localStorage.setItem('tcp5', JSON.stringify({ t: $('pts').value || bulkText, thr: thr, G: G, m: m }));
     } catch (e) {}
   }
@@ -3125,7 +3127,7 @@ function signCell(g) {
     var old = {}; locs.forEach(function (l) { old[l.id] = l; });
     locs = r.pts.map(function (p, i) {
       var l = newLoc(p, i), o = old[l.id] || (saved && saved[l.id]);
-      if (o) { l.vals = o.vals; l.src = o.src; l.pos = o.pos; l.len = o.len; l.lenSet = o.lenSet; l.night = o.night; l.ovr = o.ovr || {}; l.gd = o.gd || {}; l.laneSide = o.laneSide || ''; if (!p.label && o.label) l.label = o.label; if (o.osm) l.osm = o.osm; }
+      if (o) { l.vals = o.vals; l.src = o.src; l.pos = o.pos; l.len = o.len; l.lenSet = o.lenSet; l.night = o.night; l.ovr = o.ovr || {}; l.gd = o.gd || {}; l.laneSide = o.laneSide || ''; l.xf = o.xf || {}; if (!p.label && o.label) l.label = o.label; if (o.osm) l.osm = o.osm; }
       l.idx = i; return l;
     });
     locs.forEach(function (l) { if (!l.osm && store.count()) applyOSM(l, store); });
@@ -3166,8 +3168,15 @@ function signCell(g) {
         var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null; if (ctl) ctls.push(ctl);
         var to = setTimeout(function () { if (ctl) ctl.abort(); fail(k, 'no answer in 30 s'); fin = true; }, 30000), fin = false;
         if (!quiet) say('mstat', 'Looking up the roads around your location (' + (k + 1) + ' of ' + MIRRORS.length + ' servers asked)...');
-        fetch(u, { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, signal: ctl ? ctl.signal : undefined })
-          .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+        var sig = ctl ? ctl.signal : undefined;
+        var variants = [
+          function () { return fetch(u + '?data=' + encodeURIComponent(q), { method: 'GET', signal: sig }); },
+          function () { return fetch(u, { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, signal: sig }); },
+          function () { return fetch(u, { method: 'POST', body: q, headers: { 'Content-Type': 'text/plain' }, signal: sig }); }
+        ];
+        (function tryV(n, codes) {
+          return variants[n]().then(function (r) { if (r.ok) return r.text(); codes.push(r.status); if (n + 1 < variants.length) return tryV(n + 1, codes); throw new Error('HTTP ' + codes[0] + (codes.length > 1 ? ' (also ' + codes.slice(1).join(', ') + ')' : '')); });
+        })(0, [])
           .then(function (t) { clearTimeout(to); if (fin || finished) return; if (t.indexOf('"elements"') < 0) throw new Error('busy or bad reply'); if (ingest(t)) end(true); else { fin = true; fail(k, 'unreadable reply'); } })
           .catch(function (e) { clearTimeout(to); if (fin || finished) return; fin = true; fail(k, e && e.name === 'AbortError' ? 'stopped' : (e && e.message === 'Failed to fetch' ? 'could not connect (blocked or offline)' : (e && e.message) || 'failed')); });
       }, k * 2500));
@@ -3176,7 +3185,7 @@ function signCell(g) {
   function loadHospitals(few) {
     var hq = buildHospQuery(few); if (!hq) return;
     var u = MIRRORS[0];
-    try { fetch(u, { method: 'POST', body: 'data=' + encodeURIComponent(hq), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) { if (t && t.indexOf('"elements"') > 0 && ingest(t)) afterData(); }).catch(function () {}); } catch (e) {}
+    try { fetch(u + '?data=' + encodeURIComponent(hq)).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) { if (t && t.indexOf('"elements"') > 0 && ingest(t)) afterData(); }).catch(function () {}); } catch (e) {}
   }
   var autoTried = {}, autoTimer = null, autoBusy = false;
   function autoMap() {
@@ -3614,7 +3623,7 @@ function nextBar() {
       });
       h += '<div class="blk"><h4>Bring</h4><div class="kit">' + kitList(r, v).concat(cps.reduce(function (acc, c) { return acc.concat(c.kit.map(function (x) { return [x[0], x[1], x[2] + ' (' + c.name.split(':')[0].toLowerCase() + ')']; })); }, [])).map(function (x) { return '<div class="ki"><b>' + esc(x[0]) + '</b>' + esc(x[1]) + '<small>' + esc(x[2]) + '</small></div>'; }).join('') + '</div></div>';
       h += '<div class="blk"><h4>Before you start</h4><div class="ck">' + checklist(r, v).map(function (x) { return '<label><input type="checkbox">' + esc(x) + '</label>'; }).join('') + '</div></div>';
-      if (p.legs) h += '<details class="dg" open><summary>Approaches, flaggers and signs (' + p.legs.length + ' approaches, ' + signTotal(p) + ' signs' + (p.flaggers ? ', ' + p.flaggers + ' flaggers' : '') + ')</summary><div style="padding:0 14px 10px">' + legsTable(p) + '</div></details>';
+      if (p.legs) h += '<details class="dg" open><summary>Approaches, flaggers and signs (' + p.legs.length + ' approaches, ' + signTotal(p) + ' signs' + (p.flaggers ? ', ' + p.flaggers + ' flaggers' : '') + ')</summary><div style="padding:0 14px 10px">' + legsTable(p, n - 1) + '</div></details>';
       var aer = n === 1 && sites[sel] ? planImageCached(sites[sel]) : null;
       if (aer) h += '<details class="dg" open><summary>Aerial view: signs on every approach</summary><div style="padding:0 12px 10px"><img src="' + aer + '" alt="Aerial plan view of the work zone with all advance warning signs on each approach" style="width:100%;height:auto;display:block;border:1px solid var(--line)"><p class="cap">Road runs left to right. Signs are shown at their planned distances ahead of the work on the main road and on each side street that feeds it.</p></div></details>';
       h += '<details class="dg" open><summary>Layout drawing</summary><div class="go" style="margin:0 20px 10px"><button type="button" data-act="zoomlay" data-zi="' + (n - 1) + '">Zoom in on the layout</button></div><div class="scroll" id="lay' + n + '">' + draw(p, v) + '</div><p class="cap">Signs start at the left edge, so swipe the drawing to the right to follow the road to the work. Orange dots are cones or drums, the hatched area is the work space. Teal dashes are pedestrian routes and red dashes mark a conflict.</p></details>';
@@ -3976,12 +3985,12 @@ function nextBar() {
       var k = p.approaches || 1; p.legs = null;
       p.signs.forEach(function (g) { add(g.code, g.legend, k, k > 1 ? 'each of ' + k + ' approaches' : 'at the work'); });
     } else {
-      p.legs = L.legs.map(function (l) { return { kind: l.kind, ahead: l.ahead, name: l.name, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0 }; });
+      p.legs = L.legs.map(function (l) { return { kind: l.kind, ahead: l.ahead, key: l.key, xf: l.xf, fx: l.fx, name: l.name, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0 }; });
       L.legs.forEach(function (l) { l.signs.forEach(function (g) { add(g.code, g.legend, 1, l.name); }); });
       L.zoneSigns.forEach(function (g) { add(g.code, g.legend, 1, 'at the work'); });
       if (p.scenario === 'flagging' || p.scenario === 'intersection') {
-        var fl = L.legs.filter(function (l) { return l.flagger; }).length;
-        p.flaggers = p.scenario === 'intersection' ? Math.max(fl, 3) : Math.max(fl, 2);
+        var fl = L.legs.filter(function (l) { return l.flagger; }).length, fx = L.legs.filter(function (l) { return l.flagger && l.xf; }).length;
+        p.flaggers = (p.scenario === 'intersection' ? Math.max(fl, 3) : Math.max(fl, 2)) + fx; p.extraFlag = fx;
         p.legsNote = p.scenario === 'intersection' && fl < 4 ? 'The map shows ' + fl + ' approaches here. Confirm the number of approaches on site and add a flagger and signs for any that are missing.' : '';
       }
     }
@@ -4015,11 +4024,12 @@ function nextBar() {
     if (p.pedX) h += '<p class="cap"><b>Added for this location (' + esc(p.pedWhy) + '):</b> SIDEWALK CLOSED R9-9 x' + 2 * p.pedX.n + ', SIDEWALK CLOSED AHEAD, CROSS HERE R9-11a x' + 2 * p.pedX.n + ', Type II barricades x' + p.pedBarr + '. Use only if the sidewalk or crosswalk is closed; mark a pedestrian detour.</p>';
     return h;
   }
-  function legsTable(p) {
+  function legsTable(p, zi) {
     if (!p.legs) return pedLine(p);
-    var h = '<table class="legt"><tr><th>Approach</th><th>Flagger</th><th>Advance signs, ft before the work or junction</th></tr>';
+    var ctl = zi !== undefined;
+    var h = '<table class="legt"><tr><th>Approach</th><th>Flagger</th>' + (ctl ? '<th>Extra flagger</th>' : '') + '<th>Advance signs, ft before the work or junction</th></tr>';
     p.legs.forEach(function (l) {
-      h += '<tr><td>' + esc(l.name) + (l.kind === 'main' ? (l.ahead === 'back' ? ' (approach)' : ' (opposite way)') : ' (side street)') + '</td><td>' + (l.flagger ? l.fid : '-') + '</td><td>' +
+      h += '<tr><td>' + esc(l.name) + (l.kind === 'main' ? (l.ahead === 'back' ? ' (approach)' : ' (opposite way)') : ' (side street)') + '</td><td>' + (l.flagger ? l.fid + (l.xf ? ' + ' + l.fx : '') : '-') + '</td>' + (ctl ? '<td>' + (l.flagger ? '<label class="xfl"><input type="checkbox" data-xf="' + esc(l.key) + '" data-zi="' + zi + '"' + (l.xf ? ' checked' : '') + '> Add</label>' : '-') + '</td>' : '') + '<td>' +
         (l.signs.slice().reverse().map(function (g) { return esc(g.code) + ' @' + g.dist + "'"; }).join(', ') || 'none fit') + (l.missing ? ' <b>(street too short, ' + l.missing + ' more needed, place them on the nearest road)</b>' : '') + '</td></tr>';
     });
     h += '</table>';
@@ -4047,7 +4057,7 @@ function nextBar() {
   }
 
   function planImageCached(s) {
-    var k = sites.indexOf(s) + JSON.stringify(s.zones.map(function (z) { return [z.eff, z.ev.rec && z.ev.rec.id, z.ev.rec && z.ev.rec.plan.signs]; })) + s.items.map(function (it) { return it.loc.osm && it.loc.osm.found ? 1 : 0; }).join('');
+    var k = sites.indexOf(s) + JSON.stringify(s.zones.map(function (z) { return [z.eff, z.ev.rec && z.ev.rec.id, z.ev.rec && z.ev.rec.plan.signs, z.items[0].loc.xf]; })) + s.items.map(function (it) { return it.loc.osm && it.loc.osm.found ? 1 : 0; }).join('');
     if (PIC.k !== k) { PIC.k = k; PIC.v = planImage(s); }
     return PIC.v;
   }
@@ -4412,6 +4422,12 @@ function nextBar() {
     $('show').onchange = function () { LS.show = this.value; LS.page = 0; renderList(); };
     $('sort').onchange = function () { LS.sort = this.value; LS.page = 0; renderList(); };
     $('app').addEventListener('click', onAct);
+    $('app').addEventListener('change', function (e) {
+      var t = e.target; if (!t || !t.getAttribute || t.getAttribute('data-xf') === null) return;
+      var s = sites[sel], z = s && s.zones[+t.getAttribute('data-zi')]; if (!z) return;
+      var loc = z.items[0].loc, y = window.pageYOffset; loc.xf = loc.xf || {}; loc.xf[t.getAttribute('data-xf')] = t.checked ? 1 : 0;
+      save(); compute(); if (mv) mv.focusSite(sel); try { window.scrollTo(0, y); } catch (x) {}
+    });
     $('app').addEventListener('change', onNum);
     ['locs', 'map', 'plan', 'jsa', 'guide'].forEach(function (t) { $('tab-' + t).onclick = function () { setTab(t); }; });
     jobWire(); renderJob();
