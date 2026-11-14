@@ -8,7 +8,8 @@ const SITES = [
   ['Santa Rosa Mendocino Ave', 38.4440, -122.7140], ['Redding Churn Creek Rd', 40.5865, -122.3917], ['Eureka 5th and H', 40.8021, -124.1637],
   ['South Lake Tahoe US-50', 38.9487, -119.9358], ['Napa Hwy 29 rural', 38.4980, -122.3150], ['Truckee Donner Pass Rd', 39.3270, -120.1830],
   ['Chico Mangrove', 39.7285, -121.8375], ['Marin Sir Francis Drake', 37.9735, -122.5311], ['Stockton Pacific Ave', 37.9577, -121.2908],
-  ['Yuba rural Hwy 99', 39.1400, -121.6200], ['Elk Grove residential', 38.4088, -121.3716], ['Sacramento 9th and I', 38.5816, -121.4944], ['Folsom Sutter St', 38.6781, -121.1761]
+  ['Yuba rural Hwy 99', 39.1400, -121.6200], ['Elk Grove residential', 38.4088, -121.3716], ['Sacramento 9th and I', 38.5816, -121.4944], ['Folsom Sutter St', 38.6781, -121.1761],
+  ['I-80 Davis', 38.5640, -121.7250], ['Hwy 1 Bolinas', 37.9090, -122.6870], ['Elk Grove cul-de-sac', 38.4210, -121.4350], ['Mt Shasta Hwy 89', 41.3100, -122.3100], ['SF Broadway tunnel approach', 37.7960, -122.4160], ['SF Twin Peaks Blvd', 37.7520, -122.4470], ['SF Mission and Cesar Chavez', 37.7480, -122.4180], ['Berkeley Shattuck', 37.8700, -122.2680]
 ];
 const only = process.argv[2];
 async function one(b, [name, lat, lon]) {

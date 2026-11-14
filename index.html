@@ -2546,8 +2546,9 @@ function MapView(canvas, cb) {
     });
     /* a main-road direction only exists if the road goes on that way (a dead end or a T has no traffic coming from beyond) */
     var onRoad = function (t) { var sx2 = g.s0 + dir * t; return sx2 >= -6 && sx2 <= gTot + 6 ? true : (sx2 > gTot ? contHi : contLo); };
-    if (!onRoad(tE)) legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'front'); });
-    if (!onRoad(tS)) legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'back'); });
+    var mainGone = 0;
+    if (!onRoad(tE)) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'front'); }); mainGone++; }
+    if (!onRoad(tS)) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'back'); }); mainGone++; }
     var D = Math.min(p.space, 350), seqAsc = adv.filter(function (q) { return q.code.charAt(0) === 'W'; }).slice(0, 4);
     found.forEach(function (f) {
       var w = f.w, pts = w._w, cum = w._c, tot = cum[cum.length - 1], sj = cum[f.i];
@@ -2615,7 +2616,7 @@ function MapView(canvas, cb) {
       var jm = (function () { var best = 0, bd = 1e18; for (var i = 0; i < g.pts.length; i++) { var dd = Math.hypot(g.pts[i].x - a0.x, g.pts[i].y - a0.y); if (dd < bd) { bd = dd; best = g.cum[i]; } } return best; })();
       l.alongMain = Math.round(dir * (jm - g.s0));
     });
-    return { legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
+    return { mainGone: mainGone, legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
   }
   /* driveways, parking aisles and private service roads are not streets a flagger or sign set is planned for */
   function minorWay(w) { var t = w.tags || {}; return t.highway === 'service' && (/^(alley|driveway|parking_aisle|drive-through|emergency_access)$/.test(t.service || '') || t.access === 'private' || t.access === 'no'); }
@@ -3096,10 +3097,10 @@ function mutcdCheck(rec, eff) {
   if (id === 'flagging') T(p.flaggers >= 2, 'Two flaggers for two-way flagging', (p.flaggers || 0) + ' flaggers');
   if (p.legs) {
     var sh = p.legs.filter(function (l) { return l.missing > 0; });
-    T(!sh.length, 'Every approach gets the full set of advance signs', sh.length ? sh.map(function (l) { return l.name; }).join(', ') + ' too short for all signs' : p.legs.length + ' approaches covered');
+    T(!sh.length, 'Every approach gets the full set of advance signs', sh.length ? sh.map(function (l) { return l.name; }).join(', ') + ' too short for all signs. Carry the rest onto the next street out' : p.legs.length + ' approaches covered');
     if (id === 'flagging' || id === 'intersection') {
       var fl = p.legs.filter(function (l) { return l.flagger; });
-      T(fl.length >= (eff.oneway ? 1 : 2) && p.flaggers >= fl.length, 'One flagger on every approach', fl.length + ' approaches have a flagger, ' + p.flaggers + ' flaggers planned');
+      T(fl.length >= (eff.oneway || p.mainGone ? 1 : 2) && p.flaggers >= fl.length, 'One flagger on every approach', fl.length + ' approaches have a flagger, ' + p.flaggers + ' flaggers planned');
       T(fl.every(function (l) { return l.signs.length && l.signs[0].code === 'W20-7'; }), 'FLAGGER AHEAD sign is the last sign before each flagger', fl.length + ' flagger stations');
     }
   }
@@ -4180,7 +4181,7 @@ function nextBar() {
       var k = p.approaches || 1; p.legs = null; p.xlegs = (z.items[0].loc && z.items[0].loc.xt) || null;
       p.signs.forEach(function (g) { add(g.code, g.legend, k, k > 1 ? 'each of ' + k + ' approaches' : 'at the work'); });
     } else {
-      p.legs = L.legs.map(function (l) { return { ang: l.ang, alongMain: l.alongMain, level: l.level, kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0 }; });
+      p.mainGone = L.mainGone || 0; p.legs = L.legs.map(function (l) { return { ang: l.ang, alongMain: l.alongMain, level: l.level, kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0 }; });
       L.legs.forEach(function (l) { l.signs.forEach(function (g) { add(g.code, g.legend, 1, l.name); }); });
       L.zoneSigns.forEach(function (g) { add(g.code, g.legend, 1, 'at the work'); });
       if (p.scenario === 'flagging' || p.scenario === 'intersection') {
@@ -4341,7 +4342,7 @@ function nextBar() {
     if (!ws) h += '<div class="nt high"><b>No roads are loaded for this spot.</b> Open the hosted app and load the roads on the Map tab. Side streets cannot be signed until they are read. Until then, pick the intersection type below.</div>';
     if (legs.length) h += '<table class="legt"><tr><th>Street</th><th>How it meets the work</th><th>Signs and where</th></tr>' + legs.map(function (l) {
       var how = l.kind === 'main' ? (l.ahead === 'back' ? 'main road, approach' : 'main road, opposite way') : (l.via ? 'joins ' + l.via : 'side street' + (l.alongMain !== undefined ? ', ' + Math.abs(l.alongMain) + ' ft ' + (l.alongMain < 0 ? 'before' : 'past') + ' the work centre' : ''));
-      return '<tr><td>' + esc(l.name) + '</td><td>' + esc(how) + '</td><td>' + ((l.signs || []).length ? l.signs.map(function (g) { return esc(g.code) + " @" + g.dist + "'"; }).join(', ') : 'none needed') + (l.flagger ? ' + flagger' : '') + (l.missing ? ' <b>(short by ' + l.missing + ': no room before the next street)</b>' : '') + '</td></tr>';
+      return '<tr><td>' + esc(l.name) + '</td><td>' + esc(how) + '</td><td>' + ((l.signs || []).length ? l.signs.map(function (g) { return esc(g.code) + " @" + g.dist + "'"; }).join(', ') : 'none needed') + (l.flagger ? ' + flagger' : '') + (l.missing ? ' <b>(short by ' + l.missing + ': the block is too short. Carry the rest onto the next street out)</b>' : '') + '</td></tr>';
     }).join('') + '</table>';
     h += '<div class="fg" style="margin-top:10px"><div class="fld"><label for="miss0">Streets on the ground that are not listed</label><select id="miss0" data-miss="1" data-zi="0">' + [0, 1, 2, 3, 4].map(function (n) { return '<option value="' + n + '"' + ((loc && (loc.miss | 0) === n) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></div>';
     if (!(p && p.legs)) h += '<div class="fld"><label for="xt0">Intersection type</label><select id="xt0" data-xt="1" data-zi="0">' + [['', 'Main road only'], ['T-N', 'T: side street to the left of travel'], ['T-S', 'T: side street to the right of travel'], ['4', '4-way: both sides']].map(function (o) { return '<option value="' + o[0] + '"' + ((loc && (loc.xt || '') === o[0]) ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
