@@ -2563,8 +2563,11 @@ function MapView(canvas, cb) {
         if (need || inside) {
           /* the street enters the work zone: it misses every main-road sign, so it gets the whole set and a flagger */
           F = need ? 50 : 0; req = seqAsc.length;
-          var m = Math.max(0, Math.min(seqAsc.length, Math.floor((avail - F - 8) / D)));
-          sg = seqAsc.slice(0, m).map(function (q, k) { return { code: q.code, legend: q.legend, dist: F + (k + 1) * D }; });
+          /* a short block: close the signs up (MUTCD allows less than the table spacing in town, never less than 50 ft at low speed or 100 ft above 25 mph) */
+          var room = avail - F - 8, Dl = D;
+          if (Math.floor(room / D) < seqAsc.length) { var floorD = (p.speed > 25 ? 100 : 50); Dl = Math.min(D, Math.max(floorD, Math.floor(room / seqAsc.length / 5) * 5)); note = Dl < D ? 'Short block: signs are closer together (' + Dl + ' ft instead of ' + D + ' ft) so they all fit before the next street.' : ''; }
+          var m = Math.max(0, Math.min(seqAsc.length, Math.floor(room / Dl)));
+          sg = seqAsc.slice(0, m).map(function (q, k) { return { code: q.code, legend: q.legend, dist: F + (k + 1) * Dl }; });
         } else if (jd >= far1) {
           note = 'Joins the main road before the first sign, so drivers turning in pass every main-road sign. No signs needed here.';
         } else {
@@ -2573,7 +2576,7 @@ function MapView(canvas, cb) {
           if (cap >= 45) { d1 = Math.min(d1, cap); var w1 = adv.filter(function (q) { return q.code === 'W20-1'; }).pop() || seqAsc[seqAsc.length - 1]; sg = [{ code: w1.code, legend: w1.legend, dist: Math.round(d1 / 5) * 5 }]; }
           note = 'Joins between the main-road signs. This sign covers what drivers miss, then they see the rest on the main road.';
         }
-        legs.push({ kind: 'side', key: 's' + w.id + (lg < 0 ? 'n' : 'p'), name: w.tags.name || 'Side street', flagger: need, signs: sg, missing: Math.max(0, req - sg.length), note: note, w: w, pts: pts, cum: cum, sj: sj, lg: lg, avail: avail, F: F, D: D, tJ: f.tJ });
+        legs.push({ kind: 'side', key: 's' + w.id + (lg < 0 ? 'n' : 'p'), name: w.tags.name || 'Side street', flagger: need, signs: sg, missing: Math.max(0, req - sg.length), note: note, w: w, pts: pts, cum: cum, sj: sj, lg: lg, avail: avail, F: F, D: (typeof Dl !== 'undefined' && Dl) || D, tJ: f.tJ });
       });
     });
     /* streets that join a side street inside its sign zone miss that street's signs too */
@@ -3086,8 +3089,8 @@ function mutcdCheck(rec, eff) {
     var W = +eff.laneW || 12, L = S <= 40 ? W * S * S / 60 : W * S;
     T(p.taper >= Math.floor(L) - 5, 'Merging taper length', p.taper + "' vs " + Math.round(L) + "' for a ' + W + ' ft lane at " + S + ' mph');
   }
-  if (p.devSpacingTaper) T(p.devSpacingTaper <= Math.max(S, 15) + 0.1, 'Device spacing in taper no more than speed in feet', p.devSpacingTaper + "' at " + S + ' mph');
-  if (p.devSpacingTangent) T(p.devSpacingTangent <= Math.max(2 * S, 20) + 0.1 && p.devSpacingTangent <= 100, 'Device spacing on tangent no more than twice speed', p.devSpacingTangent + "'");
+  if (p.devSpacingTaper) T(p.devSpacingTaper <= Math.max(S, 20) + 0.1, 'Device spacing in taper no more than speed in feet', p.devSpacingTaper + "' at " + S + ' mph');
+  if (p.devSpacingTangent) T(p.devSpacingTangent <= Math.max(2 * S, 40) + 0.1 && p.devSpacingTangent <= 100, 'Device spacing on tangent no more than twice speed', p.devSpacingTangent + "'");
   if (p.downstream) T(p.downstream >= 100 || id === 'flagging' || id === 'laneshift', 'Downstream taper 100 ft', p.downstream + "'");
   if (id === 'laneclosure' && (+p.lanes || +eff.lanes) >= 2 && S >= 45) T(p.arrowBoard, 'Arrow board for multilane closure', p.arrowBoard ? 'yes' : 'missing');
   if (id === 'flagging') T(p.flaggers >= 2, 'Two flaggers for two-way flagging', (p.flaggers || 0) + ' flaggers');
@@ -3096,7 +3099,7 @@ function mutcdCheck(rec, eff) {
     T(!sh.length, 'Every approach gets the full set of advance signs', sh.length ? sh.map(function (l) { return l.name; }).join(', ') + ' too short for all signs' : p.legs.length + ' approaches covered');
     if (id === 'flagging' || id === 'intersection') {
       var fl = p.legs.filter(function (l) { return l.flagger; });
-      T(fl.length >= 2 && fl.length === p.flaggers, 'One flagger on every approach', fl.length + ' approaches have a flagger, ' + p.flaggers + ' flaggers planned');
+      T(fl.length >= (eff.oneway ? 1 : 2) && p.flaggers >= fl.length, 'One flagger on every approach', fl.length + ' approaches have a flagger, ' + p.flaggers + ' flaggers planned');
       T(fl.every(function (l) { return l.signs.length && l.signs[0].code === 'W20-7'; }), 'FLAGGER AHEAD sign is the last sign before each flagger', fl.length + ' flagger stations');
     }
   }
