@@ -2630,10 +2630,20 @@ function MapView(canvas, cb) {
   function minorWay(w) { var t = w.tags || {}; return t.highway === 'service' && (/^(alley|driveway|parking_aisle|drive-through|emergency_access)$/.test(t.service || '') || t.access === 'private' || t.access === 'no'); }
   /* a one-way street only brings traffic toward the junction from the side it comes from */
   function feeds(w, lg) { var o = (w.tags || {}).oneway; if (o === 'yes' || o === '1' || o === 'true') return lg < 0; if (o === '-1') return lg > 0; return true; }
+  /* flagger station: a ring of cones around the flagger, a staff with a red flag, and the flagger's number beside the flag */
   function flagMark(c, x, y, id) {
     if (!S.lay.flag) return;
-    c.save(); c.fillStyle = '#b3261e'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 13, 0, 7); c.fill(); c.stroke();
-    c.fillStyle = '#fff'; c.font = '700 12px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(id, x, y + 0.5); c.restore();
+    var n = String(id).replace(/^F/i, ''), R = 14;
+    c.save();
+    if (S.lay.cones) {
+      c.fillStyle = '#f26a0a'; c.strokeStyle = '#1b1b1b'; c.lineWidth = 1;
+      for (var a = 0; a < 8; a++) { var an = a * Math.PI / 4 + Math.PI / 8; c.beginPath(); c.arc(x + Math.cos(an) * R, y + Math.sin(an) * R, 3.2, 0, 7); c.fill(); c.stroke(); }
+    }
+    c.strokeStyle = '#1b1b1b'; c.lineWidth = 2; c.beginPath(); c.moveTo(x - 3, y + 8); c.lineTo(x - 3, y - 12); c.stroke();
+    c.fillStyle = '#c4161c'; c.strokeStyle = '#7a0b0f'; c.lineWidth = 1; c.beginPath(); c.moveTo(x - 3, y - 12); c.lineTo(x + 10, y - 9); c.lineTo(x - 3, y - 3); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle = '#1b1b1b'; c.beginPath(); c.arc(x - 3, y + 9, 2, 0, 7); c.fill();
+    c.font = '800 13px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineWidth = 3.5; c.strokeStyle = '#fff'; c.strokeText(n, x + 8, y + 7); c.fillStyle = '#c4161c'; c.fillText(n, x + 8, y + 7);
+    c.restore();
   }
   function drawLegs(c, C, L, taken) {
     L.legs.forEach(function (lg) {
@@ -2839,7 +2849,7 @@ function MapView(canvas, cb) {
       if (LG) {{
         LG.legs.forEach(function (lg) { if (lg.kind !== 'main' || !lg.flagger) return; var side = lg.ahead === 'back' ? 1 : -1, q = atS(g.pts, g.cum, g.s0 + dir * lg.t), ang = q.a + (dir < 0 ? Math.PI : 0), off = side * (RWf / 2 + 8) + side * 4; flagMark(c, sx(q.x + Math.sin(ang) * off), sy(q.y - Math.cos(ang) * off), lg.fid); if (lg.xf) { var t2 = lg.t + (lg.ahead === 'back' ? -50 : 50), q2 = atS(g.pts, g.cum, g.s0 + dir * t2), ang2 = q2.a + (dir < 0 ? Math.PI : 0); flagMark(c, sx(q2.x - Math.sin(ang2) * off), sy(q2.y + Math.cos(ang2) * off), lg.fx); } });
       } }
-      if (sc === 'flagging') { mark(tS - 40, 'F1', 'c', C.acc); mark(tE + 40, 'F2', 'c', C.acc); }
+      if (sc === 'flagging' && !LG) { mark(tS - 40, 'F1', 'c', C.acc); mark(tE + 40, 'F2', 'c', C.acc); }
       if (sc === 'signal') { mark(tS - 40, 'S1', 's', C.bad); mark(tE + 40, 'S2', 's', C.bad); }
       if (sc === 'full') {
         var nmA = dt ? ((dir > 0 ? dt.A : dt.B).streets[0] || {}).name : '', nmB = dt ? ((dir > 0 ? dt.B : dt.A).streets[0] || {}).name : '';
