@@ -3367,7 +3367,7 @@ function signCell(g) {
   /* try to load the roads around the job by itself; fall back to the manual steps when the page cannot reach the map server */
   var MIRRORS = ['https://overpass-api.de/api/interpreter', 'https://overpass.private.coffee/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.openstreetmap.fr/api/interpreter', 'https://lz4.overpass-api.de/api/interpreter'];
   /* ask several Overpass servers, staggered, and take the first good answer */
-  function loadRoads(q, done, quiet) {
+  function loadRoads(q, done, quiet, skip) {
     var finished = false, fails = [], timers = [], ctls = [], left = MIRRORS.length;
     function host(u) { return u.replace(/^https?:\/\//, '').split('/')[0]; }
     function end(ok, why) { if (finished) return; finished = true; timers.forEach(clearTimeout); ctls.forEach(function (c) { try { c.abort(); } catch (e) {} }); done(ok, why); }
@@ -3387,7 +3387,7 @@ function signCell(g) {
         (function tryV(n, codes) {
           return variants[n]().then(function (r) { if (r.ok) return r.text(); codes.push(r.status); if (n + 1 < variants.length) return tryV(n + 1, codes); throw new Error('HTTP ' + codes[0] + (codes.length > 1 ? ' (also ' + codes.slice(1).join(', ') + ')' : '')); });
         })(0, [])
-          .then(function (t) { clearTimeout(to); if (fin || finished) return; if (t.indexOf('"elements"') < 0) throw new Error('busy or bad reply'); if (ingest(t)) end(true); else { fin = true; fail(k, 'unreadable reply'); } })
+          .then(function (t) { clearTimeout(to); if (fin || finished) return; if (t.indexOf('"elements"') < 0) throw new Error('busy or bad reply'); if (skip && skip()) { end(true); return; } if (ingest(t)) end(true); else { fin = true; fail(k, 'unreadable reply'); } })
           .catch(function (e) { clearTimeout(to); if (fin || finished) return; fin = true; fail(k, e && e.name === 'AbortError' ? 'stopped' : (e && e.message === 'Failed to fetch' ? 'could not connect (blocked or offline)' : (e && e.message) || 'failed')); });
       }, k * 2500));
     });
@@ -3398,11 +3398,12 @@ function signCell(g) {
     try { fetch(u + '?data=' + encodeURIComponent(hq)).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) { if (t && t.indexOf('"elements"') > 0 && ingest(t)) afterData(); }).catch(function () {}); } catch (e) {}
   }
   /* Backup road source: the official OpenStreetMap API (no key, allows browser requests). Used when every Overpass server fails. Ways come back as node lists, so the geometry is rebuilt here. */
-  function loadViaOsmApi(few, done) {
+  function loadViaOsmApi(few, done, skip) {
     var left = few.length, got = 0, els = [], seenW = {}, seenN = {}, errs = [];
     function fin() {
       if (--left > 0) return;
       if (!els.length) { done(false, errs.join('; ') || 'no data'); return; }
+      if (skip && skip()) { done(true, ''); return; }
       done(ingest(JSON.stringify({ elements: els })), '');
     }
     few.forEach(function (l) {
@@ -3424,6 +3425,27 @@ function signCell(g) {
       })(0);
     });
   }
+  /* keep the last few road reads on the phone so a repeat visit still works with no signal */
+  var lastRoadText = '';
+  function roadCacheGet(few) {
+    try {
+      var all = JSON.parse(localStorage.getItem('tcp5roads') || '[]');
+      for (var i = 0; i < all.length; i++) {
+        var e = all[i], okAll = few.every(function (l) { return e.pts.some(function (p) { return Math.hypot((p[0] - l.lat) * 364608, (p[1] - l.lon) * 364608 * Math.cos(l.lat * Math.PI / 180)) < 120; }); });
+        if (okAll && e.t) return e.t;
+      }
+    } catch (x) {}
+    return '';
+  }
+  function roadCachePut(few) {
+    try {
+      if (!lastRoadText || lastRoadText.length > 1800000) return;
+      var all = JSON.parse(localStorage.getItem('tcp5roads') || '[]');
+      all.unshift({ pts: few.map(function (l) { return [l.lat, l.lon]; }), t: lastRoadText }); all = all.slice(0, 3);
+      while (all.length && JSON.stringify(all).length > 4000000) all.pop();
+      localStorage.setItem('tcp5roads', JSON.stringify(all));
+    } catch (x) {}
+  }
   var autoTried = {}, autoTimer = null, autoBusy = false, apiFirst = true;
   function autoMap() {
     clearTimeout(autoTimer);
@@ -3432,18 +3454,14 @@ function signCell(g) {
       if (!few.length || autoBusy || typeof fetch !== 'function') return;
       var q = buildQuery(few); if (autoTried[q]) return; autoTried[q] = 1; autoBusy = true;
       say('mstat', 'Looking up the roads around your location...');
-      var viaOverpass = function () { loadRoads(q, function (ok, why) {
-        autoBusy = false;
-        if (ok) { say('mstat', 'Roads loaded automatically.'); afterData(); loadHospitals(few); return; }
-        autoBusy = true; say('mstat', 'The main map servers did not answer. Trying the OpenStreetMap backup...');
-        loadViaOsmApi(few, function (ok2, why2) {
-          autoBusy = false;
-          if (ok2) { say('mstat', 'Roads loaded from the OpenStreetMap backup.'); afterData(); loadHospitals(few); return; }
-          why = why + ' Backup: ' + why2 + '.';
-          delete autoTried[q]; renderMapStatus(); say('mstat', 'Roads did not load. ' + why + (/could not connect/.test(why) && !/^https?:/.test(location.protocol + '//') ? '' : '') + (location.protocol === 'https:' && /github\.io/.test(location.host) ? ' Check your signal.' : ' Pages opened inside Claude cannot reach map servers. Open the app from your GitHub link instead (natebusa-stack.github.io), then try again.')); say('ostat', 'Tap "Load roads now" on the Map tab to try again, or use the manual steps below. You can also draw the street yourself under each location.'); renderMapUI(); });
-      }); };
-      if (!apiFirst) return viaOverpass();
-      loadViaOsmApi(few, function (ok2, why2) { if (ok2) { autoBusy = false; say('mstat', 'Roads loaded.'); afterData(); loadHospitals(few); } else viaOverpass(); });
+      var cached = roadCacheGet(few);
+      if (cached && ingest(cached)) { autoBusy = false; say('mstat', 'Roads loaded from the copy saved on this phone.'); afterData(); return; }
+      /* ask the OpenStreetMap server and the Overpass servers at the same time; the first good answer wins */
+      var won = false, pend = 2, errs = [];
+      function win(msg) { if (won) return; won = true; autoBusy = false; roadCachePut(few); say('mstat', msg); afterData(); loadHospitals(few); }
+      function lose(why) { errs.push(why); if (--pend > 0 || won) return; autoBusy = false; delete autoTried[q]; renderMapStatus(); say('mstat', 'Roads did not load (' + location.host + '). ' + errs.join(' | ') + (location.protocol === 'https:' && /claude\.ai|claudeusercontent/.test(location.host) ? ' This page is the preview inside Claude, which cannot reach the map servers. Open the app from its GitHub address instead.' : ' Check your signal, then tap "Roads look wrong. Try again".')); }
+      loadViaOsmApi(few, function (ok, why) { if (won) return; ok ? win('Roads loaded.') : lose('OpenStreetMap: ' + why); }, function () { return won; });
+      loadRoads(q, function (ok, why) { if (won) return; ok ? win('Roads loaded.') : lose('Overpass: ' + why); }, true, function () { return won; });
     }, 1200);
   }
   function renderMapStatus() {
@@ -3460,6 +3478,7 @@ function signCell(g) {
     })();
   }
   function ingest(text, name) {
+    lastRoadText = text;
     var r = parseOSM(text);
     if (!r.ok) { say('ostat', (name ? name + ': ' : '') + r.error); return false; }
     store.add(r); return true;
@@ -4054,10 +4073,10 @@ function nextBar() {
     var b = $('mfbuild'); if (b) b.onclick = function () { pick(sel, true); };
     var rb = $('mfretry'); if (rb) rb.onclick = function () {
       /* wipe what was read for this spot, switch map source, and read again */
-      apiFirst = !apiFirst; autoTried = {}; autoBusy = false; roadAsked = true;
+      apiFirst = !apiFirst; autoTried = {}; autoBusy = false; roadAsked = true; try { localStorage.removeItem('tcp5roads'); } catch (x) {}
       var l0 = sites[sel] && sites[sel].items[0].loc; if (l0) { l0.osm = null; }
       store = OsmStore(); locs.forEach(function (l) { l.osm = null; });
-      say('mstat', 'Reading the roads again from ' + (apiFirst ? 'the OpenStreetMap server' : 'the Overpass servers') + '...'); compute(); autoMap();
+      say('mstat', 'Reading the roads again from both map sources...'); compute(); autoMap();
     };
     var gb = $('mfgps'); if (gb) gb.onclick = function () { $('gps').click(); };
     var lb = $('mfload'); if (lb) lb.onclick = function () { autoTried = {}; autoBusy = false; roadAsked = true; say('mstat', 'Looking up the roads around your location...'); autoMap(); };
