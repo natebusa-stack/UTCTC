@@ -570,6 +570,7 @@ function plan(i) {
   var o1 = ov('space'); if (o1 !== null && o1 > 0) out.space = o1; else if (o1 !== null) out.edited.pop();
   out.devSpacingTaper = Math.min(S, 50); // T9 Table 1, X
   out.devSpacingTangent = walk ? 10 : Math.min(2 * S, 100); // T9 Table 1, Y
+  out.devSpacingConflict = walk ? 10 : ({ 20: 10, 25: 12, 30: 15, 35: 17, 40: 20, 45: 22 })[S] || 25; // T9 Table 1, Z (taper and tangent sections where there is a conflict between existing markings and channelizers)
   out.signSize = i.area === 'freeway' ? '48 x 48 in' : '36 x 36 in';
   out.scenarioName = (sc === 'laneclosure' && i.laneSide === 'L') ? 'Left lane closure' : NAMES[sc]; out.scenarioName += ({ shift: ' + lane shift', flag: ' + flaggers off the travel lanes', shoulder: ' + shoulder closure' })[((sc === 'laneclosure' || sc === 'twolanes') && i.combo) || ''] || ''; var LS = i.laneSide === 'L' ? 'L' : 'R', LW = LS === 'L' ? 'LEFT' : 'RIGHT', LSw = LS === 'L' ? 'left' : 'right';
   var noBuf = walk || sc === 'full' || sc === 'intersection';
@@ -3147,6 +3148,7 @@ function mutcdCheck(rec, eff) {
     var W = +eff.laneW || 12, L = S <= 40 ? W * S * S / 60 : W * S;
     T(p.taper >= Math.floor(L) - 5, 'Merging taper length', p.taper + "' vs " + Math.round(L) + "' for a ' + W + ' ft lane at " + S + ' mph');
   }
+  if (p.devSpacingConflict && id !== 'sidewalk' && id !== 'walkway') T(p.devSpacingConflict === ({ 20: 10, 25: 12, 30: 15, 35: 17, 40: 20, 45: 22 })[S] || (S >= 50 && p.devSpacingConflict === 25), 'Conflict-area device spacing matches T9 Table 1 (Z)', p.devSpacingConflict + "'");
   if (p.devSpacingTaper) T(p.devSpacingTaper <= Math.max(S, 20) + 0.1, 'Device spacing in taper no more than speed in feet', p.devSpacingTaper + "' at " + S + ' mph');
   if (p.devSpacingTangent) T(p.devSpacingTangent <= Math.max(2 * S, 40) + 0.1 && p.devSpacingTangent <= 100, 'Device spacing on tangent no more than twice speed', p.devSpacingTangent + "'");
   if (p.downstream) T(p.downstream >= 100 || id === 'flagging' || id === 'laneshift', 'Downstream taper 100 ft', p.downstream + "'");
@@ -3773,7 +3775,7 @@ function nextBar() {
       else st.push({ t: sc === 'laneshift' ? 'Lay the shifting taper' : 'Lay the taper', l: [p.devTaper + ' cones or drums over ' + p.taper + ' ft, one every ' + S + ' ft.', sc === 'laneshift' ? 'Angle the devices from the lane line to the new traffic path. Traffic keeps all its lanes.' : 'Start at the edge of the road and angle in to the ' + (sc === 'shoulder' ? 'edge line.' : 'lane line.')] });
       if (sc === 'laneshift') st.push({ t: 'Mark the new path', l: ['Remove or cover old lane lines that conflict with the shift.', 'Place temporary lane lines or devices along the new path so drivers can follow it at night.'] });
       if (p.buffer) st.push({ t: 'Leave the buffer space', l: ['Keep ' + p.buffer + ' ft empty after the taper. No equipment or workers in it.'] });
-      st.push({ t: 'Mark the work area', l: [p.devTangent + ' cones or drums along the buffer and work area, one every ' + p.devSpacingTangent + ' ft.'] });
+      st.push({ t: 'Mark the work area', l: [p.devTangent + ' cones or drums along the buffer and work area, one every ' + p.devSpacingTangent + ' ft. Where there are no pavement markings, or the cones would conflict with the existing markings, space them every ' + p.devSpacingConflict + ' ft instead.'] });
       if (p.narrow && sc === 'flagging') st.push({ t: 'Close it out', l: ['Pick up the edge cones as the work moves off the road.', 'END ROAD WORK sign ' + (p.downstream + 50) + ' ft after the work area.'] });
       else st.push({ t: 'Close it out', l: [p.devDownstream + ' cones over a ' + p.downstream + ' ft downstream taper, one every ' + S + ' ft.', 'END ROAD WORK sign ' + (p.downstream + 50) + ' ft after the work area.'] });
     } else if (sc === 'intersection') {
