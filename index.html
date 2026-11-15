@@ -2371,8 +2371,10 @@ function MapView(canvas, cb) {
   }
 
   /* ---------- draw ---------- */
+  /* label registry: every text drawn is claimed so later labels move or drop instead of piling up */
+  function claim(x, y, w, h, key) { for (var i = 0; i < S.lbl.length; i++) { var b = S.lbl[i]; if (Math.abs(b.x - x) < (b.w + w) / 2 && Math.abs(b.y - y) < (b.h + h) / 2) return false; } S.lbl.push({ x: x, y: y, w: w, h: h, key: key }); return true; }
   function frame() {
-    S.raf = 0;
+    S.raf = 0; S.lbl = [];
     var C = vars(), c = ctx, W = S.W, H = S.H;
     c.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
     c.fillStyle = C.bg; c.fillRect(0, 0, W, H);
@@ -2479,7 +2481,7 @@ function MapView(canvas, cb) {
       var ms = parseInt(w.tags.maxspeed, 10), nm2 = nm + (ms ? ' ' + ms : ''), tw = c.measureText(nm2).width + 6, hit = false;
       for (var j = 0; j < used.length; j++) { var dj = Math.hypot(used[j][0] - x, used[j][1] - y); if ((Math.abs(used[j][0] - x) < (used[j][2] + tw) / 2 && Math.abs(used[j][1] - y) < 12) || dj < Math.min(used[j][2], tw) / 2 + 16 || (used[j][3] === nm && dj < 280)) { hit = true; break; } }
       if (hit) continue;
-      used.push([x, y, tw, nm]); n++;
+      used.push([x, y, tw, nm]); n++; claim(x, y, tw * 0.9, 16, nm);
       var ang = -m.a; if (ang > Math.PI / 2) ang -= Math.PI; if (ang < -Math.PI / 2) ang += Math.PI;
       c.save(); c.translate(x, y); c.rotate(ang); c.lineWidth = 3; c.strokeStyle = C.road; c.strokeText(nm2, 0, 0); c.fillStyle = C.txt; c.fillText(nm2, 0, 0); c.restore();
     }
@@ -2664,11 +2666,12 @@ function MapView(canvas, cb) {
           SignLib.post(c, px2 + rx * 14, py2 + ry * 14, C.ink);
           c.strokeStyle = C.ink; c.lineWidth = 1; c.beginPath(); c.moveTo(px2 + rx * 14, py2 + ry * 14); c.lineTo(px2 + rx * (off2 - FH / 2 + 2), py2 + ry * (off2 - FH / 2 + 2)); c.stroke();
           SignLib.draw(c, sgn.code, px2 + rx * off2, py2 + ry * off2, FH, { legend: sgn.legend });
+          claim(px2 + rx * off2, py2 + ry * off2, FH, FH, 'sign');
           c.font = '700 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineWidth = 3; c.strokeStyle = C.road; c.fillStyle = C.ink;
-          var ty2 = py2 + ry * off2 + FH / 2 + 11, tx = (S.lay.codes ? sgn.code + ' · ' : '') + sgn.dist + "'"; if (S.lay.labels) if (S.lay.labels) { c.strokeText(tx, px2 + rx * off2, ty2); c.fillText(tx, px2 + rx * off2, ty2); }
+          var ty2 = py2 + ry * off2 + FH / 2 + 11, tx = (S.lay.codes ? sgn.code + ' · ' : '') + sgn.dist + "'"; if (S.lay.labels) if (S.lay.labels && claim(px2 + rx * off2, ty2 - 4, c.measureText(tx).width + 4, 13, 'd')) { c.strokeText(tx, px2 + rx * off2, ty2); c.fillText(tx, px2 + rx * off2, ty2); }
         });
       } else diamond(c, C, x, y, 'W20-1', C.work);
-      if (lg.w.tags.name && S.k > 0.15 && S.lay.labels) { var ny = y + (cb.fixed ? 56 : 26); c.fillStyle = C.ink; c.font = (cb.fixed ? '700 14px' : '11px') + ' sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(lg.w.tags.name, x, ny); c.fillText(lg.w.tags.name, x, ny); c.textAlign = 'left'; }
+      if (lg.w.tags.name && S.k > 0.15 && S.lay.labels && !S.lbl.some(function (b) { return b.key === lg.w.tags.name && Math.hypot(b.x - x, b.y - y) < 260; })) { var ny = y + (cb.fixed ? 56 : 26); c.font = (cb.fixed ? '700 14px' : '11px') + ' sans-serif'; var nw = c.measureText(lg.w.tags.name).width + 6, tr = 0; while (tr < 6 && !claim(x, ny, nw, 16, lg.w.tags.name)) { ny += (tr % 2 ? -1 : 1) * 18 * (1 + (tr >> 1)); tr++; } if (tr >= 6) { ny = -999; } c.fillStyle = C.ink; c.font = (cb.fixed ? '700 14px' : '11px') + ' sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(lg.w.tags.name, x, ny); c.fillText(lg.w.tags.name, x, ny); c.textAlign = 'left'; }
     });
   }
   function drawDetour(c, C, dt, g, dir, tW0, tW1) {
