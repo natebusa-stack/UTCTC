@@ -2177,7 +2177,7 @@ function MapView(canvas, cb) {
   var ctx = canvas.getContext('2d'), FT = 364608;
   var WK = cb.fixed ? 1.9 : 1;
   var S = { cx: 0, cy: 0, k: 0.3, W: 300, H: 300, dpr: 1, o: null, oid: 1, store: null, pins: [], sites: [], sel: -1, cluster: null,
-    L: { roads: true, walk: true, cross: true, zone: true, pins: true, names: true }, ov: null, adjust: false, pinMode: false, flip: {}, raf: 0, moving: false };
+    L: { roads: true, walk: true, cross: true, zone: true, pins: true, names: true }, lay: { signs: true, flag: true, cones: true, dims: true, labels: true, codes: false }, ov: null, adjust: false, pinMode: false, flip: {}, raf: 0, moving: false };
   var RW = { motorway: [48, 3], trunk: [40, 2.6], primary: [40, 2.4], secondary: [30, 2.1], tertiary: [26, 1.8], unclassified: [22, 1.4], residential: [22, 1.4], living_street: [18, 1.2], service: [14, 1],
     motorway_link: [20, 1.6], trunk_link: [20, 1.6], primary_link: [20, 1.6], secondary_link: [20, 1.4], tertiary_link: [18, 1.4] };
   var RANK = { motorway: 0, trunk: 1, primary: 2, secondary: 3, tertiary: 4, unclassified: 5, residential: 6, living_street: 7, service: 8, motorway_link: 1, trunk_link: 2, primary_link: 3, secondary_link: 4, tertiary_link: 5 };
@@ -2631,6 +2631,7 @@ function MapView(canvas, cb) {
   /* a one-way street only brings traffic toward the junction from the side it comes from */
   function feeds(w, lg) { var o = (w.tags || {}).oneway; if (o === 'yes' || o === '1' || o === 'true') return lg < 0; if (o === '-1') return lg > 0; return true; }
   function flagMark(c, x, y, id) {
+    if (!S.lay.flag) return;
     c.save(); c.fillStyle = '#b3261e'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 13, 0, 7); c.fill(); c.stroke();
     c.fillStyle = '#fff'; c.font = '700 12px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(id, x, y + 0.5); c.restore();
   }
@@ -2646,7 +2647,7 @@ function MapView(canvas, cb) {
         var rx = -tvy, ry = tvx, FH = Math.max(30, Math.min(46, lg.D * S.k * 0.7)), off2 = 18 + FH / 2;
         if (lg.flagger) { var fq = atS(pts, cum, sj + L0 * lg.F), fx = sx(fq.x), fy = sy(fq.y); flagMark(c, fx + rx * 26, fy + ry * 26, lg.fid); }
         if (lg.flagger && lg.xf) { var fq2 = atS(pts, cum, sj + L0 * (lg.F + 50)), fx2 = sx(fq2.x), fy2 = sy(fq2.y); flagMark(c, fx2 - rx * 26, fy2 - ry * 26, lg.fx); }
-        lg.signs.slice().reverse().forEach(function (sgn) {
+        if (S.lay.signs) lg.signs.slice().reverse().forEach(function (sgn) {
           var qq = atS(pts, cum, sj + L0 * sgn.dist), px2 = sx(qq.x), py2 = sy(qq.y);
           
           if (taken) taken.push({ x: px2 + rx * off2, y: py2 + ry * off2, r: 34 });
@@ -2654,10 +2655,10 @@ function MapView(canvas, cb) {
           c.strokeStyle = C.ink; c.lineWidth = 1; c.beginPath(); c.moveTo(px2 + rx * 14, py2 + ry * 14); c.lineTo(px2 + rx * (off2 - FH / 2 + 2), py2 + ry * (off2 - FH / 2 + 2)); c.stroke();
           SignLib.draw(c, sgn.code, px2 + rx * off2, py2 + ry * off2, FH, { legend: sgn.legend });
           c.font = '700 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineWidth = 3; c.strokeStyle = C.road; c.fillStyle = C.ink;
-          var ty2 = py2 + ry * off2 + FH / 2 + 11, tx = sgn.code + ' · ' + sgn.dist + "'"; c.strokeText(tx, px2 + rx * off2, ty2); c.fillText(tx, px2 + rx * off2, ty2);
+          var ty2 = py2 + ry * off2 + FH / 2 + 11, tx = (S.lay.codes ? sgn.code + ' · ' : '') + sgn.dist + "'"; if (S.lay.labels) if (S.lay.labels) { c.strokeText(tx, px2 + rx * off2, ty2); c.fillText(tx, px2 + rx * off2, ty2); }
         });
       } else diamond(c, C, x, y, 'W20-1', C.work);
-      if (lg.w.tags.name && S.k > 0.15) { var ny = y + (cb.fixed ? 56 : 26); c.fillStyle = C.ink; c.font = (cb.fixed ? '700 14px' : '11px') + ' sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(lg.w.tags.name, x, ny); c.fillText(lg.w.tags.name, x, ny); c.textAlign = 'left'; }
+      if (lg.w.tags.name && S.k > 0.15 && S.lay.labels) { var ny = y + (cb.fixed ? 56 : 26); c.fillStyle = C.ink; c.font = (cb.fixed ? '700 14px' : '11px') + ' sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(lg.w.tags.name, x, ny); c.fillText(lg.w.tags.name, x, ny); c.textAlign = 'left'; }
     });
   }
   function drawDetour(c, C, dt, g, dir, tW0, tW1) {
@@ -2765,7 +2766,7 @@ function MapView(canvas, cb) {
       var faceH = cb.fixed ? Math.max(26, Math.min(62, p.space * S.k * 0.62)) : 36, taken = [], big = cb.fixed || S.k > 0.1;
       var LG = !dt ? legsOf(z, s) : null; if (LG) drawLegs(c, C, LG, taken);
       var placeSign = function (code, legend, t, opt) {
-        opt = opt || {};
+        opt = opt || {}; if (!S.lay.signs) return;
         if (!big) { mark(t, '', 'd', C.work); return; }
         var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), side = opt.side || 1, off = side * (RWf / 2 + 8);
         var X = q.x + Math.sin(ang) * off, Y = q.y - Math.cos(ang) * off, px = sx(X), py = sy(Y);
@@ -2781,7 +2782,7 @@ function MapView(canvas, cb) {
         c.fillStyle = C.ink; c.save(); c.translate(px + ux * 6, py + uy * 6); c.rotate(Math.atan2(-uy, -ux)); c.beginPath(); c.moveTo(0, 0); c.lineTo(8, -3.5); c.lineTo(8, 3.5); c.closePath(); c.fill(); c.restore();
         SignLib.post(c, px, py, C.ink);
         SignLib.draw(c, code, cx, cy, fh, o2);
-        c.font = (cb.fixed ? '700 12px' : '700 10px') + ' sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineWidth = 3; c.strokeStyle = C.road; var tx = code + (opt.street ? '' : ''), ty = cy + sz.h / 2 + 11; c.strokeText(tx, cx, ty); c.fillStyle = C.txt; c.fillText(tx, cx, ty); c.textAlign = 'left';
+        c.font = (cb.fixed ? '700 12px' : '700 10px') + ' sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineWidth = 3; c.strokeStyle = C.road; var tx = code + (opt.street ? '' : ''), ty = cy + sz.h / 2 + 11; if (S.lay.labels && S.lay.codes) { c.strokeText(tx, cx, ty); c.fillStyle = C.txt; c.fillText(tx, cx, ty); } c.textAlign = 'left';
       };
       var bothWays = !z.eff.oneway && (sc === 'flagging' || sc === 'signal' || sc === 'laneshift' || sc === 'intersection' || !!dt);
       p.signs.forEach(function (sg) {
@@ -2802,7 +2803,7 @@ function MapView(canvas, cb) {
       var coned = ['laneclosure', 'twolanes', 'laneshift', 'shoulder', 'flagging', 'signal'].indexOf(sc) >= 0;
       if (coned) {
         var edge = RWf / 2, off0 = edge, offI = (sc === 'flagging' || sc === 'signal') ? 0 : Math.max(0, edge - (sc === 'shoulder' ? (z.eff.shoulderW || 6) : (z.eff.laneW || 12)));
-        var cone = function (t, off) { off *= sgn; var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), X = q.x + Math.sin(ang) * off, Y = q.y - Math.cos(ang) * off; c.beginPath(); c.arc(sx(X), sy(Y), 2.8, 0, 7); c.fill(); c.stroke(); };
+        var cone = function (t, off) { if (!S.lay.cones) return; off *= sgn; var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), X = q.x + Math.sin(ang) * off, Y = q.y - Math.cos(ang) * off; c.beginPath(); c.arc(sx(X), sy(Y), 2.8, 0, 7); c.fill(); c.stroke(); };
         c.fillStyle = C.work; c.strokeStyle = C.ink; c.lineWidth = 0.9;
         var i, nT = Math.min(80, Math.ceil(p.taper / p.devSpacingTaper)), nG = Math.min(120, Math.ceil((tW1 - (tS + p.taper)) / p.devSpacingTangent)), nD = Math.min(60, Math.ceil(p.downstream / p.devSpacingTaper));
         for (i = 0; i <= nT; i++) cone(tS + p.taper * i / Math.max(1, nT), off0 + (offI - off0) * i / Math.max(1, nT));
@@ -2810,8 +2811,8 @@ function MapView(canvas, cb) {
         for (i = 0; i <= nD; i++) cone(tW1 + p.downstream * i / Math.max(1, nD), offI + (off0 - offI) * i / Math.max(1, nD));
       }
       if (S.k > 0.1 && g) {
-        var lab = function (t, text, side) { var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), x = sx(q.x) - Math.sin(ang) * side, y = sy(q.y) - Math.cos(ang) * side; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(text, x, y); c.fillStyle = C.ink; c.fillText(text, x, y); c.textAlign = 'left'; };
-        var dimL = function (t0, t1, off, text) {
+        var lab = function (t, text, side) { if (!S.lay.dims) return; var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), x = sx(q.x) - Math.sin(ang) * side, y = sy(q.y) - Math.cos(ang) * side; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(text, x, y); c.fillStyle = C.ink; c.fillText(text, x, y); c.textAlign = 'left'; };
+        var dimL = function (t0, t1, off, text) { if (!S.lay.dims) return;
           var q0 = atS(g.pts, g.cum, g.s0 + dir * t0), q1 = atS(g.pts, g.cum, g.s0 + dir * t1), a0 = q0.a + (dir < 0 ? Math.PI : 0), a1 = q1.a + (dir < 0 ? Math.PI : 0);
           var x0 = sx(q0.x) - Math.sin(a0) * off, y0 = sy(q0.y) - Math.cos(a0) * off, x1 = sx(q1.x) - Math.sin(a1) * off, y1 = sy(q1.y) - Math.cos(a1) * off;
           if (Math.hypot(x1 - x0, y1 - y0) < 14) return;
@@ -2952,6 +2953,8 @@ function MapView(canvas, cb) {
   resize();
 
   return {
+    setLay: function (o) { for (var k in o) S.lay[k] = !!o[k]; dirty(); },
+    getLay: function () { return JSON.parse(JSON.stringify(S.lay)); },
     setCallouts: function (a) { S.callouts = a || []; },
     snapshot: function () { frame(); return canvas.toDataURL('image/png'); },
     overlayInfo: function () { if (!S.ov) return null; var l = toLL(S.ov.x, S.ov.y); return { img: S.ov.img, lat: l.lat, lon: l.lon, f: S.ov.f, a: S.ov.a }; },
@@ -3371,7 +3374,7 @@ function signCell(g) {
       })(0);
     });
   }
-  var autoTried = {}, autoTimer = null, autoBusy = false;
+  var autoTried = {}, autoTimer = null, autoBusy = false, apiFirst = true;
   function autoMap() {
     clearTimeout(autoTimer);
     autoTimer = setTimeout(function () {
@@ -3379,7 +3382,7 @@ function signCell(g) {
       if (!few.length || autoBusy || typeof fetch !== 'function') return;
       var q = buildQuery(few); if (autoTried[q]) return; autoTried[q] = 1; autoBusy = true;
       say('mstat', 'Looking up the roads around your location...');
-      loadRoads(q, function (ok, why) {
+      var viaOverpass = function () { loadRoads(q, function (ok, why) {
         autoBusy = false;
         if (ok) { say('mstat', 'Roads loaded automatically.'); afterData(); loadHospitals(few); return; }
         autoBusy = true; say('mstat', 'The main map servers did not answer. Trying the OpenStreetMap backup...');
@@ -3388,7 +3391,9 @@ function signCell(g) {
           if (ok2) { say('mstat', 'Roads loaded from the OpenStreetMap backup.'); afterData(); loadHospitals(few); return; }
           why = why + ' Backup: ' + why2 + '.';
           delete autoTried[q]; renderMapStatus(); say('mstat', 'Roads did not load. ' + why + (/could not connect/.test(why) && !/^https?:/.test(location.protocol + '//') ? '' : '') + (location.protocol === 'https:' && /github\.io/.test(location.host) ? ' Check your signal.' : ' Pages opened inside Claude cannot reach map servers. Open the app from your GitHub link instead (natebusa-stack.github.io), then try again.')); say('ostat', 'Tap "Load roads now" on the Map tab to try again, or use the manual steps below. You can also draw the street yourself under each location.'); renderMapUI(); });
-      });
+      }); };
+      if (!apiFirst) return viaOverpass();
+      loadViaOsmApi(few, function (ok2, why2) { if (ok2) { autoBusy = false; say('mstat', 'Roads loaded.'); afterData(); loadHospitals(few); } else viaOverpass(); });
     }, 1200);
   }
   function renderMapStatus() {
@@ -3823,7 +3828,7 @@ function nextBar() {
       h += '<div class="blk"><h4>Before you start</h4><div class="ck">' + checklist(r, v).map(function (x) { return '<label><input type="checkbox">' + esc(x) + '</label>'; }).join('') + '</div></div>';
       if (p.legs) h += '<details class="dg" open><summary>Approaches, flaggers and signs (' + p.legs.length + ' approaches, ' + signTotal(p) + ' signs' + (p.flaggers ? ', ' + p.flaggers + ' flaggers' : '') + ')</summary><div style="padding:0 14px 10px">' + legsTable(p, n - 1) + '</div></details>';
       var aer = n === 1 && sites[sel] ? planImageCached(sites[sel]) : null;
-      if (aer) h += '<details class="dg" open><summary>Aerial view: signs on every approach</summary><div style="padding:0 12px 10px"><img src="' + aer + '" alt="Aerial plan view of the work zone with all advance warning signs on each approach" style="width:100%;height:auto;display:block;border:1px solid var(--line)"><p class="cap">Road runs left to right. Signs are shown at their planned distances ahead of the work on the main road and on each side street that feeds it.</p></div></details>';
+      if (aer) h += '<details class="dg" open><summary>Aerial view: signs on every approach</summary><div style="padding:0 12px 10px">' + layChips() + '<img src="' + aer + '" alt="Aerial plan view of the work zone with all advance warning signs on each approach" style="width:100%;height:auto;display:block;border:1px solid var(--line)"><p class="cap">Road runs left to right. Signs are shown at their planned distances ahead of the work on the main road and on each side street that feeds it.</p></div></details>';
       h += '<details class="dg" open><summary>Layout drawing</summary><div class="go" style="margin:0 20px 10px"><button type="button" data-act="zoomlay" data-zi="' + (n - 1) + '">Zoom in on the layout</button></div><div class="scroll" id="lay' + n + '">' + draw(p, v) + '</div><p class="cap">Signs start at the left edge, so swipe the drawing to the right to follow the road to the work. Orange dots are cones or drums, the hatched area is the work space. Teal dashes are pedestrian routes and red dashes mark a conflict.</p></details>';
     }
     h += '<details class="alts"><summary>Why not the other setups (' + ev.rejected.length + ')</summary>';
@@ -3983,8 +3988,17 @@ function nextBar() {
       h = '<b>Step 1. Check the site from above.</b> No road data matched under the pin yet, so the plan is a generic flagging setup, not built from this site. Tap <b>Load roads</b> (Locations tab, Load the road data), or drag the pin onto the road.' + (autoMsg ? '<br><i>' + esc(autoMsg) + '</i>' : '') + '<div class="go" style="margin-top:6px"><button type="button" class="ghost" id="mfload">Load roads now</button></div>';
     }
     h += '<div class="go" style="margin-top:8px"><button type="button" class="pri" id="mfbuild" style="width:100%">Looks right. Build the plan from this view</button></div>';
+    h += '<div class="go" style="margin-top:6px;display:flex;gap:8px"><button type="button" class="ghost" id="mfretry" style="flex:1">Roads look wrong. Try again</button><button type="button" class="ghost" id="mfgps" style="flex:1">Location is off. Redo GPS</button></div>';
     el.hidden = false; el.innerHTML = h;
     var b = $('mfbuild'); if (b) b.onclick = function () { pick(sel, true); };
+    var rb = $('mfretry'); if (rb) rb.onclick = function () {
+      /* wipe what was read for this spot, switch map source, and read again */
+      apiFirst = !apiFirst; autoTried = {}; autoBusy = false; roadAsked = true;
+      var l0 = sites[sel] && sites[sel].items[0].loc; if (l0) { l0.osm = null; }
+      store = OsmStore(); locs.forEach(function (l) { l.osm = null; });
+      say('mstat', 'Reading the roads again from ' + (apiFirst ? 'the OpenStreetMap server' : 'the Overpass servers') + '...'); compute(); autoMap();
+    };
+    var gb = $('mfgps'); if (gb) gb.onclick = function () { $('gps').click(); };
     var lb = $('mfload'); if (lb) lb.onclick = function () { autoTried = {}; autoBusy = false; roadAsked = true; say('mstat', 'Looking up the roads around your location...'); autoMap(); };
   }
   function renderMapUI() {
@@ -4278,8 +4292,12 @@ function nextBar() {
     return h + '</table></article>';
   }
 
+  var LAY = { signs: true, flag: true, cones: true, dims: true, labels: true, codes: false };
+  try { var _l = JSON.parse(localStorage.getItem('tcp5lay')); if (_l) for (var _k in LAY) if (typeof _l[_k] === 'boolean') LAY[_k] = _l[_k]; } catch (e) {}
+  function layChips() { var N = { signs: 'Signs', flag: 'Flaggers', cones: 'Cones', dims: 'Distances', labels: 'Labels', codes: 'Sign codes' }; return '<div class="laychips" style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 0">' + Object.keys(N).map(function (k) { return '<button type="button" class="btnlink sm" data-lay="' + k + '" aria-pressed="' + LAY[k] + '" style="' + (LAY[k] ? 'font-weight:700' : 'opacity:.55;text-decoration:line-through') + '">' + N[k] + '</button>'; }).join('') + '</div>'; }
+  document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('[data-lay]'); if (!b) return; var k = b.getAttribute('data-lay'); LAY[k] = !LAY[k]; try { localStorage.setItem('tcp5lay', JSON.stringify(LAY)); } catch (x) {} PIC.k = ''; renderPlan(); });
   function planImageCached(s) {
-    var k = (SAT.on ? 'S' : 'D') + sites.indexOf(s) + JSON.stringify(s.zones.map(function (z) { return [z.eff, z.ev.rec && z.ev.rec.id, z.ev.rec && z.ev.rec.plan.signs, z.items[0].loc.xf]; })) + s.items.map(function (it) { return it.loc.osm && it.loc.osm.found ? 1 : 0; }).join('');
+    var k = JSON.stringify(LAY) + (SAT.on ? 'S' : 'D') + sites.indexOf(s) + JSON.stringify(s.zones.map(function (z) { return [z.eff, z.ev.rec && z.ev.rec.id, z.ev.rec && z.ev.rec.plan.signs, z.items[0].loc.xf]; })) + s.items.map(function (it) { return it.loc.osm && it.loc.osm.found ? 1 : 0; }).join('');
     if (PIC.k !== k) { PIC.k = k; PIC.v = planImage(s); }
     return PIC.v;
   }
@@ -4288,7 +4306,7 @@ function nextBar() {
     if (!s.items.some(function (it) { return it.loc.osm && it.loc.osm.found; }) && !(mv && mv.hasOverlay())) return null;
     try {
       var m = MapView(document.createElement('canvas'), { fixed: { W: 1000, H: 548, dpr: 2.4 }, palette: PAL, detour: getDet });
-      m.setData({ store: store, locs: locs, sites: sites });
+      m.setData({ store: store, locs: locs, sites: sites }); m.setLay(LAY);
       var ov = mv && mv.overlayInfo(); if (ov) { m.setOverlay(ov.img, ov.lat, ov.lon, ov.f); m.ovParam({ a: ov.a }); }
       if (mv && mv.flipped(n)) m.flip(n);
       m.setCallouts(siteNotes(s).map(function (x, i) { return x.kind ? { n: i + 1, kind: x.kind, label: x.label, lat: x.lat, lon: x.lon } : null; }).filter(Boolean));
@@ -4678,23 +4696,23 @@ function nextBar() {
         var lines = $('pts').value.split(/\r?\n/).filter(function (x) { return x.trim() && !/My location\s*$/.test(x) && x.trim() !== SAMPLE; });
         lines.push(line); $('pts').value = lines.join('\n'); bulkText = '';
         build();
-        m.textContent = 'Location added. Accurate to about ' + ft + ' ft.' + (ft > 100 ? ' That is rough. Drag the pin on the map onto the work spot.' : '');
+        m.textContent = 'Location added. Accurate to about ' + ft + ' ft.' + (ft > 100 ? ' That is rough. Drag the pin onto the work spot, or tap Redo GPS.' : ft > 50 ? ' Check the pin is on the right road.' : '');
         if (sites.length) { pick(sites.length - 1, false); setTab('map'); }
       };
       var ok = function (p) {
         if (done) return;
         if (!best || p.coords.accuracy < best.coords.accuracy) best = p;
         var ft = Math.round(best.coords.accuracy * 3.28084);
-        m.textContent = 'Finding you... accuracy about ' + ft + ' ft' + (ft > 30 ? ', waiting for a better fix.' : '.');
-        if (best.coords.accuracy <= 9) finish();
+        m.textContent = 'Finding you... accuracy about ' + ft + ' ft' + (ft > 50 ? '. Keep still for a tighter fix (up to 25 seconds).' : '.');
+        if (best.coords.accuracy <= 6) finish();
       };
       var bad = function (e) { errc = (e && e.code) || errc; if (e && e.code === 1) finish(); };
       try { gpsWatch = navigator.geolocation.watchPosition(ok, bad, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }); } catch (e) { m.textContent = 'Could not start location.' + HELP; return; }
       tmr = setTimeout(function () {
         if (best || errc === 1) return finish();
         try { navigator.geolocation.getCurrentPosition(function (p) { best = p; finish(); }, function (e) { errc = (e && e.code) || errc; finish(); }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }); } catch (e) { finish(); }
-      }, 12000);
-      var tick = setInterval(function () { if (done) return clearInterval(tick); var el = Date.now() - t0; if (best && (el > 9000 || (el > 4000 && best.coords.accuracy <= 30))) { clearInterval(tick); finish(); } }, 1000);
+      }, 30000);
+      var tick = setInterval(function () { if (done) return clearInterval(tick); var el = Date.now() - t0; if (best && (el > 25000 || (el > 5000 && best.coords.accuracy <= 15))) { clearInterval(tick); finish(); } }, 1000);
     };
     $('go').onclick = function () { build(); if (sites.length) { if (sites.length > 1) $('adv').open = true; pick(0, false); setTab('map'); } };
     $('clr').onclick = function () { $('pts').value = ''; bulkText = ''; $('pts').placeholder = 'Paste coordinates or a map link, one per line'; locs = []; store = OsmStore(); sites = []; say('exnote', ''); try { localStorage.removeItem('tcp5'); } catch (e) {} renderQuery(); renderMapStatus(); compute(); };
