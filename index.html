@@ -2517,10 +2517,10 @@ function MapView(canvas, cb) {
      Each one gets advance signs, and a flagger when the setup needs one on every approach. */
   function legsOf(z, s) {
     var rec = z.ev.rec; if (!rec) return null;
-    var p = rec.plan, sc = p.scenario, g = zoneGeom(z); if (!g || sc === 'full' || sc === 'sidewalk' || sc === 'walkway') return null;
+    var p = rec.plan, sc = p.scenario, g = zoneGeom(z); if (!g || sc === 'sidewalk' || sc === 'walkway') return null;
     var dir = dirOf(s), len = z.eff.len, two = !z.eff.oneway;
     var tS = -len / 2 - p.buffer - p.taper, tW0 = -len / 2, tW1 = len / 2, tE = len / 2 + p.downstream;
-    var flagSc = sc === 'flagging' || sc === 'intersection', both = two && (sc === 'flagging' || sc === 'signal' || sc === 'laneshift' || sc === 'intersection');
+    var flagSc = sc === 'flagging' || sc === 'intersection', both = two && (sc === 'flagging' || sc === 'full' || sc === 'signal' || sc === 'laneshift' || sc === 'intersection');
     var it = z.items[Math.floor(z.items.length / 2)], mname = (it.loc.osm && it.loc.osm.name) || 'Main road', mainId = it.loc.osm && it.loc.osm.wayId;
     var adv = p.signs.filter(function (q) { return !q.end && !q.buf && !q.opp && q.dist > 0; }).sort(function (u, v) { return u.dist - v.dist; });
     var cp = function (q) { return { code: q.code, legend: q.legend, dist: q.dist }; };
@@ -2560,7 +2560,7 @@ function MapView(canvas, cb) {
     var D = Math.min(p.space, 350), seqAsc = adv.filter(function (q) { return q.code.charAt(0) === 'W'; }).slice(0, 4);
     found.forEach(function (f) {
       var w = f.w, pts = w._w, cum = w._c, tot = cum[cum.length - 1], sj = cum[f.i];
-      var need = (sc === 'intersection' && f.tJ >= tW0 - 100 && f.tJ <= tW1 + 100) || (sc === 'flagging' && f.tJ >= tS - 10 && f.tJ <= tE + 10) || (flagSc && ((endFront && f.tJ >= tE - 10) || (endBack && f.tJ <= tS + 10)));
+      var need = (sc === 'intersection' && f.tJ >= tW0 - 100 && f.tJ <= tW1 + 100) || (sc === 'flagging' && f.tJ >= tS - 10 && f.tJ <= tE + 10) || (flagSc && ((endFront && f.tJ >= tE - 10) || (endBack && f.tJ <= tS + 10))) || (['laneclosure', 'twolanes', 'laneshift', 'signal'].indexOf(sc) >= 0 && f.tJ >= tS - 10 && f.tJ <= tE + 10);
       var inside = f.tJ >= tS - 10 && f.tJ <= tE + 10;
       /* how far this junction is from the work, along the road traffic travels to reach it */
       var jd = f.tJ < tS - 10 ? tS - f.tJ : (f.tJ > tE + 10 ? f.tJ - tE : 0);
@@ -4214,6 +4214,12 @@ function nextBar() {
       p.mainGone = L.mainGone || 0; p.legs = L.legs.map(function (l) { return { room: l.room, avail: l.avail, ang: l.ang, alongMain: l.alongMain, level: l.level, kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0 }; });
       L.legs.forEach(function (l) { l.signs.forEach(function (g) { add(g.code, g.legend, 1, l.name); }); });
       L.zoneSigns.forEach(function (g) { add(g.code, g.legend, 1, 'at the work'); });
+      if (['laneclosure', 'twolanes', 'laneshift', 'signal'].indexOf(p.scenario) >= 0) {
+        if (p.flaggersBase === undefined) p.flaggersBase = p.flaggers || 0;
+        var sf = L.legs.filter(function (l) { return l.kind === 'side' && l.flagger; }).length;
+        p.flaggers = p.flaggersBase + sf; p.extraFlag = sf;
+        p.legsNote = sf ? sf + ' side street' + (sf > 1 ? 's join' : ' joins') + ' inside the work area. Each gets a flagger and the full set of advance signs.' : '';
+      }
       if (p.scenario === 'flagging' || p.scenario === 'intersection') {
         var fl = L.legs.filter(function (l) { return l.flagger; }).length, fx = L.legs.filter(function (l) { return l.flagger && l.xf; }).length;
         p.flaggers = (p.scenario === 'intersection' ? Math.max(fl, 3) : Math.max(fl, 2)) + fx; p.extraFlag = fx;
