@@ -3557,6 +3557,7 @@ function signCell(g) {
     save(); compute();
   }
   function onNum(e) {
+    var tl = e.target; if (tl.hasAttribute && tl.hasAttribute('data-lanes')) { tl.getAttribute('data-lanes').split(',').forEach(function (ix) { var l4 = locs[+ix]; if (!l4) return; l4.vals.lanes = +tl.value; l4.src.lanes = 'user'; }); save(); compute(); return; }
     var tc = e.target; if (tc.hasAttribute && tc.hasAttribute('data-combo')) { tc.getAttribute('data-combo').split(',').forEach(function (ix) { var l3 = locs[+ix]; if (!l3) return; l3.ovr = l3.ovr || {}; l3.ovr.combo = tc.value || 'none'; }); save(); compute(); return; }
     var tp = e.target; if (tp.getAttribute && tp.getAttribute('data-pick') !== null && tp.getAttribute('data-pick') !== undefined && tp.hasAttribute('data-pick')) { tp.getAttribute('data-pick').split(',').forEach(function (ix) { var l2 = locs[+ix]; if (!l2) return; l2.ovr = l2.ovr || {}; if (tp.value) l2.ovr.pick = tp.value; else delete l2.ovr.pick; }); save(); compute(); return; }
     var t0 = e.target; if (t0.getAttribute && t0.getAttribute('data-sd')) { SD[t0.getAttribute('data-sd')] = t0.value; sdSave(); return; }
@@ -3849,6 +3850,9 @@ function nextBar() {
     var facts = [v.speed + ' mph', v.lanes + ' lane' + (v.lanes > 1 ? 's' : '') + (v.oneway ? ' one-way' : ''), v.laneW + ' ft lanes', v.shoulderW + ' ft shoulder', 'sidewalks ' + v.sidewalks, v.pos === 'lane' ? 'work in lane' : v.pos === 'shoulder' ? 'work on shoulder' : 'work on sidewalk', v.len + ' ft of work'];
     h += '<p class="coords" style="padding:0 20px">' + esc(facts.join(' · ')) + '</p>';
     var pidx = z.items.map(function (it) { return locs.indexOf(it.loc); }).join(',');
+    var lanesAssumed = z.items.some(function (it) { return it.loc.src.lanes !== 'user' && it.loc.src.lanes !== 'osm'; }), lnOpts = '';
+    for (var lk = 1; lk <= 8; lk++) lnOpts += '<option value="' + lk + '"' + (v.lanes === lk ? ' selected' : '') + '>' + lk + (lk === 1 ? ' lane' : ' lanes') + '</option>';
+    h += '<div style="padding:4px 20px 0"><label for="ln' + n + '" style="font-size:13px;color:var(--muted)">Lanes on this road, both directions' + (lanesAssumed ? ' (not in the map data, so this is a guess. Check it.)' : '') + '</label><select id="ln' + n + '" data-lanes="' + pidx + '" style="width:100%;min-height:44px">' + lnOpts + '</select></div>';
     h += '<div style="padding:4px 20px 0"><label for="pick' + n + '" style="font-size:13px;color:var(--muted)">Setup for this zone</label><select id="pick' + n + '" data-pick="' + pidx + '" style="width:100%;min-height:44px"><option value="">Auto (the app picks)</option>' + ['shoulder', 'laneshift', 'laneclosure', 'twolanes', 'intersection', 'flagging', 'signal', 'full', 'sidewalk', 'walkway'].map(function (id) { return '<option value="' + id + '"' + (v.pick === id ? ' selected' : '') + '>' + esc(NAMES[id]) + '</option>'; }).join('') + '</select></div>';
     if (r && (r.plan.scenario === 'laneclosure' || r.plan.scenario === 'twolanes')) {
       var cmb = (v.combo || ''), hints = [], twl = !v.oneway && v.lanes >= 3 && v.lanes % 2 === 1;
