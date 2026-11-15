@@ -953,7 +953,7 @@ function effective(loc, G) {
   v.pos = loc.pos || G.pos || 'lane';
   v.len = Math.max(10, +(loc.lenSet ? loc.len : G.len) || 200);
   v.night = (loc.night === null || loc.night === undefined) ? !!G.night : !!loc.night;
-  v.label = loc.label; v.ovr = loc.ovr || null; v.combo = (loc.ovr && ['shift', 'flag', 'shoulder'].indexOf(loc.ovr.combo) >= 0) ? loc.ovr.combo : ''; v.pick = (loc.ovr && typeof loc.ovr.pick === 'string') ? loc.ovr.pick : '';
+  v.label = loc.label; v.ovr = loc.ovr || null; v.comboSet = !!(loc.ovr && ['shift', 'flag', 'shoulder', 'none'].indexOf(loc.ovr.combo) >= 0); v.combo = (loc.ovr && ['shift', 'flag', 'shoulder'].indexOf(loc.ovr.combo) >= 0) ? loc.ovr.combo : ''; v.pick = (loc.ovr && typeof loc.ovr.pick === 'string') ? loc.ovr.pick : '';
   var ro = loc.osm;
   v.turnPocket = !!(ro && ro.found && ro.turnPocket); v.centerTurn = !!(ro && ro.found && ro.centerTurn);
   v.laneSide = (loc.laneSide === 'L' || loc.laneSide === 'R') ? loc.laneSide : (ro && ro.found && ro.oneway && ro.offset >= 8 ? (((ro.latCr > 0) !== !!ro.rev) ? 'L' : 'R') : 'R');
@@ -1080,6 +1080,13 @@ function evaluate(v) {
   var mid = ['secondary','tertiary'].indexOf(v.hw) >= 0;
   var local = !hv && !mid;
   var area = v.hw === 'motorway' ? 'freeway' : (S >= 50 ? 'rural' : 'urban');
+  var multi = !v.oneway ? lpd >= 2 : lpd >= 2;
+  /* A lane closure is rarely alone. Pick the partner the site calls for unless the technician chose one. */
+  if (!v.comboSet) {
+    var twltl0 = !v.oneway && v.lanes >= 3 && v.lanes % 2 === 1, farSh0 = v.shoulderW >= Math.max(10, v.laneW), sideSt = v.inInt || (v.intDist !== null && v.intDist !== undefined && v.intDist <= 300);
+    v.combo = sideSt ? 'flag' : ((v.shoulderW >= 6 && (v.pos === 'shoulder' || v.bike)) ? 'shoulder' : ((twltl0 || farSh0) ? 'shift' : ''));
+    v.comboAuto = !!v.combo;
+  }
   var base = { speed: v.speed, lanesPerDir: lpd, laneW: v.laneW, shoulderW: v.shoulderW, area: area, oneway: v.oneway, workLen: v.len, sidewalkW: v.sidewalkW, sidewalks: v.sidewalks, ovr: v.ovr, laneSide: v.laneSide, combo: v.combo, bike: !!v.bike, hold: v.jhold === 'yes', narrow: !!v.narrow, padW: Math.round(v.lanes * v.laneW) };
   var servesMap = { lane: { laneclosure: 1, laneshift: 1, twolanes: 1, intersection: 1, flagging: 1, signal: 1, full: 1 }, shoulder: { shoulder: 1, laneclosure: 1, flagging: 1, signal: 1, full: 1 }, sidewalk: { sidewalk: 1, walkway: 1 } }[v.pos];
   var shoulderOK = v.shoulderW >= 4;
@@ -1124,6 +1131,7 @@ function evaluate(v) {
       if (lpd < 2) { c.feasible = false; c.block = v.oneway ? 'This one-way road has one lane. Closing it stops all traffic.' : 'Only one lane each way. Closing it leaves that direction with no lane.'; }
       c.pros.push('Traffic keeps moving in every direction.');
       c.pros.push('No flaggers standing in the road.');
+      if (v.inInt) c.pros.push('The work is at an intersection on a multi-lane road, so the lane closure is paired with flaggers kept off the travel lanes to handle the side street.');
       A(spdSev, spd * 0.7, 'At ' + S + ' mph a lane closure needs a ' + p.taper + ' ft taper, an arrow board and a shadow vehicle.');
       if (inZ(v.intDist)) A('med', 10, 'A side street or driveway is inside the closure. Turning vehicles cross the taper.');
       else if (inA(v.intDist)) A('low', 4, 'A side street is within the advance warning area. Drivers may be confused by the signs.');
@@ -1136,7 +1144,8 @@ function evaluate(v) {
     }
     if (servesMap[id] && id === 'twolanes' && !v.twoBlocked) { c.serves = false; c.why = 'The work needs one lane. Closing two adds delay and exposure without a need.'; }
     if (servesMap[id] && id === 'intersection' && !v.inInt) { c.serves = false; c.why = 'The work is not inside an intersection.'; }
-    if (id !== 'intersection' && id !== 'full' && v.inInt && servesMap[id]) { c.feasible = false; c.block = 'The work is inside an intersection. This setup does not control the cross street or turning traffic.'; }
+    var cornerOK = v.inInt && multi && (id === 'laneclosure' || id === 'laneshift' || id === 'shoulder' || id === 'twolanes');
+    if (id !== 'intersection' && id !== 'full' && v.inInt && servesMap[id] && !cornerOK) { c.feasible = false; c.block = 'The work is inside an intersection. This setup does not control the cross street or turning traffic.'; }
     if (id !== 'twolanes' && id !== 'full' && !v.inInt && v.twoBlocked && servesMap[id]) { c.feasible = false; c.block = 'The work blocks two lanes, but this setup leaves the second lane in the work area.'; }
     if (id === 'twolanes') {
       if (lpd < 3 && !(lpd === 2 && !v.oneway)) { c.feasible = false; c.block = 'The road has ' + lpd + ' lane' + (lpd > 1 ? 's' : '') + ' each way. Closing two leaves one or none.'; }
@@ -1158,6 +1167,7 @@ function evaluate(v) {
       c.pros.push('Every approach is controlled, so no one enters the work area by surprise.');
       A('med', 12, 'Four flaggers or officers are needed, and each must see the others.');
       if (S >= 45) A(S >= 50 ? 'high' : 'med', spd * 0.9, 'Flaggers stand in the road at ' + S + ' mph.');
+      if (multi) A('high', 22, 'This road has ' + lpd + ' lanes each way. Flaggers would stand in live lanes and cannot stop every lane safely. Close the lane the work is in and keep flaggers on the shoulder or sidewalk instead.');
       if (hv) A('high', 16, 'Heavy traffic on a ' + v.hw + ' road. Stopping every approach builds long queues.');
       if (inA(v.sigDist)) A('low', 5, 'A traffic signal is close. Coordinate its timing with the flaggers.');
       if (inA(v.railDist)) A('high', 20, 'A rail crossing is close. A queue can stop vehicles on the tracks.');
@@ -1288,7 +1298,7 @@ function evaluate(v) {
   // A full closure is the last resort. Try every setup that works with the paint and keeps traffic moving first.
   var fullC = ok.filter(function (c) { return c.id === 'full'; })[0], lane = ok.filter(function (c) { return c.id !== 'full'; });
   // Least disruption first: shoulder closure, then lane shift, then lane closure, then flagging or signals. Only step down a tier when the gentler one is clearly unsafe.
-  var TIER = { shoulder: 0, laneshift: 1, laneclosure: 2, twolanes: 2, intersection: 2, flagging: 3, signal: 3, sidewalk: 0, walkway: 1 };
+  var TIER = { shoulder: 0, laneshift: 1, laneclosure: 2, twolanes: 2, intersection: multi ? 3 : 2, flagging: 3, signal: 3, sidewalk: 0, walkway: 1 };
   lane.sort(function (a, b) { return (TIER[a.id] - TIER[b.id]) || (b.score - a.score); });
   var safeL = lane.filter(function (c) { return c.safety >= 40; }), riskyL = lane.filter(function (c) { return c.safety < 40; }); lane = safeL.concat(riskyL);
   if (fullC) ok = lane.concat([fullC]);
@@ -2679,8 +2689,8 @@ function MapView(canvas, cb) {
       if (cb.fixed) {
         var jx = sx(j.x), jy = sy(j.y), tvx = jx - x, tvy = jy - y, tl2 = Math.hypot(tvx, tvy) || 1; tvx /= tl2; tvy /= tl2;
         var rx = -tvy, ry = tvx, FH = Math.max(30, Math.min(46, lg.D * S.k * 0.7)), off2 = 18 + FH / 2;
-        if (lg.flagger) { var fq = atS(pts, cum, sj + L0 * lg.F), fx = sx(fq.x), fy = sy(fq.y); flagMark(c, fx + rx * 26, fy + ry * 26, lg.fid); }
-        if (lg.flagger && lg.xf) { var fq2 = atS(pts, cum, sj + L0 * (lg.F + 50)), fx2 = sx(fq2.x), fy2 = sy(fq2.y); flagMark(c, fx2 - rx * 26, fy2 - ry * 26, lg.fx); }
+        if (lg.flagger) { var fq = atS(pts, cum, sj + L0 * lg.F), fx = sx(fq.x), fy = sy(fq.y); var fo = Math.max(26, ((RW[lg.w.tags.highway] || [24])[0]) * WK * S.k / 2 + 14); flagMark(c, fx + rx * fo, fy + ry * fo, lg.fid); }
+        if (lg.flagger && lg.xf) { var fq2 = atS(pts, cum, sj + L0 * (lg.F + 50)), fx2 = sx(fq2.x), fy2 = sy(fq2.y); flagMark(c, fx2 - rx * fo, fy2 - ry * fo, lg.fx); }
         if (S.lay.signs) lg.signs.slice().reverse().forEach(function (sgn) {
           var qq = atS(pts, cum, sj + L0 * sgn.dist), px2 = sx(qq.x), py2 = sy(qq.y);
           
@@ -3545,7 +3555,7 @@ function signCell(g) {
     save(); compute();
   }
   function onNum(e) {
-    var tc = e.target; if (tc.hasAttribute && tc.hasAttribute('data-combo')) { tc.getAttribute('data-combo').split(',').forEach(function (ix) { var l3 = locs[+ix]; if (!l3) return; l3.ovr = l3.ovr || {}; if (tc.value) l3.ovr.combo = tc.value; else delete l3.ovr.combo; }); save(); compute(); return; }
+    var tc = e.target; if (tc.hasAttribute && tc.hasAttribute('data-combo')) { tc.getAttribute('data-combo').split(',').forEach(function (ix) { var l3 = locs[+ix]; if (!l3) return; l3.ovr = l3.ovr || {}; l3.ovr.combo = tc.value || 'none'; }); save(); compute(); return; }
     var tp = e.target; if (tp.getAttribute && tp.getAttribute('data-pick') !== null && tp.getAttribute('data-pick') !== undefined && tp.hasAttribute('data-pick')) { tp.getAttribute('data-pick').split(',').forEach(function (ix) { var l2 = locs[+ix]; if (!l2) return; l2.ovr = l2.ovr || {}; if (tp.value) l2.ovr.pick = tp.value; else delete l2.ovr.pick; }); save(); compute(); return; }
     var t0 = e.target; if (t0.getAttribute && t0.getAttribute('data-sd')) { SD[t0.getAttribute('data-sd')] = t0.value; sdSave(); return; }
     if (t0.getAttribute && t0.getAttribute('data-sdc')) { SD[t0.getAttribute('data-sdc')] = t0.checked; sdSave(); var lb = t0.closest('label'); if (lb) lb.classList.toggle('on', t0.checked); return; }
@@ -3842,7 +3852,7 @@ function nextBar() {
       var cmb = (v.combo || ''), hints = [], twl = !v.oneway && v.lanes >= 3 && v.lanes % 2 === 1;
       if (v.shoulderW >= 4 || v.bike) hints.push('a shoulder or bike lane sits next to the work');
       if (twl || v.shoulderW >= Math.max(10, v.laneW)) hints.push('there is room to shift traffic');
-      h += '<div style="padding:8px 20px 0"><label for="cmb' + n + '" style="font-size:13px;color:var(--muted)">Combine the lane closure with</label><select id="cmb' + n + '" data-combo="' + pidx + '" style="width:100%;min-height:44px"><option value=""' + (cmb ? '' : ' selected') + '>Lane closure only</option><option value="shoulder"' + (cmb === 'shoulder' ? ' selected' : '') + '>Shoulder closure (work takes the lane and the shoulder)</option><option value="shift"' + (cmb === 'shift' ? ' selected' : '') + '>Lane shift (open lanes shift away from the work)</option><option value="flag"' + (cmb === 'flag' ? ' selected' : '') + '>Flaggers off the travel lanes (work entrance, side streets)</option></select>' + (hints.length && !cmb ? '<p class="hint" style="margin:4px 0 0">Worth a look: ' + esc(hints.join('; ')) + '.</p>' : '') + '</div>';
+      h += '<div style="padding:8px 20px 0"><label for="cmb' + n + '" style="font-size:13px;color:var(--muted)">Combine the lane closure with</label><select id="cmb' + n + '" data-combo="' + pidx + '" style="width:100%;min-height:44px"><option value="none"' + (cmb ? '' : ' selected') + '>Lane closure only</option><option value="shoulder"' + (cmb === 'shoulder' ? ' selected' : '') + '>Shoulder closure (work takes the lane and the shoulder)' + (v.comboAuto && cmb === 'shoulder' ? ' (recommended)' : '') + '</option><option value="shift"' + (cmb === 'shift' ? ' selected' : '') + '>Lane shift (open lanes shift away from the work)' + (v.comboAuto && cmb === 'shift' ? ' (recommended)' : '') + '</option><option value="flag"' + (cmb === 'flag' ? ' selected' : '') + '>Flaggers off the travel lanes (work entrance, side streets)' + (v.comboAuto && cmb === 'flag' ? ' (recommended)' : '') + '</option></select>' + (hints.length && !cmb ? '<p class="hint" style="margin:4px 0 0">Worth a look: ' + esc(hints.join('; ')) + '.</p>' : '') + '</div>';
     }
 
     var miss = []; cf.forEach(function (c) { c.missing.forEach(function (m) { if (miss.indexOf(m) < 0) miss.push(m); }); });
