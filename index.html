@@ -1075,6 +1075,7 @@ function applyOSM(loc, osm) {
 /* ---------- ranking ---------- */
 function clamp(n) { return Math.max(0, Math.min(100, Math.round(n))); }
 
+function shiftWidth(v) { return v.lanes * v.laneW + 2 * (v.shoulderW || 0); }
 function evaluate(v) {
   var S = snapSpeed(v.speed);
   var lpd = v.oneway ? v.lanes : Math.max(1, Math.floor(v.lanes / 2));
@@ -1086,7 +1087,7 @@ function evaluate(v) {
   var multi = lpd >= 2 || !!v.lanesUnsure;
   /* A lane closure is rarely alone. Pick the partner the site calls for unless the technician chose one. */
   if (!v.comboSet) {
-    var twltl0 = !v.oneway && v.lanes >= 3 && v.lanes % 2 === 1, farSh0 = v.shoulderW >= Math.max(10, v.laneW), sideSt = v.inInt || (v.intDist !== null && v.intDist !== undefined && v.intDist <= 300);
+    var twltl0 = false, farSh0 = shiftWidth(v) >= 32 && !(!v.oneway && v.lanes >= 3 && v.lanes % 2 === 1), sideSt = v.inInt || (v.intDist !== null && v.intDist !== undefined && v.intDist <= 300);
     v.combo = sideSt ? 'flag' : ((v.shoulderW >= 6 && (v.pos === 'shoulder' || v.bike)) ? 'shoulder' : ((twltl0 || farSh0) ? 'shift' : ''));
     v.comboAuto = !!v.combo;
   }
@@ -1182,13 +1183,13 @@ function evaluate(v) {
       if (dark) A('med', 10, 'No street lighting recorded. Light every flagger station.');
     }
     if (id === 'laneshift') {
-      var twltl = !v.oneway && v.lanes >= 3 && v.lanes % 2 === 1, farShoulder = v.shoulderW >= Math.max(10, v.laneW);
-      if (!twltl && !farShoulder) { c.feasible = false; c.block = 'There is no center turn lane and the shoulder is ' + v.shoulderW + ' ft wide. Traffic needs about ' + Math.max(10, v.laneW) + ' ft of usable pavement to shift into.'; }
+      var twltl = !v.oneway && v.lanes >= 3 && v.lanes % 2 === 1, wide = shiftWidth(v);
+      if (wide < 32) { c.feasible = false; c.block = 'The pavement is only about ' + wide + ' ft across. A lane shift needs about 32 ft so both directions can move over and keep their lane width.'; }
       c.pros.push('Every lane stays open, so there is no merge and no stopped queue.');
-      if (twltl) c.pros.push('The center turn lane gives room to shift traffic away from the work.');
+      
       A(spdSev, spd * 0.55, 'Traffic is pushed sideways at ' + S + ' mph. Drivers need clear lines and a ' + p.taper + ' ft shifting taper.');
-      if (twltl) A('low', 6, 'The center turn lane is used by the shift, so left turns into driveways are lost.');
-      else A('low', 6, 'Traffic runs on the shoulder pavement. Check that it is strong enough and clear of drains and debris.');
+      if (twltl) A('low', 8, 'The center turn lane makes the shift harder to install. Old turn-lane markings must be removed or covered and left turns into driveways are lost.');
+      if (v.shoulderW > 0) A('low', 4, 'Shifted traffic may run on the shoulder pavement. Check that it is strong enough and clear of drains and debris.');
       if (v.bike) A('med', 8, 'Cyclists lose the shoulder or bike lane to the shifted traffic.');
       if (v.sidewalks === 'none' && ped !== 'low') A('med', 8, 'People walk on this shoulder. The shifted traffic takes their space.');
       if (inZ(v.intDist)) A('med', 10, 'A side street or driveway is inside the shift. Turning vehicles cross the shifted lanes.');
@@ -4102,8 +4103,8 @@ function nextBar() {
     if (r && (r.plan.scenario === 'laneclosure' || r.plan.scenario === 'twolanes')) {
       var cmb = (v.combo || ''), hints = [], twl = !v.oneway && v.lanes >= 3 && v.lanes % 2 === 1;
       if (v.shoulderW >= 4 || v.bike) hints.push('a shoulder or bike lane sits next to the work');
-      if (twl || v.shoulderW >= Math.max(10, v.laneW)) hints.push('there is room to shift traffic');
-      h += '<div style="padding:8px 20px 0"><label for="cmb' + n + '" style="font-size:13px;color:var(--muted)">Combine the lane closure with</label><select id="cmb' + n + '" data-combo="' + pidx + '" style="width:100%;min-height:44px"><option value="none"' + (cmb ? '' : ' selected') + '>Lane closure only</option><option value="shoulder"' + (cmb === 'shoulder' ? ' selected' : '') + '>Shoulder closure (work takes the lane and the shoulder)' + (v.comboAuto && cmb === 'shoulder' ? ' (recommended)' : '') + '</option><option value="shift"' + (cmb === 'shift' ? ' selected' : '') + (twl || v.shoulderW >= Math.max(10, v.laneW) || cmb === 'shift' ? '' : ' disabled') + '>Lane shift (open lanes shift away from the work)' + (twl || v.shoulderW >= Math.max(10, v.laneW) || cmb === 'shift' ? '' : ' - no room: needs a center turn lane or a wide shoulder') + (v.comboAuto && cmb === 'shift' ? ' (recommended)' : '') + '</option><option value="flag"' + (cmb === 'flag' ? ' selected' : '') + '>Flaggers off the travel lanes (work entrance, side streets)' + (v.comboAuto && cmb === 'flag' ? ' (recommended)' : '') + '</option></select>' + (hints.length && !cmb ? '<p class="hint" style="margin:4px 0 0">Worth a look: ' + esc(hints.join('; ')) + '.</p>' : '') + '</div>';
+      if (shiftWidth(v) >= 32) hints.push('the road is wide enough to shift traffic');
+      h += '<div style="padding:8px 20px 0"><label for="cmb' + n + '" style="font-size:13px;color:var(--muted)">Combine the lane closure with</label><select id="cmb' + n + '" data-combo="' + pidx + '" style="width:100%;min-height:44px"><option value="none"' + (cmb ? '' : ' selected') + '>Lane closure only</option><option value="shoulder"' + (cmb === 'shoulder' ? ' selected' : '') + '>Shoulder closure (work takes the lane and the shoulder)' + (v.comboAuto && cmb === 'shoulder' ? ' (recommended)' : '') + '</option><option value="shift"' + (cmb === 'shift' ? ' selected' : '') + (shiftWidth(v) >= 32 || cmb === 'shift' ? '' : ' disabled') + '>Lane shift (open lanes shift away from the work)' + (shiftWidth(v) >= 32 || cmb === 'shift' ? '' : ' - no room: needs about 32 ft of pavement') + (v.comboAuto && cmb === 'shift' ? ' (recommended)' : '') + '</option><option value="flag"' + (cmb === 'flag' ? ' selected' : '') + '>Flaggers off the travel lanes (work entrance, side streets)' + (v.comboAuto && cmb === 'flag' ? ' (recommended)' : '') + '</option></select>' + (hints.length && !cmb ? '<p class="hint" style="margin:4px 0 0">Worth a look: ' + esc(hints.join('; ')) + '.</p>' : '') + '</div>';
     }
 
     var miss = []; cf.forEach(function (c) { c.missing.forEach(function (m) { if (miss.indexOf(m) < 0) miss.push(m); }); });
