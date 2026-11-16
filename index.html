@@ -2835,7 +2835,7 @@ function MapView(canvas, cb) {
         /* L-shaped closure: the work area turns the corner and runs a short way up this side street, with its own cones, ending at the flagger */
         var e1 = atS(pts, cum, sj + L0 * lg.F), wpx = Math.max(10, 12 * WK * S.k);
         c.save(); c.lineCap = 'butt'; c.strokeStyle = 'rgba(242,106,10,.38)'; c.lineWidth = wpx; c.beginPath(); c.moveTo(sx(j.x), sy(j.y)); c.lineTo(sx(e1.x), sy(e1.y)); c.stroke();
-        if (S.lay.cones) { var ex = sx(e1.x) - sx(j.x), ey = sy(e1.y) - sy(j.y), el = Math.hypot(ex, ey) || 1, nx = -ey / el, ny2 = ex / el, nc = Math.max(2, Math.min(8, Math.round(lg.F / 12)));
+        if (S.lay.cones) { var ex = sx(e1.x) - sx(j.x), ey = sy(e1.y) - sy(j.y), el = Math.hypot(ex, ey) || 1, nx = -ey / el, ny2 = ex / el, nc = Math.max(2, Math.min(6, Math.round(el / 22)));
           c.fillStyle = '#f26a0a'; c.strokeStyle = '#1b1b1b'; c.lineWidth = 1;
           for (var ci = 0; ci <= nc; ci++) { var tt = ci / nc; [-1, 1].forEach(function (sd) { c.beginPath(); c.arc(sx(j.x) + ex * tt + nx * sd * wpx / 2, sy(j.y) + ey * tt + ny2 * sd * wpx / 2, 3, 0, 7); c.fill(); c.stroke(); }); } }
         c.restore();
