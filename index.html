@@ -2007,7 +2007,7 @@ function draw(p, v, opt) {
   var hasWalk = v.sidewalks !== 'none', sw = v.sidewalkW || 5, wb = hasWalk ? sw : 0, wt = v.sidewalks === 'both' ? sw : 0;
   var lanes = p.lanes, lw = v.laneW, sh = v.shoulderW, nTop = p.oneway ? 0 : lanes, nBot = lanes;
   var tot = wt + (nTop + nBot) * lw + 2 * sh + wb, ky = Math.min(5, 210 / tot);
-  var yTW = 120, yR0 = yTW + wt * ky, yL0 = yR0 + sh * ky, yC = yL0 + nTop * lw * ky, yE = yC + nBot * lw * ky, yR1 = yE + sh * ky, yB = yR1 + wb * ky, H = yB + 125;
+  var yTW = 120, yR0 = yTW + wt * ky, yL0 = yR0 + sh * ky, yC = yL0 + nTop * lw * ky, yE = yC + nBot * lw * ky, yR1 = yE + sh * ky, yB = yR1 + wb * ky, H = yB + 159;
   var o = [], cones = [], R = function (n) { return Math.round(n * 10) / 10; };
   o.push('<svg viewBox="0 0 ' + W + ' ' + R(H) + '" role="img" aria-label="Plan view of ' + esc(p.scenarioName) + ', drawn to scale along the road and exaggerated across it">');
   o.push('<defs><pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="9" height="9" style="fill:var(--work);opacity:.3"/><line x1="0" y1="0" x2="0" y2="9" style="stroke:var(--work);stroke-width:4"/></pattern>' +
@@ -2112,6 +2112,29 @@ function draw(p, v, opt) {
   o.push('<line class="s-dim" x1="' + R(X(xMin)) + '" y1="' + R(yRu) + '" x2="' + R(X(xMax)) + '" y2="' + R(yRu) + '"/>');
   for (tt = t0; tt <= xMax; tt += step) o.push('<line class="s-dim" x1="' + R(X(tt)) + '" y1="' + R(yRu - 4) + '" x2="' + R(X(tt)) + '" y2="' + R(yRu + 4) + '"/><text class="s-tm" font-size="9" text-anchor="middle" x="' + R(X(tt)) + '" y="' + R(yRu + 16) + '">' + tt + '</text>');
   o.push('<text class="s-tm" x="' + R(X(xMax)) + '" y="' + R(yRu - 8) + '" text-anchor="end">Station in ft, 0 = start of the taper</text>');
+  /* key for the symbols drawn above, using the same marks; only the devices this setup places are listed */
+  var legY = yB + 122, lx = padX, legItems = [['sign', 'Sign']];
+  if (road || sc === 'sidewalk' || sc === 'walkway') legItems.push(['cone', 'Cone or drum']);
+  if (sc === 'flagging') legItems.push(['flag', 'Flagger']);
+  if (sc === 'signal') legItems.push(['sig', 'Temporary signal']);
+  if (sc === 'full') legItems.push(['barr', 'Barricade']);
+  legItems.push(['work', 'Work area']);
+  if (sc === 'laneshift' || sc === 'full') legItems.push(['det', 'Detour route']);
+  if (hasWalk || sc === 'sidewalk' || sc === 'walkway') legItems.push(['ped', 'Pedestrian route']);
+  o.push('<line class="s-dim" x1="' + padX + '" y1="' + R(yB + 110) + '" x2="' + R(W - padX) + '" y2="' + R(yB + 110) + '"/>');
+  legItems.forEach(function (it) {
+    var w2 = it[1].length * 6.4 + 30;
+    if (it[0] === 'sign') o.push('<polygon class="s-sign" points="' + R(lx + 9) + ',' + R(legY - 9) + ' ' + R(lx + 18) + ',' + R(legY) + ' ' + R(lx + 9) + ',' + R(legY + 9) + ' ' + R(lx) + ',' + R(legY) + '"/>');
+    else if (it[0] === 'cone') o.push('<circle class="s-cone" cx="' + R(lx + 9) + '" cy="' + R(legY) + '" r="3.6"/>');
+    else if (it[0] === 'flag') o.push('<circle class="s-fl" cx="' + R(lx + 9) + '" cy="' + R(legY) + '" r="6"/>');
+    else if (it[0] === 'sig') o.push('<rect class="s-sg" x="' + R(lx + 4) + '" y="' + R(legY - 8) + '" width="10" height="16" rx="2"/>');
+    else if (it[0] === 'barr') o.push('<line class="s-bar" x1="' + R(lx + 9) + '" y1="' + R(legY - 9) + '" x2="' + R(lx + 9) + '" y2="' + R(legY + 9) + '"/><line class="s-barw" x1="' + R(lx + 9) + '" y1="' + R(legY - 9) + '" x2="' + R(lx + 9) + '" y2="' + R(legY + 9) + '"/>');
+    else if (it[0] === 'work') o.push('<rect class="s-work" x="' + R(lx) + '" y="' + R(legY - 7) + '" width="18" height="14"/><rect class="s-workb" x="' + R(lx) + '" y="' + R(legY - 7) + '" width="18" height="14"/>');
+    else if (it[0] === 'det') o.push('<line class="s-det" x1="' + R(lx) + '" y1="' + R(legY) + '" x2="' + R(lx + 18) + '" y2="' + R(legY) + '"/>');
+    else if (it[0] === 'ped') o.push('<line class="s-ped" x1="' + R(lx) + '" y1="' + R(legY) + '" x2="' + R(lx + 18) + '" y2="' + R(legY) + '"/>');
+    o.push('<text class="s-t" x="' + R(lx + 24) + '" y="' + R(legY + 4) + '">' + it[1] + '</text>');
+    lx += w2;
+  });
   o.push('<text class="s-tm" x="' + padX + '" y="' + R(H - 6) + '">Traffic in the lower lanes travels left to right. Distances are to scale along the road. Width is exaggerated.</text></svg>');
   return o.join('');
 }
@@ -2416,6 +2439,7 @@ function MapView(canvas, cb) {
     if (cb.fixed) drawNorth(c, C);
     if (S.L.pins) drawPins(c, C);
     drawScale(c, C);
+    drawLegend(c, C);
     if (data && data.tooBig) { c.fillStyle = C.txt; c.font = '12px sans-serif'; c.fillText('Zoom in to see roads', 12, 22); }
     if (satOn() && S.satHave > 0) { c.fillStyle = '#fff'; c.strokeStyle = '#000'; c.lineWidth = 3; c.font = '11px sans-serif'; c.textAlign = 'right'; c.strokeText('Imagery © Esri, Maxar, Earthstar Geographics', W - 8, H - 22); c.fillText('Imagery © Esri, Maxar, Earthstar Geographics', W - 8, H - 22); c.textAlign = 'left'; }
     if (S.sat && satFailed() && !cb.fixed) { c.fillStyle = C.bad; c.font = '600 12px sans-serif'; c.fillText('Satellite imagery could not load. Showing the drawn map.', 12, 40); }
@@ -2537,6 +2561,85 @@ function MapView(canvas, cb) {
     c.moveTo(x, y - r - 2); c.lineTo(x + r + 2, y); c.lineTo(x, y + r + 2); c.lineTo(x - r - 2, y); c.closePath(); c.fill(); c.stroke();
     if (label) { c.fillStyle = C.ink; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(label, x, y - r - 8); c.fillText(label, x, y - r - 8); c.textAlign = 'left'; }
   }
+  /* A road is usually split into short ways at every junction, so the single way under the pin
+     often ends long before the advance warning area does, and side streets past that end are
+     never seen. Follow the road through its own connected ways in both directions until the
+     warning area is covered. A way continues the road when it meets the end of the chain and
+     runs straight on (the same 0.5 rad test the junction search uses to tell a continuation
+     from a side street); the same street name wins over a straighter fork, because a road
+     keeps its name around a bend. Geometry only: no distances, spacings or sign rules change.
+     Returns a {pts, cum, s0, stitched} geometry, or null when the road does not continue. */
+  function stitchMain(g, data, mainId, mainKey, needBack, needFwd, exclude) {
+    var used = {}; used[mainId] = 1; if (exclude) for (var eid in exclude) used[eid] = 1;
+    var pts = g.pts.map(function (q) { return { x: q.x, y: q.y }; }), pre = 0, added = 0, gTot0 = g.cum[g.cum.length - 1];
+    function segProj(px, py, ax, ay, bx, by) {
+      var dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy, t = L2 ? ((px - ax) * dx + (py - ay) * dy) / L2 : 0;
+      t = Math.max(0, Math.min(1, t));
+      return { d: Math.hypot(px - (ax + t * dx), py - (ay + t * dy)), x: ax + t * dx, y: ay + t * dy, t: t };
+    }
+    function endTangent(atStart) {
+      var n = pts.length, e = atStart ? 0 : n - 1, step = atStart ? 1 : -1, i, dx, dy, L;
+      for (i = e + step; i >= 0 && i < n; i += step) { dx = pts[e].x - pts[i].x; dy = pts[e].y - pts[i].y; L = Math.hypot(dx, dy); if (L >= 15) return { x: dx / L, y: dy / L }; }
+      i = atStart ? n - 1 : 0; dx = pts[e].x - pts[i].x; dy = pts[e].y - pts[i].y; L = Math.hypot(dx, dy) || 1;
+      return { x: dx / L, y: dy / L };
+    }
+    function dirAlong(wp, seg, t, fwd) {
+      var px = wp[seg].x + t * (wp[seg + 1].x - wp[seg].x), py = wp[seg].y + t * (wp[seg + 1].y - wp[seg].y), ox = px, oy = py, acc = 0, k, q;
+      if (fwd) { for (k = seg + 1; k < wp.length; k++) { q = wp[k]; acc += Math.hypot(q.x - px, q.y - py); px = q.x; py = q.y; if (acc >= 15) break; } }
+      else { for (k = seg; k >= 0; k--) { q = wp[k]; acc += Math.hypot(q.x - px, q.y - py); px = q.x; py = q.y; if (acc >= 15) break; } }
+      var dx = px - ox, dy = py - oy, L = Math.hypot(dx, dy);
+      return L > 0.5 ? { x: dx / L, y: dy / L } : null;
+    }
+    function bestStep(atStart) {
+      var E = atStart ? pts[0] : pts[pts.length - 1], T = endTangent(atStart), best = null;
+      data.ways.forEach(function (w) {
+        if (used[w.id] || !RW[w.tags.highway] || minorWay(w)) return;
+        var wp = wpts(w); if (wp.length < 2) return;
+        var same = mainKey !== '' && ((w.tags.name || w.tags.ref || '').trim().toLowerCase()) === mainKey;
+        for (var j = 0; j < wp.length - 1; j++) {
+          var r = segProj(E.x, E.y, wp[j].x, wp[j].y, wp[j + 1].x, wp[j + 1].y);
+          if (r.d > 30) continue;
+          [true, false].forEach(function (fwd) {
+            var d = dirAlong(wp, j, r.t, fwd); if (!d) return;
+            var dot = d.x * T.x + d.y * T.y;
+            if (dot <= 0.8776) return;
+            var score = Math.acos(Math.max(-1, Math.min(1, dot))) + r.d * 0.01 + (same ? 0 : 1);
+            if (!best || score < best.score) best = { w: w, wp: wp, seg: j, proj: r, fwd: fwd, score: score };
+          });
+        }
+      });
+      return best;
+    }
+    function applyStep(atStart, st) {
+      used[st.w.id] = 1;
+      var wp = st.wp, j = st.seg, add = [{ x: st.proj.x, y: st.proj.y }], k, L = 0;
+      if (st.fwd) { for (k = j + 1; k < wp.length; k++) add.push({ x: wp[k].x, y: wp[k].y }); }
+      else { for (k = j; k >= 0; k--) add.push({ x: wp[k].x, y: wp[k].y }); }
+      var clean = [add[0]];
+      for (k = 1; k < add.length; k++) if (Math.hypot(add[k].x - clean[clean.length - 1].x, add[k].y - clean[clean.length - 1].y) >= 1) clean.push(add[k]);
+      for (k = 1; k < clean.length; k++) L += Math.hypot(clean[k].x - clean[k - 1].x, clean[k].y - clean[k - 1].y);
+      if (L < 20 || clean.length < 2) return 0;
+      if (atStart) {
+        var rev = clean.slice().reverse();
+        if (Math.hypot(rev[rev.length - 1].x - pts[0].x, rev[rev.length - 1].y - pts[0].y) < 2) rev.pop();
+        pre += rev.length; pts = rev.concat(pts);
+      } else {
+        if (Math.hypot(clean[0].x - pts[pts.length - 1].x, clean[0].y - pts[pts.length - 1].y) < 2) clean.shift();
+        pts = pts.concat(clean);
+      }
+      added++;
+      return L;
+    }
+    var guard, backLen = 0, fwdLen = 0, st, L;
+    guard = 0;
+    while (guard++ < 60 && backLen < 6000 && g.s0 + backLen < needBack + 100) { st = bestStep(true); if (!st) break; L = applyStep(true, st); if (L > 0) backLen += L; }
+    guard = 0;
+    while (guard++ < 60 && fwdLen < 6000 && (gTot0 - g.s0) + fwdLen < needFwd + 100) { st = bestStep(false); if (!st) break; L = applyStep(false, st); if (L > 0) fwdLen += L; }
+    if (!added) return null;
+    var cum = [0];
+    for (var i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
+    return { pts: pts, cum: cum, s0: cum[pre] + g.s0, stitched: used };
+  }
   /* Every road that brings traffic to the work: the main road each way and every side street that joins it near the work.
      Each one gets advance signs, and a flagger when the setup needs one on every approach. */
   function legsOf(z, s) {
@@ -2545,7 +2648,7 @@ function MapView(canvas, cb) {
     var dir = dirOf(s), len = z.eff.len, two = !z.eff.oneway;
     var tS = -len / 2 - p.buffer - p.taper, tW0 = -len / 2, tW1 = len / 2, tE = len / 2 + p.downstream;
     var flagSc = sc === 'flagging' || sc === 'intersection', comboFlag = p.combo === 'flag', both = two && (sc === 'flagging' || sc === 'full' || sc === 'signal' || sc === 'laneshift' || sc === 'intersection');
-    var it = z.items[Math.floor(z.items.length / 2)], mname = (it.loc.osm && it.loc.osm.name) || 'Main road', mainId = it.loc.osm && it.loc.osm.wayId;
+    var it = z.items[Math.floor(z.items.length / 2)], mname = (it.loc.osm && it.loc.osm.name) || 'Main road', mainId = it.loc.osm && it.loc.osm.wayId, mainKey = ((it.loc.osm && it.loc.osm.name) || '').trim().toLowerCase();
     var adv = p.signs.filter(function (q) { return !q.end && !q.buf && !q.opp && q.dist > 0; }).sort(function (u, v) { return u.dist - v.dist; });
     var cp = function (q) { return { code: q.code, legend: q.legend, dist: q.dist }; };
     var legs = [], zoneSigns = [], XF = (z.items[0].loc && z.items[0].loc.xf) || {};
@@ -2559,13 +2662,30 @@ function MapView(canvas, cb) {
     var lo = g.s0 + Math.min(dir * a0, dir * a1) - 40, hi = g.s0 + Math.max(dir * a0, dir * a1) + 40;
     var gTot = g.cum[g.cum.length - 1], contLo = false, contHi = false, cLenLo = 0, cLenHi = 0;
     var rc = it.loc, data = S.store && S.store.count() ? S.store.inBox(rc.lat - 0.012, rc.lon - 0.012, rc.lat + 0.012, rc.lon + 0.012, 9000) : null, found = [], n = 0;
+    /* Follow the road past the pin's own short segment so junctions along the whole warning area are seen.
+       Cached per zone: the stitch depends only on the road data and the map origin. */
+    if (data) {
+      var skey = S.oid + '|' + S.store.count() + '|' + mainId;
+      if (z._stitchKey === skey && z._stitchStore === S.store) { if (z._stitchG) g = z._stitchG; }
+      else {
+        var sg = stitchMain(g, data, mainId, mainKey, -Math.min(dir * a0, dir * a1) + 40, Math.max(dir * a0, dir * a1) + 40);
+        z._stitchKey = skey; z._stitchStore = S.store; z._stitchG = sg || null;
+        if (sg) g = sg;
+      }
+      if (g.stitched) { lo = g.s0 + Math.min(dir * a0, dir * a1) - 40; hi = g.s0 + Math.max(dir * a0, dir * a1) + 40; gTot = g.cum[g.cum.length - 1]; }
+    }
+    var jSeen = [];
     if (data) data.ways.forEach(function (w) {
-      if (w.id === mainId || !RW[w.tags.highway] || minorWay(w) || n > 24) return;
+      if (w.id === mainId || (g.stitched && g.stitched[w.id]) || !RW[w.tags.highway] || minorWay(w) || n > 24) return;
       var pts = wpts(w);
       for (var i = 0; i < pts.length; i++) { var m = nearMain(g, pts[i]);
         if (m.d < 24 && m.s >= lo && m.s <= hi) {
           var j2 = i < pts.length - 1 ? i + 1 : i - 1, sa = Math.atan2(pts[j2].y - pts[i].y, pts[j2].x - pts[i].x), ma = atS(g.pts, g.cum, m.s).a, df = Math.abs(((sa - ma) % Math.PI + Math.PI) % Math.PI);
           if (Math.min(df, Math.PI - df) < 0.5) { var cl2 = Math.max(w._c[i], w._c[w._c.length - 1] - w._c[i]); if (m.s <= 6) { contLo = true; cLenLo = Math.max(cLenLo, cl2); } else if (m.s >= gTot - 6) { contHi = true; cLenHi = Math.max(cLenHi, cl2); } break; }
+          /* one street split into two ways at the junction meets the main road at the same point twice: keep one junction, the stitch follows the whole street from either side */
+          var jKey = ((w.tags.name || w.tags.ref || '').trim().toLowerCase());
+          if (jKey && jSeen.some(function (jj) { return jj.key === jKey && Math.hypot(jj.x - pts[i].x, jj.y - pts[i].y) < 10; })) break;
+          jSeen.push({ key: jKey, x: pts[i].x, y: pts[i].y });
           found.push({ w: w, i: i, tJ: dir * (m.s - g.s0) }); n++; break;
         } }
     });
@@ -2585,6 +2705,15 @@ function MapView(canvas, cb) {
     var D = Math.min(p.space, 350), seqAsc = adv.filter(function (q) { return q.code.charAt(0) === 'W'; }).slice(0, 4);
     found.forEach(function (f) {
       var w = f.w, pts = w._w, cum = w._c, tot = cum[cum.length - 1], sj = cum[f.i];
+      /* the side street itself may be split into short ways: follow it from the junction, so the room for signs is the real street, not one segment. The main-road chain is excluded, so a shallow-angle junction cannot pull the stitch onto the main road. */
+      var ssKey = w.id + '|' + f.i + '|' + S.oid + '|' + (S.store ? S.store.count() : 0) + '|' + mainId, ssG = null;
+      if (w._ssKey === ssKey) ssG = w._ssG;
+      else {
+        ssG = stitchMain({ pts: pts, cum: cum, s0: sj }, data, w.id, ((w.tags.name || w.tags.ref || '').trim().toLowerCase()), 2000, 2000, g.stitched);
+        w._ssKey = ssKey; w._ssG = ssG || null;
+      }
+      if (ssG) { pts = ssG.pts; cum = ssG.cum; tot = cum[cum.length - 1]; sj = ssG.s0; }
+      f.chain = ssG ? ssG.stitched : null;
       var need = (sc === 'intersection' && f.tJ >= tW0 - 100 && f.tJ <= tW1 + 100) || (sc === 'flagging' && f.tJ >= tS - 10 && f.tJ <= tE + 10) || (flagSc && ((endFront && f.tJ >= tE - 10) || (endBack && f.tJ <= tS + 10))) || (['laneclosure', 'twolanes', 'laneshift', 'signal'].indexOf(sc) >= 0 && f.tJ >= tS - 10 && f.tJ <= tE + 10);
       var inside = f.tJ >= tS - 10 && f.tJ <= tE + 10;
       /* how far this junction is from the work, along the road traffic travels to reach it */
@@ -2610,17 +2739,18 @@ function MapView(canvas, cb) {
           if (cap >= 45) { d1 = Math.min(d1, cap); var w1 = adv.filter(function (q) { return q.code === 'W20-1'; }).pop() || seqAsc[seqAsc.length - 1]; sg = [{ code: w1.code, legend: w1.legend, dist: Math.round(d1 / 5) * 5 }]; }
           note = 'Joins between the main-road signs. This sign covers what drivers miss, then they see the rest on the main road.';
         }
-        legs.push({ kind: 'side', key: 's' + w.id + (lg < 0 ? 'n' : 'p'), name: w.tags.name || 'Side street', flagger: need, signs: sg, missing: Math.max(0, req - sg.length), note: note, w: w, pts: pts, cum: cum, sj: sj, lg: lg, avail: avail, F: F, D: (typeof Dl !== 'undefined' && Dl) || D, tJ: f.tJ });
+        legs.push({ kind: 'side', key: 's' + w.id + (lg < 0 ? 'n' : 'p'), name: w.tags.name || 'Side street', flagger: need, signs: sg, missing: Math.max(0, req - sg.length), note: note, w: w, pts: pts, cum: cum, sj: sj, lg: lg, avail: avail, F: F, D: (typeof Dl !== 'undefined' && Dl) || D, tJ: f.tJ, chain: f.chain });
       });
     });
     /* streets that join a side street inside its sign zone miss that street's signs too */
     if (data) {
-      var seen = {}; found.forEach(function (f) { seen[f.w.id] = 1; }); seen[mainId] = 1;
+      var seen = {}; found.forEach(function (f) { seen[f.w.id] = 1; }); seen[mainId] = 1; if (g.stitched) for (var sid in g.stitched) seen[sid] = 1;
       legs.slice().forEach(function (L) {
         if (L.kind !== 'side' || !L.signs.length) return;
         var far2 = L.signs.reduce(function (mx, q) { return Math.max(mx, q.dist); }, 0), wg = { pts: L.pts, cum: L.cum }, added = {};
         data.ways.forEach(function (v) {
           if (seen[v.id] || v.id === L.w.id || !RW[v.tags.highway] || minorWay(v) || n > 30) return;
+          if (mainKey && ((v.tags.name || v.tags.ref || '').trim().toLowerCase()) === mainKey) return; /* a segment of the main road itself crossing the side street is not a street joining it */
           var vp = wpts(v);
           for (var i2 = 0; i2 < vp.length; i2++) {
             var mm = nearMain(wg, vp[i2]); if (mm.d >= 24) continue;
@@ -2638,6 +2768,30 @@ function MapView(canvas, cb) {
         });
       });
     }
+    /* the same street can still reach the junction twice (a name change at the junction, or the same street mapped twice): keep one leg per street per direction */
+    (function () {
+      var out = [];
+      legs.forEach(function (l) {
+        if (l.kind !== 'side' || !l.pts) { out.push(l); return; }
+        var a0 = atS(l.pts, l.cum, l.sj), a1 = atS(l.pts, l.cum, l.sj + l.lg * 25), brg = Math.atan2(a1.y - a0.y, a1.x - a0.x);
+        var key = ((l.name || '').trim().toLowerCase()) + '|' + (l.via || '');
+        for (var k = 0; k < out.length; k++) {
+          var o = out[k];
+          if (o.kind !== 'side' || !o.pts) continue;
+          if (Math.abs((l.tJ || 0) - (o.tJ || 0)) > 25) continue;
+          var sameName = (((o.name || '').trim().toLowerCase()) + '|' + (o.via || '')) === key;
+          var overlap = (l.chain && o.w && l.chain[o.w.id]) || (o.chain && l.w && o.chain[l.w.id]);
+          if (!sameName && !overlap) continue;
+          var b0 = atS(o.pts, o.cum, o.sj), b1 = atS(o.pts, o.cum, o.sj + o.lg * 25), dd = Math.abs(brg - Math.atan2(b1.y - b0.y, b1.x - b0.x)); dd = Math.min(dd, 2 * Math.PI - dd);
+          if (dd > 0.44) continue;
+          var ls = (l.signs || []).length, os = (o.signs || []).length;
+          if (ls > os || (ls === os && l.flagger && !o.flagger)) out[k] = l;
+          return;
+        }
+        out.push(l);
+      });
+      legs = out;
+    })();
     var fn = 0; legs.forEach(function (l) { if (l.flagger) { l.fid = 'F' + (++fn); l.xf = XF[l.key] ? 1 : 0; l.fx = l.xf ? l.fid + 'b' : ''; } });
     /* bearing of every leg as drawn on a sheet: the main road runs left to right in the direction of travel, angles are clockwise degrees (screen) */
     var ma = atS(g.pts, g.cum, g.s0).a + (dir < 0 ? Math.PI : 0), nrm = function (d) { d = ((d % 360) + 360) % 360; return Math.round(d * 10) / 10; };
@@ -2702,7 +2856,15 @@ function MapView(canvas, cb) {
           c.font = '700 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineWidth = 3; c.strokeStyle = C.road; c.fillStyle = C.ink;
           var ty2 = py2 + ry * off2 + FH / 2 + 11, tx = (S.lay.codes ? sgn.code + ' · ' : '') + sgn.dist + "'"; if (S.lay.labels) if (S.lay.labels && claim(px2 + rx * off2, ty2 - 4, c.measureText(tx).width + 4, 13, 'd')) { c.strokeText(tx, px2 + rx * off2, ty2); c.fillText(tx, px2 + rx * off2, ty2); }
         });
-      } else diamond(c, C, x, y, 'W20-1', C.work);
+      } else {
+        /* side streets that end near each other stack their diamonds: nudge sideways (display only, the sign stays where the plan puts it) and keep a leader to the true spot */
+        var dx = x - sx(j.x), dy = y - sy(j.y), dl = Math.hypot(dx, dy) || 1, px = -dy / dl, py = dx / dl, ox = 0, placed = false;
+        [0, 16, -16, 32, -32].forEach(function (o) { if (placed) return; var cx = x + px * o, cy = y + py * o; if (!taken || !taken.some(function (o2) { return Math.hypot(o2.x - cx, o2.y - cy) < o2.r + 14; })) { ox = o; placed = true; } });
+        var ddx = x + px * ox, ddy = y + py * ox;
+        if (ox !== 0) { c.strokeStyle = C.ink; c.lineWidth = 1; c.beginPath(); c.moveTo(x, y); c.lineTo(ddx, ddy); c.stroke(); }
+        if (taken) taken.push({ x: ddx, y: ddy, r: 14 });
+        diamond(c, C, ddx, ddy, 'W20-1', C.work);
+      }
       if (lg.w.tags.name && S.k > 0.15 && S.lay.labels && !S.lbl.some(function (b) { return b.key === lg.w.tags.name && Math.hypot(b.x - x, b.y - y) < 260; })) { var ny = y + (cb.fixed ? 56 : 26); c.font = (cb.fixed ? '700 14px' : '11px') + ' sans-serif'; var nw = c.measureText(lg.w.tags.name).width + 6, tr = 0; while (tr < 6 && !claim(x, ny, nw, 16, lg.w.tags.name)) { ny += (tr % 2 ? -1 : 1) * 18 * (1 + (tr >> 1)); tr++; } if (tr >= 6) { ny = -999; } c.fillStyle = C.ink; c.font = (cb.fixed ? '700 14px' : '11px') + ' sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(lg.w.tags.name, x, ny); c.fillText(lg.w.tags.name, x, ny); c.textAlign = 'left'; }
     });
   }
@@ -2857,7 +3019,7 @@ function MapView(canvas, cb) {
         for (i = 0; i <= nD; i++) cone(tW1 + p.downstream * i / Math.max(1, nD), offI + (off0 - offI) * i / Math.max(1, nD));
       }
       if (S.k > 0.1 && g) {
-        var lab = function (t, text, side) { if (!S.lay.dims) return; var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), x = sx(q.x) - Math.sin(ang) * side, y = sy(q.y) - Math.cos(ang) * side; c.font = '600 11px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(text, x, y); c.fillStyle = C.ink; c.fillText(text, x, y); c.textAlign = 'left'; };
+        var lab = function (t, text, side) { if (!S.lay.dims) return; var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), x = sx(q.x) - Math.sin(ang) * side, y = sy(q.y) - Math.cos(ang) * side; c.font = '600 11px sans-serif'; var wd = c.measureText(text).width + 6, tr = 0, yy = y; while (tr < 7 && !claim(x, yy, wd, 14, 'zl' + text)) { yy += (tr % 2 ? 1 : -1) * 14 * (1 + (tr >> 1)); tr++; } if (tr >= 7) yy = y; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(text, x, yy); c.fillStyle = C.ink; c.fillText(text, x, yy); c.textAlign = 'left'; };
         var dimL = function (t0, t1, off, text) { if (!S.lay.dims) return;
           var q0 = atS(g.pts, g.cum, g.s0 + dir * t0), q1 = atS(g.pts, g.cum, g.s0 + dir * t1), a0 = q0.a + (dir < 0 ? Math.PI : 0), a1 = q1.a + (dir < 0 ? Math.PI : 0);
           var x0 = sx(q0.x) - Math.sin(a0) * off, y0 = sy(q0.y) - Math.cos(a0) * off, x1 = sx(q1.x) - Math.sin(a1) * off, y1 = sy(q1.y) - Math.cos(a1) * off;
@@ -2939,6 +3101,48 @@ function MapView(canvas, cb) {
     var label = ft >= 5280 ? (ft / 5280) + ' mi' : ft + ' ft';
     c.fillStyle = C.txt; c.font = '600 12px sans-serif'; c.lineWidth = 3; c.strokeStyle = C.bg; c.strokeText(label, x + 2, y - 8); c.fillText(label, x + 2, y - 8);
     if (!cb.fixed) { c.fillStyle = C.txt; c.font = '700 12px sans-serif'; c.textAlign = 'center'; c.fillText('N', S.W - 22, 22); c.beginPath(); c.moveTo(S.W - 22, 28); c.lineTo(S.W - 27, 42); c.lineTo(S.W - 22, 38); c.lineTo(S.W - 17, 42); c.closePath(); c.fill(); c.textAlign = 'left'; }
+  }
+  /* Key for the symbols drawn in the zone, using the same marks. Only the devices this plan actually places are listed. */
+  function drawLegend(c, C) {
+    if (!S.L.zone) return;
+    var s = S.sites[S.sel]; if (!s || !s.zones.length) return;
+    var hasSign = false, hasCone = false, hasFlag = false, hasSig = false, hasBarr = false, hasWork = false;
+    s.zones.forEach(function (z) {
+      var rec = z.ev.rec; if (!rec) return; var p = rec.plan, sc = p.scenario; hasWork = true;
+      if (p.signs && p.signs.length) hasSign = true;
+      if (['laneclosure', 'twolanes', 'laneshift', 'shoulder', 'flagging', 'signal'].indexOf(sc) >= 0) hasCone = true;
+      if (p.flaggers) hasFlag = true;
+      if (p.signals) hasSig = true;
+      if (sc === 'full') hasBarr = true;
+    });
+    if (!hasWork) return;
+    var items = [];
+    if (hasSign) items.push(['sign', 'Sign']);
+    if (hasCone) items.push(['cone', 'Cone or drum']);
+    if (hasFlag) items.push(['flag', 'Flagger']);
+    if (hasSig) items.push(['sig', 'Temporary signal']);
+    if (hasBarr) items.push(['barr', 'Barricade']);
+    items.push(['work', 'Work area']);
+    if (S.L.pins && S.pins.length) items.push(['pin', 'Work point']);
+    c.font = '600 11px sans-serif';
+    var w = 0; items.forEach(function (it) { w = Math.max(w, c.measureText(it[1]).width); });
+    var pw = w + 34, ph = items.length * 17 + 10, x0 = 10, y0 = S.H - 36 - ph;
+    if (y0 < 8) return;
+    c.save();
+    c.globalAlpha = 0.9; c.fillStyle = C.panel; c.fillRect(x0, y0, pw, ph); c.globalAlpha = 1;
+    c.strokeStyle = C.ink; c.lineWidth = 1; c.strokeRect(x0 + 0.5, y0 + 0.5, pw - 1, ph - 1);
+    items.forEach(function (it, i) {
+      var cx = x0 + 14, cy = y0 + 13 + i * 17;
+      if (it[0] === 'sign') { c.fillStyle = C.work; c.strokeStyle = C.ink; c.lineWidth = 1.2; c.beginPath(); c.moveTo(cx, cy - 8); c.lineTo(cx + 8, cy); c.lineTo(cx, cy + 8); c.lineTo(cx - 8, cy); c.closePath(); c.fill(); c.stroke(); }
+      else if (it[0] === 'cone') { c.fillStyle = C.work; c.strokeStyle = C.ink; c.lineWidth = 1; c.beginPath(); c.arc(cx, cy, 3.5, 0, 7); c.fill(); c.stroke(); }
+      else if (it[0] === 'flag') { c.strokeStyle = C.ink; c.lineWidth = 1.5; c.beginPath(); c.moveTo(cx - 2, cy + 6); c.lineTo(cx - 2, cy - 7); c.stroke(); c.fillStyle = '#c4161c'; c.beginPath(); c.moveTo(cx - 2, cy - 7); c.lineTo(cx + 8, cy - 4); c.lineTo(cx - 2, cy - 1); c.closePath(); c.fill(); }
+      else if (it[0] === 'sig') { c.fillStyle = C.bad; c.strokeStyle = C.ink; c.lineWidth = 1.2; c.fillRect(cx - 5, cy - 7, 10, 14); c.strokeRect(cx - 5, cy - 7, 10, 14); }
+      else if (it[0] === 'barr') { c.fillStyle = '#fff'; c.strokeStyle = C.ink; c.lineWidth = 1; c.fillRect(cx - 9, cy - 5, 18, 10); c.strokeRect(cx - 9, cy - 5, 18, 10); c.save(); c.beginPath(); c.rect(cx - 9, cy - 5, 18, 10); c.clip(); c.strokeStyle = C.work; c.lineWidth = 3; c.beginPath(); for (var sx2 = cx - 14; sx2 < cx + 12; sx2 += 7) { c.moveTo(sx2, cy + 6); c.lineTo(sx2 + 10, cy - 6); } c.stroke(); c.restore(); }
+      else if (it[0] === 'work') { c.fillStyle = C.work; c.fillRect(cx - 9, cy - 6, 18, 12); c.strokeStyle = C.ink; c.lineWidth = 1; c.strokeRect(cx - 9, cy - 6, 18, 12); }
+      else if (it[0] === 'pin') { c.fillStyle = C.acc; c.strokeStyle = C.panel; c.lineWidth = 1.5; c.beginPath(); c.arc(cx, cy, 7, 0, 7); c.fill(); c.stroke(); }
+      c.fillStyle = C.txt; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(it[1], x0 + 26, cy + 0.5);
+    });
+    c.restore();
   }
 
   /* ---------- input ---------- */
@@ -4324,6 +4528,9 @@ function nextBar() {
         p.flaggers = (p.scenario === 'intersection' ? Math.max(fl, 3) : Math.max(fl, 2)) + fx; p.extraFlag = fx;
         p.legsNote = p.scenario === 'intersection' && fl < 4 ? 'The map shows ' + fl + ' approaches here. Confirm the number of approaches on site and add a flagger and signs for any that are missing.' : '';
       }
+      /* plain-language note for the side streets that were read and signed, so the plan says why their signs sit on the side street itself */
+      var ss = L.legs.filter(function (l) { return l.kind === 'side' && l.level !== 2 && (l.signs || []).length; }).length;
+      if (ss && !(p.legsNote && p.legsNote.indexOf('side street') >= 0)) p.legsNote = (p.legsNote ? p.legsNote + ' ' : '') + ss + ' side street' + (ss > 1 ? 's join' : ' joins') + ' the main road near the work. Each one gets its advance signs on the side street itself, placed back from the junction, so drivers turning in see the warning before they reach the work.';
     }
     /* streets the person says the map missed: each gets a flagger and the full set of advance signs */
     try {
@@ -4375,7 +4582,7 @@ function nextBar() {
     var h = '<table class="legt"><tr><th>Approach</th><th>Flagger</th>' + (ctl ? '<th>Extra flagger</th>' : '') + '<th>Advance signs, ft before the work or junction</th></tr>';
     p.legs.forEach(function (l) {
       h += '<tr><td>' + esc(l.name) + '<br><small>' + (l.kind === 'main' ? (l.ahead === 'back' ? 'approach' : 'opposite way') : (l.via ? 'joins ' + esc(l.via) : 'side street')) + '</small>' + '</td><td>' + (l.flagger ? l.fid + (l.xf ? ' + ' + l.fx : '') : '-') + '</td>' + (ctl ? '<td>' + (l.flagger ? '<label class="xfl"><input type="checkbox" data-xf="' + esc(l.key) + '" data-zi="' + zi + '"' + (l.xf ? ' checked' : '') + '> Add</label>' : '-') + '</td>' : '') + '<td>' +
-        (l.signs.slice().reverse().map(function (g) { return esc(g.code) + ' @' + g.dist + "'"; }).join(', ') || (l.note ? 'none needed' : 'none fit')) + (l.missing ? ' <b>(street too short, ' + l.missing + ' more needed, place them on the nearest road)</b>' : '') + '</td></tr>';
+        (l.signs.slice().reverse().map(function (g) { return esc(g.code) + ' @' + g.dist + "'"; }).join(', ') || (l.entry ? 'flagger station' : (l.note && !l.missing ? 'none needed' : 'none fit'))) + (l.missing ? ' <b>(street too short, ' + l.missing + ' more needed, place them on the nearest road)</b>' : '') + '</td></tr>';
     });
     h += '</table>';
     h += pedLine(p);
@@ -4487,11 +4694,11 @@ function nextBar() {
     if (!ws) h += '<div class="nt high"><b>No roads are loaded for this spot.</b> Open the hosted app and load the roads on the Map tab. Side streets cannot be signed until they are read. Until then, pick the intersection type below.</div>';
     if (legs.length) h += '<table class="legt"><tr><th>Street</th><th>How it meets the work</th><th>Signs and where</th></tr>' + legs.map(function (l) {
       var how = l.kind === 'main' ? (l.ahead === 'back' ? 'main road, approach' : 'main road, opposite way') : (l.via ? 'joins ' + l.via : 'side street' + (l.alongMain !== undefined ? ', ' + Math.abs(l.alongMain) + ' ft ' + (l.alongMain < 0 ? 'before' : 'past') + ' the work centre' : ''));
-      return '<tr><td>' + esc(l.name) + '</td><td>' + esc(how) + '</td><td>' + ((l.signs || []).length ? l.signs.map(function (g) { return esc(g.code) + " @" + g.dist + "'"; }).join(', ') : 'none needed') + (l.flagger ? ' + flagger' : '') + (l.missing ? ' <b>(short by ' + l.missing + ': the block is too short. Carry the rest onto the next street out)</b>' : '') + '</td></tr>';
+      return '<tr><td>' + esc(l.name) + '</td><td>' + esc(how) + '</td><td>' + ((l.signs || []).length ? l.signs.map(function (g) { return esc(g.code) + " @" + g.dist + "'"; }).join(', ') : (l.entry ? 'flagger station' : (l.note && !l.missing ? 'none needed' : 'none fit'))) + (l.flagger ? ' + flagger' : '') + (l.missing ? ' <b>(short by ' + l.missing + ': the block is too short. Carry the rest onto the next street out)</b>' : '') + '</td></tr>';
     }).join('') + '</table>';
     h += '<div class="fg" style="margin-top:10px"><div class="fld"><label for="miss0">Streets on the ground that are not listed</label><select id="miss0" data-miss="1" data-zi="0">' + [0, 1, 2, 3, 4].map(function (n) { return '<option value="' + n + '"' + ((loc && (loc.miss | 0) === n) ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></div>';
     if (!(p && p.legs)) h += '<div class="fld"><label for="xt0">Intersection type</label><select id="xt0" data-xt="1" data-zi="0">' + [['', 'Main road only'], ['T-N', 'T: side street to the left of travel'], ['T-S', 'T: side street to the right of travel'], ['4', '4-way: both sides']].map(function (o) { return '<option value="' + o[0] + '"' + ((loc && (loc.xt || '') === o[0]) ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
-    return h + '</div><p class="qh">Each street added here gets its own flagger and the full set of advance signs. Alleys, driveways, parking aisles and private roads are not signed. If one carries real traffic into the work, count it above.</p></div></details>';
+    return h + '</div><p class="qh">Each street added here gets its own flagger and the full set of advance signs. Alleys, driveways, parking aisles and private roads marked as such in the map data are not signed; an unmarked service road is signed as a street. If one carries real traffic into the work, count it above.</p></div></details>';
   }
   /* Compliance gate. Every plan is checked against the MUTCD rules and the road geometry before it is shown; a plan with open items is stamped NOT CLEARED everywhere it appears. */
   function gateOf(s) { var mc = mutcdSite(s); return { ok: !mc.bad.length, bad: mc.bad, n: mc.all.length }; }
