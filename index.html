@@ -407,11 +407,11 @@ label.xfl input{width:22px;height:22px}
     <p class="hint" style="margin:6px 0 0">This page cannot look up addresses itself. Find it on the map, then copy the coordinates or the full link from the address bar and paste it in the box above.</p>
     <div class="go" style="margin-top:10px"><button type="button" class="ghost" id="gps" style="flex:1 1 200px">Use my location</button><button type="button" class="ghost" id="ex" style="flex:1 1 140px">Show an example</button></div>
     <p class="hint" id="exnote" style="margin:8px 0 0"></p>
-    <p class="err" id="perr" role="alert"></p>
     <h2 style="margin-top:18px"><span class="n">2</span>Tap what the work is</h2>
     <div id="defs"></div>
     <div class="go"><button type="button" class="big" id="go" style="width:100%">Make my plan</button></div>
     <p class="hint" style="margin-top:10px">Speed, lanes, sidewalks, hazards and every distance are worked out for you. The plan shows what it assumed so you can confirm it on site.</p>
+    <p class="err" id="perr" role="alert"></p>
     <p class="hint" style="margin-top:8px">Thousands of points work. Points close together are grouped into one site so one setup covers them.</p>
     <div class="row"><div><label for="thr">Group points closer than (ft)</label><input type="number" id="thr" value="1000" min="50" max="10000" step="50" inputmode="numeric"></div>
     <div><label for="maxn">Most points per site</label><input type="number" id="maxn" value="8" min="1" max="40" step="1" inputmode="numeric"></div></div>
@@ -425,6 +425,7 @@ label.xfl input{width:22px;height:22px}
   <section class="panel step">
     <h2>Road data</h2>
     <p class="status" id="mstat" style="margin:0 0 8px"></p>
+    <div style="margin:0 0 8px"><button type="button" class="ghost" id="nettest" style="min-height:44px">Test the map connection</button><pre id="netout" style="white-space:pre-wrap;font-size:13px;margin:8px 0 0"></pre></div>
     <p class="hint">This page cannot call map servers itself. Load OpenStreetMap road data once and it fills in speed, lanes, sidewalks, crossings and nearby hazards for every point. Check what it fills in against what you see.</p>
     <details class="more" id="osmdet" open><summary>A few points: load road data (3 taps)</summary>
       <ol class="hint" style="margin:6px 0 8px 18px;padding:0"><li>Tap <b>1 Open road data</b>. A new tab opens with text.</li><li>In that tab press and hold the text, choose <b>Select all</b>, then <b>Copy</b>.</li><li>Come back here and tap <b>3 Paste road data</b>.</li></ol>
@@ -3443,6 +3444,20 @@ function signCell(g) {
       localStorage.setItem('tcp5roads', JSON.stringify(all));
     } catch (x) {}
   }
+  /* connection test: shows, for each map server, whether this phone can reach it and what it said */
+  (function () {
+    var b = document.getElementById('nettest'); if (!b) return;
+    b.onclick = function () {
+      var out = document.getElementById('netout'), lines = ['App version: ' + document.lastModified, 'Address: ' + location.host, 'Phone says online: ' + (navigator.onLine ? 'yes' : 'no')];
+      out.textContent = lines.join('\n') + '\nTesting...';
+      var tests = [['OpenStreetMap server', 'https://api.openstreetmap.org/api/0.6/map.json?bbox=-121.4950,38.5810,-121.4940,38.5820']].concat(MIRRORS.map(function (u) { return [u.replace(/^https?:\/\//, '').split('/')[0], u + '?data=' + encodeURIComponent('[out:json][timeout:10];node(1);out;')]; }));
+      var left = tests.length;
+      tests.forEach(function (t) {
+        var t0 = Date.now(), ctl = typeof AbortController !== 'undefined' ? new AbortController() : null, to = setTimeout(function () { if (ctl) ctl.abort(); }, 15000);
+        fetch(t[1], { signal: ctl ? ctl.signal : undefined }).then(function (r) { lines.push(t[0] + ': ' + (r.ok ? 'OK' : 'HTTP ' + r.status) + ' (' + Math.round((Date.now() - t0) / 100) / 10 + ' s)'); }).catch(function (e) { lines.push(t[0] + ': ' + (e && e.name === 'AbortError' ? 'no answer in 15 s' : 'blocked or no connection')); }).then(function () { clearTimeout(to); out.textContent = lines.join('\n') + (--left > 0 ? '\nTesting...' : ''); });
+      });
+    };
+  })();
   var autoTried = {}, autoTimer = null, autoBusy = false, apiFirst = true;
   function autoMap() {
     clearTimeout(autoTimer);
