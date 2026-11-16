@@ -374,7 +374,7 @@ label.xfl input{width:22px;height:22px}
 .tcpt th{background:#EEF1F3;font-size:10px}
 .tcpnp svg{width:46px!important;height:62px!important;border:0!important;background:none!important;flex:none}
 .tcpnp{display:flex;gap:8px;align-items:center;margin-top:8px;border-top:1px solid #111;padding-top:6px;font-size:10.5px}
-@media print{.tcpmain>img,.tcpmain .zsv svg{max-height:240px!important}.sheet.tcp .tcpnotes,.sheet.tcp .tcplegend{font-size:9.5px!important;padding:5px 8px!important}.sheet.tcp .legt th,.sheet.tcp .legt td{font-size:9px!important;padding:1px 3px!important}.sheet.tcp .tb b{font-size:11px!important}}
+@media print{.sheet.rcpt .notebox{height:22px!important}.sheet.rcpt .sigt td{height:20px!important}.sheet.rcpt .sigline{height:16px!important}.sheet.rcpt td,.sheet.rcpt th{padding:1px 5px!important;font-size:10px!important}.sheet.rcpt td[style*="height:34px"]{height:22px!important}.sheet.rcpt h2{margin:6px 0 2px!important}.sheet.rcpt{break-after:auto!important;page-break-after:auto!important}.sheet.rcpt p{margin:1px 0!important}.sheet.rcpt .hint{font-size:9px!important;margin:0!important}.sheet.rcpt .sigt td{height:16px!important}.tcpmain>img,.tcpmain .zsv svg{max-height:240px!important}.sheet.tcp .tcpnotes,.sheet.tcp .tcplegend{font-size:9.5px!important;padding:5px 8px!important}.sheet.tcp .legt th,.sheet.tcp .legt td{font-size:9px!important;padding:1px 3px!important}.sheet.tcp .tb b{font-size:11px!important}}
 @media (max-width:700px){.tb{grid-template-columns:repeat(2,minmax(0,1fr))}.tcpbox{display:block}.tcpmain{border-right:0}.tcplegend{border-top:1px solid #111}}
 </style>
 
@@ -4946,7 +4946,7 @@ function nextBar() {
     return h + '</article>';
   }
   function receiptHTML() {
-    var t = totals(), h = '<article class="sheet pb jsa">' + jobHead('Work Receipt');
+    var t = totals(), h = '<article class="sheet pb jsa rcpt">' + jobHead('Work Receipt');
     h += '<h2>Work performed</h2><p>' + esc(J.desc || (WORK.filter(function (x) { return x[0] === G.work; })[0] || [0, ''])[1] || '') + '</p>' + locsTable();
     h += '<h2>Time</h2><table class="jt"><tr><th>Arrive</th><th>Setup done</th><th>Work start</th><th>Work end</th><th>Pick-up done</th><th>Leave</th></tr><tr><td style="height:34px">' + esc(J.start) + '</td><td></td><td></td><td>' + esc(J.end) + '</td><td></td><td></td></tr></table>';
     h += '<h2>Traffic control used</h2><table class="jt"><tr><th>Item</th><th>Planned</th><th>Used (actual)</th></tr><tr><td>Setup(s)</td><td>' + esc(t.names.join(', ')) + '</td><td></td></tr><tr><td>Cones, drums and channelizers</td><td>' + t.dev + '</td><td></td></tr><tr><td>Signs</td><td>' + t.signs + '</td><td></td></tr><tr><td>Barricades</td><td>' + t.barr + '</td><td></td></tr><tr><td>Flaggers</td><td>' + t.flag + '</td><td></td></tr><tr><td>Arrow boards</td><td>' + t.arrow + '</td><td></td></tr><tr><td>Truck-mounted attenuators</td><td>' + t.tma + '</td><td></td></tr><tr><td>Vehicles and equipment</td><td>' + esc(J.equip) + '</td><td></td></tr></table>';
