@@ -412,7 +412,6 @@ label.xfl input{width:22px;height:22px}
     <div id="defs"></div>
     <div class="go"><button type="button" class="big" id="go" style="width:100%">Make my plan</button></div>
     <p class="hint" style="margin-top:10px">Speed, lanes, sidewalks, hazards and every distance are worked out for you. The plan shows what it assumed so you can confirm it on site.</p>
-    <p class="err" id="perr" role="alert"></p>
     <p class="hint" style="margin-top:8px">Thousands of points work. Points close together are grouped into one site so one setup covers them.</p>
     <div class="row"><div><label for="thr">Group points closer than (ft)</label><input type="number" id="thr" value="1000" min="50" max="10000" step="50" inputmode="numeric"></div>
     <div><label for="maxn">Most points per site</label><input type="number" id="maxn" value="8" min="1" max="40" step="1" inputmode="numeric"></div></div>
@@ -421,9 +420,7 @@ label.xfl input{width:22px;height:22px}
   <details class="panel step" id="adv"><summary style="cursor:pointer;font-family:var(--ff-display);font-size:20px;font-weight:600;min-height:48px;display:flex;align-items:center">More options: many sites, road data, exports</summary>
   <section class="panel step">
     <div class="go" style="margin:0"><label class="btnlink" style="cursor:pointer;margin:0">Upload a CSV or text file of points<input type="file" id="ptsfile" accept=".csv,.txt,.tsv,text/*" style="display:none"></label><button type="button" class="ghost" id="clr">Start fresh</button></div>
-    <p class="hint" style="margin-top:8px">Thousands of points work. Points close together are grouped into one site.</p>
-    <div class="row"><div><label for="thr">Group points closer than (ft)</label><input type="number" id="thr" value="1000" min="50" max="10000" step="50" inputmode="numeric"></div>
-    <div><label for="maxn">Most points per site</label><input type="number" id="maxn" value="8" min="1" max="40" step="1" inputmode="numeric"></div></div>
+    <p class="hint" style="margin-top:8px">Grouping is set above, next to step 1: points closer than the grouping distance form one site.</p>
   </section>
   <section class="panel step">
     <h2>Road data</h2>
@@ -3006,7 +3003,7 @@ function MapView(canvas, cb) {
     snapshot: function () { frame(); return canvas.toDataURL('image/png'); },
     overlayInfo: function () { if (!S.ov) return null; var l = toLL(S.ov.x, S.ov.y); return { img: S.ov.img, lat: l.lat, lon: l.lon, f: S.ov.f, a: S.ov.a }; },
     setData: setData, legs: function (n, zi) { var s = S.sites[n], z = s && s.zones[zi]; return z ? legsOf(z, s) : null; }, setRot: setRot, fitAll: fitAll, focusSite: focusSite, select: select, zoom: zoom, center: center, resize: resize, redraw: dirty,
-    setSat: function (b) { S.sat = !!b; dirty(); }, satOn: satOn, satFailed: satFailed,
+    setSat: function (b) { if (b) { var T = MapView.tiles || {}; Object.keys(T).forEach(function (k) { if (T[k].err) delete T[k]; }); MapView.satErr = 0; } S.sat = !!b; dirty(); }, satOn: satOn, satFailed: satFailed,
     /* fixed sheets: request the tiles this view needs, then call done (ready = all drawn) */
     preloadSat: function (done) { if (!S.sat || satFailed()) { done(false, false); return; } var L = satList(), left = 0, fin = false, waited = false; L.list.forEach(function (q) { var t = satTile(q[0], q[1], q[2]); if (!t.ok && !t.err) left++; }); if (!left) { done(!satFailed(), false); return; } waited = true; L.list.forEach(function (q) { var t = satTile(q[0], q[1], q[2], function () { if (--left === 0 && !fin) { fin = true; done(!satFailed(), true); } }); }); },
     setLayer: function (n, v) { S.L[n] = v; dirty(); }, setPinMode: function (b) { S.pinMode = !!b; dirty(); }, setAdjust: function (b) { S.adjust = !!b; },
@@ -3686,7 +3683,12 @@ function nextBar() {
       '<div class="qt">Lanes <span class="chip">Optional</span></div><div class="opts">' + opt(null, '', '', 'Not sure', '', G.lanes === '', 'glanes') + [['2|0', '2 lanes', 'one each way'], ['3|0', '3 lanes', 'center turn lane'], ['4|0', '4 lanes', 'two each way'], ['6|0', '6 lanes', 'three each way'], ['2|1', 'One-way', '']].map(function (x) { return opt(null, '', x[0], x[1], x[2], G.lanes === x[0], 'glanes'); }).join('') + '</div>' +
       '<div class="qt">Sidewalks <span class="chip">Optional</span></div><div class="opts">' + opt(null, '', '', 'Not sure', '', G.sw === '', 'gsw') + [['both', 'Both sides'], ['one', 'One side'], ['none', 'None']].map(function (x) { return opt(null, '', x[0], x[1], '', G.sw === x[0], 'gsw'); }).join('') + '</div>' +
       '<div class="opts w"><button type="button" class="tile' + (G.night ? ' on' : '') + '" aria-pressed="' + (G.night ? 'true' : 'false') + '" data-act="gnight">Work happens at night</button></div>';
-    var el = $('defs'); if (document.activeElement && el.contains(document.activeElement)) return; el.innerHTML = h;
+    var el = $('defs'), ae = document.activeElement;
+    if (ae && el.contains(ae) && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName)) return;
+    var fAct = null, fV = null;
+    if (ae && el.contains(ae) && ae.getAttribute) { fAct = ae.getAttribute('data-act'); fV = ae.getAttribute('data-v'); }
+    el.innerHTML = h;
+    if (fAct) { var nb = el.querySelector('[data-act="' + fAct + '"]' + (fV === null ? '' : '[data-v="' + String(fV).replace(/"/g, '\\"') + '"]')); if (nb) nb.focus(); }
   }
 
   /* site list */
@@ -3976,10 +3978,10 @@ function nextBar() {
       var on = t[2] ? t[2](V[t[0]]) : !!V[t[0]];
       return '<button type="button" class="tile' + (on ? ' on' : '') + '" aria-pressed="' + (on ? 'true' : 'false') + '" data-act="tog" data-li="' + i + '" data-k="' + t[0] + '">' + esc(t[1]) + '</button>';
     }).join('') + '</div></div>';
-    var rec = z && z.ev.rec, p = rec ? rec.plan : null, co = function (k, f) { return '<div class="fld"><label for="' + k + i + '">' + f[0] + '</label><input type="number" id="' + k + i + '" data-ovr="' + k + '" data-li="' + i + '" min="0" max="5000" step="5" inputmode="numeric" placeholder="' + (p ? p[f[1]] : '') + '" value="' + (l.ovr && l.ovr[k] !== null && l.ovr[k] !== undefined ? l.ovr[k] : '') + '"></div>'; };
+    var rec = z && z.ev.rec, p = rec ? rec.plan : null, co = function (k, f) { var calc = (p && p[f[1]] !== undefined && p[f[1]] !== null) ? p[f[1]] : '', ov = (l.ovr && l.ovr[k] !== null && l.ovr[k] !== undefined) ? l.ovr[k] : null; return '<div class="fld"><label for="' + k + i + '">' + f[0] + '</label><input type="number" id="' + k + i + '" data-ovr="' + k + '" data-li="' + i + '" min="0" max="5000" step="5" inputmode="numeric" placeholder="' + calc + '" value="' + (ov !== null ? ov : calc) + '"></div>'; };
     h += '<details class="more"><summary>Exact measurements</summary><div class="fg">' +
       [['laneW', 'Lane width (ft)', 8, 16, 0.5], ['shoulderW', 'Shoulder (ft)', 0, 15, 0.5], ['sidewalkW', 'Sidewalk (ft)', 0, 12, 0.5]].map(function (f) { return '<div class="fld"><label for="' + f[0] + i + '">' + f[1] + '</label><input type="number" id="' + f[0] + i + '" data-num="' + f[0] + '" data-li="' + i + '" min="' + f[2] + '" max="' + f[3] + '" step="' + f[4] + '" inputmode="decimal" value="' + V[f[0]] + '"></div>'; }).join('') + '</div></details>';
-    h += '<details class="more"><summary>Fine-tune distances</summary><p class="qh">Leave a box empty to use the calculated value shown in it.' + (multi ? ' Combined zones use the first location’s values.' : '') + '</p><div class="fg">' + co('taper', ['Taper (ft)', 'taper']) + co('buffer', ['Buffer (ft)', 'buffer']) + co('space', ['Sign spacing (ft)', 'space']) + co('downstream', ['Downstream taper (ft)', 'downstream']) + '</div><div class="go"><button type="button" class="ghost" data-act="reset" data-li="' + i + '">Reset distances</button></div></details></div>';
+    h += '<details class="more"><summary>Fine-tune distances</summary><p class="qh">Each box shows the calculated value. Type a different number to override it, or clear a box to go back to the calculated value.' + (multi ? ' Combined zones use the first location’s values.' : '') + '</p><div class="fg">' + co('taper', ['Taper (ft)', 'taper']) + co('buffer', ['Buffer (ft)', 'buffer']) + co('space', ['Sign spacing (ft)', 'space']) + co('downstream', ['Downstream taper (ft)', 'downstream']) + '</div><div class="go"><button type="button" class="ghost" data-act="reset" data-li="' + i + '">Reset distances</button></div></details></div>';
     return h;
   }
   function renderPlan() {
@@ -4279,12 +4281,13 @@ function nextBar() {
       m.setData({ store: store, locs: locs, sites: sites });
       sites.forEach(function (s, n) {
         if (mv && mv.flipped && mv.flipped(n)) m.flip(n);
-        s.zones.forEach(function (z, zi) { var r = z.ev.rec; if (!r) return; var L = null; try { L = m.legs(n, zi); } catch (e) {} applyLegs(r.plan, L, z); });
+        var seenX = {};
+        s.zones.forEach(function (z, zi) { var r = z.ev.rec; if (!r) return; var L = null; try { L = m.legs(n, zi); } catch (e) {} applyLegs(r.plan, L, z, seenX); });
         if (s.totals) { var ts = 0, tf = 0; s.zones.forEach(function (z) { var r = z.ev.rec; if (!r) return; ts += signTotal(r.plan); tf += r.plan.flaggers || 0; }); s.totals.signs = ts; s.totals.flaggers = tf; }
       });
     } catch (e) {}
   }
-  function applyLegs(p, L, z) {
+  function applyLegs(p, L, z, seenX) {
     var cnt = {}, add = function (code, legend, n, where) { var o = cnt[code] || (cnt[code] = { code: code, legend: legend, n: 0, where: {} }); o.n += n; o.where[where] = (o.where[where] || 0) + n; };
     if (p.flaggers0 === undefined) p.flaggers0 = p.flaggers || 0;
     if (!L) {
@@ -4320,9 +4323,13 @@ function nextBar() {
     p.pedX = null;
     try {
       var it = z.items[0], cr = (it.loc.osm && it.loc.osm.crosses) || [], ped = z.eff.sidewalks && z.eff.sidewalks !== 'none';
-      var near = cr.filter(function (c) { return ftBetween(it.loc, c) <= 150 + (z.eff.len || 0) / 2; }).length;
-      var why = near ? near + ' marked crosswalk' + (near > 1 ? 's' : '') + ' within ' + Math.round(150 + (z.eff.len || 0) / 2) + ' ft of the work' : (z.eff.sidewalkBlocked ? 'the work blocks the sidewalk' : (p.scenario === 'intersection' && ped ? 'work in an intersection with sidewalks (crosswalk count assumed, count them on site)' : ''));
-      var nX = near || (z.eff.sidewalkBlocked ? 1 : 0) || (p.scenario === 'intersection' && ped ? 1 : 0); p.pedWhy = why;
+      var nearList = cr.filter(function (c) { return ftBetween(it.loc, c) <= 150 + (z.eff.len || 0) / 2; });
+      var near = nearList.length;
+      /* zones of one site can overlap, so the same crosswalk can sit near two zones: count each one once per site */
+      var fresh = nearList.filter(function (c) { var k = c.lat.toFixed(6) + ',' + c.lon.toFixed(6); if (seenX && seenX[k]) return false; if (seenX) seenX[k] = 1; return true; });
+      var dup = near - fresh.length;
+      var why = near ? near + ' marked crosswalk' + (near > 1 ? 's' : '') + ' within ' + Math.round(150 + (z.eff.len || 0) / 2) + ' ft of the work' + (dup ? '; ' + dup + ' of ' + (dup > 1 ? 'these were' : 'these was') + ' already counted in another zone of this site' : '') : (z.eff.sidewalkBlocked ? 'the work blocks the sidewalk' : (p.scenario === 'intersection' && ped ? 'work in an intersection with sidewalks (crosswalk count assumed, count them on site)' : ''));
+      var nX = near ? fresh.length : ((z.eff.sidewalkBlocked ? 1 : 0) || (p.scenario === 'intersection' && ped ? 1 : 0)); p.pedWhy = why;
       if (nX && p.scenario !== 'sidewalk' && p.scenario !== 'walkway') {
         p.pedX = { n: nX, assumed: !near };
         add('R9-9', 'SIDEWALK CLOSED (use only if the sidewalk or crosswalk is closed)', 2 * nX, 'pedestrian closure');
@@ -4457,7 +4464,9 @@ function nextBar() {
   function streetsHTML(s) {
     var z = s.zones[0], r = z && z.ev.rec, p = r && r.plan, loc = z && z.items[0].loc, h = '', legs = (p && p.legs) || [];
     var ws = (loc && loc.osm && loc.osm.found) ? 1 : 0;
-    h += '<details class="dg" id="streetsd"><summary>Streets read at this site (' + (legs.length || 0) + ')</summary><div style="padding:0 20px 14px">';
+    var names = {}; legs.forEach(function (l) { names[(l.name || '').trim().toLowerCase()] = 1; });
+    var nStreets = Object.keys(names).length;
+    h += '<details class="dg" id="streetsd"><summary>Streets read at this site (' + nStreets + ' street' + (nStreets === 1 ? '' : 's') + ', ' + legs.length + ' approach' + (legs.length === 1 ? '' : 'es') + ')</summary><div style="padding:0 20px 14px">';
     if (ws && loc.osm.offset > 80) h += '<div class="nt high"><b>The pin is ' + loc.osm.offset + ' ft from the nearest road (' + esc((loc.osm.tags && (loc.osm.tags.name || loc.osm.tags.ref)) || 'unnamed road') + ').</b> Check on the Map tab that this is the road you are working on. If not, drag the pin onto the right road.</div>';
     if (!ws) h += '<div class="nt high"><b>No roads are loaded for this spot.</b> Open the hosted app and load the roads on the Map tab. Side streets cannot be signed until they are read. Until then, pick the intersection type below.</div>';
     if (legs.length) h += '<table class="legt"><tr><th>Street</th><th>How it meets the work</th><th>Signs and where</th></tr>' + legs.map(function (l) {
