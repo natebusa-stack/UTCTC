@@ -4232,7 +4232,7 @@ function nextBar() {
       h += '<div class="blk"><h4>Before you start</h4><div class="ck">' + checklist(r, v).map(function (x) { return '<label><input type="checkbox">' + esc(x) + '</label>'; }).join('') + '</div></div>';
       if (p.legs) h += '<details class="dg" open><summary>Approaches, flaggers and signs (' + p.legs.length + ' approaches, ' + signTotal(p) + ' signs' + (p.flaggers ? ', ' + p.flaggers + ' flaggers' : '') + ')</summary><div style="padding:0 14px 10px">' + legsTable(p, n - 1) + '</div></details>';
       var aer = n === 1 && sites[sel] ? planImageCached(sites[sel]) : null;
-      if (aer) h += '<details class="dg" open><summary>Aerial view: signs on every approach</summary><div style="padding:0 12px 10px">' + layChips() + '<img src="' + aer + '" alt="Aerial plan view of the work zone with all advance warning signs on each approach" style="width:100%;height:auto;display:block;border:1px solid var(--line)"><p class="cap">Road runs left to right. Signs are shown at their planned distances ahead of the work on the main road and on each side street that feeds it.</p></div></details>';
+      if (aer) h += '<details class="dg"' + (gateOf(sites[sel]).ok ? ' open' : '') + '><summary>Aerial view: signs on every approach' + (gateOf(sites[sel]).ok ? '' : ' (NOT CLEARED, tap to view)') + '</summary><div style="padding:0 12px 10px">' + layChips() + '<img src="' + aer + '" alt="Aerial plan view of the work zone with all advance warning signs on each approach" style="width:100%;height:auto;display:block;border:1px solid var(--line)"><p class="cap">Road runs left to right. Signs are shown at their planned distances ahead of the work on the main road and on each side street that feeds it.</p></div></details>';
       h += '<details class="dg" open><summary>Layout drawing</summary><div class="go" style="margin:0 20px 10px"><button type="button" data-act="zoomlay" data-zi="' + (n - 1) + '">Zoom in on the layout</button></div><div class="scroll" id="lay' + n + '">' + draw(p, v) + '</div><p class="cap">Signs start at the left edge, so swipe the drawing to the right to follow the road to the work. Orange dots are cones or drums, the hatched area is the work space. Teal dashes are pedestrian routes and red dashes mark a conflict.</p></details>';
     }
     h += '<details class="alts"><summary>Why not the other setups (' + ev.rejected.length + ')</summary>';
@@ -4312,6 +4312,7 @@ function nextBar() {
     var open = $('tune') ? $('tune').open : null, t = s.totals, a = s.items.map(function (it) { return it.loc.name; });
     var needs = s.conf !== 'high';
     var h = '<div class="selbar"><button type="button" class="ghost" data-act="prev"' + (sel === 0 ? ' disabled' : '') + '>Previous</button><div class="seln"><b>' + s.name + '</b><small>' + (sel + 1) + ' of ' + sites.length + '</small></div><button type="button" class="ghost" data-act="next"' + (sel >= sites.length - 1 ? ' disabled' : '') + '>Next</button></div>';
+    h += compPre(s);
     h += '<section class="panel site"><div class="sh"><div><h2>' + s.name + '</h2><p class="coords">' + (a.length > 1 ? 'Locations ' + a.join(', ') : 'Location ' + a[0]) + (s.road ? ' on ' + esc(s.road) : '') + (a.length > 1 ? ' · ' + s.span + ' ft apart at most' : '') + '</p></div>';
     h += '<div class="tot"><span class="pill">' + s.zones.length + ' zone' + (s.zones.length > 1 ? 's' : '') + '</span><span class="pill">' + (t.dev + t.barr) + ' devices</span><span class="pill">' + t.signs + ' signs</span>' + (t.flaggers ? '<span class="pill">' + t.flaggers + ' flaggers</span>' : '') + (t.signals ? '<span class="pill">' + t.signals + ' signals</span>' : '') + (t.arrow ? '<span class="pill">' + t.arrow + ' arrow board</span>' : '') + (t.tma ? '<span class="pill">' + t.tma + ' attenuator</span>' : '') + '</div></div>';
     var yb = yardHTML().replace('<article class="sheet pb yard">', '<div class="yardbox">').replace('</article>', '</div>').replace(/<h1>.*?<\/h1>/, '');
@@ -4816,6 +4817,17 @@ function nextBar() {
   }
   /* Compliance gate. Every plan is checked against the MUTCD rules and the road geometry before it is shown; a plan with open items is stamped NOT CLEARED everywhere it appears. */
   function gateOf(s) { var mc = mutcdSite(s); var asm = []; s.items.forEach(function (it) { confidence(it.loc).missing.forEach(function (m) { if (asm.indexOf(m) < 0) asm.push(m); }); }); return { ok: !mc.bad.length, bad: mc.bad, n: mc.all.length, assumed: asm }; }
+  /* Step 0 of the Plan tab: the compliance review comes FIRST, before any drawing, and lists every rule that was tested. Failing items open the panel and keep the drawing folded until the technician looks. */
+  function compPre(s) {
+    var mc = mutcdSite(s), g = gateOf(s), rows = mc.all.slice().sort(function (a, b) { return (a.ok ? 1 : 0) - (b.ok ? 1 : 0); });
+    var head = g.ok ? (g.assumed.length ? 'MUTCD compliance review: ' + mc.pass + ' of ' + mc.all.length + ' rules pass (some road data assumed)' : 'MUTCD compliance review: all ' + mc.all.length + ' rules pass') : 'MUTCD compliance review: ' + mc.bad.length + ' rule' + (mc.bad.length > 1 ? 's' : '') + ' FAILED. Fix before using this plan';
+    var multi = s.zones.length > 1;
+    var h = '<details class="dg comppre" id="comppre" open + ' style="border:3px solid ' + (g.ok ? '#2e7d32' : '#b71c1c') + '"><summary style="font-weight:700">' + (g.ok ? '&#10003; ' : '&#9888; ') + esc(head) + '</summary><div style="padding:6px 14px 12px"><p class="qh">Checked against the MUTCD / Caltrans T9 tables for the speed, lanes and streets read at this site. This runs before the plan is drawn, so a setup that breaks a rule is caught here first.</p>';
+    if (!g.ok) h += '<div class="nt high"><b>Do not set up from this plan until each failed rule is fixed or a qualified person approves the exception.</b> Change the setup, the lane count or the streets listed below, and this check runs again.</div>';
+    h += '<table class="legt"><tr><th></th><th>Rule</th><th>Result</th></tr>' + rows.map(function (c) { return '<tr><td>' + (c.ok ? '&#10003;' : '<b style="color:#b71c1c">&#10007;</b>') + '</td><td>' + (multi && c.zone ? 'Zone ' + c.zone + ': ' : '') + esc(c.rule) + '</td><td>' + esc(c.det || (c.ok ? 'pass' : 'fail')) + '</td></tr>'; }).join('') + '</table>';
+    if (g.assumed.length) h += '<div class="nt med">Assumed, not confirmed: ' + esc(g.assumed.join(', ')) + '. Confirm on site.</div>';
+    return h + '</div></details>';
+  }
   function gateAll() { return sites.every(function (s) { return gateOf(s).ok; }); }
   function gateHTML(s) {
     var g = gateOf(s);
