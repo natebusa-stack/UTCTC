@@ -3191,7 +3191,7 @@ function MapView(canvas, cb) {
           c.fillStyle = C.panel; c.fillRect(lx2 - tw / 2, ly2 - 8, tw, 17); c.fillStyle = C.ink; c.fillText(text, lx2, ly2 + 0.5); c.textAlign = 'left'; c.textBaseline = 'alphabetic';
         };
         if (cb.fixed && coned) {
-          if (p.taper) dimL(tS, tS + p.taper, (RWf * S.k / 2 + 26), 'A = ' + p.taper + "'");
+          if (p.taper) dimL(tS, tS + p.taper, (RWf * S.k / 2 + 26) + (p.taper * S.k < 60 ? 16 : 0), 'A = ' + p.taper + "'");
           if (p.buffer) dimL(tS + p.taper, tS + p.taper + p.buffer, (RWf * S.k / 2 + 26), 'B = ' + p.buffer + "'");
           dimL(tW0, tW1, (RWf * S.k / 2 + 26), 'Work ' + len + "'");
           var advD = p.signs.filter(function (sg) { return !sg.end && sg.dist > 0; }).sort(function (a, b) { return b.dist - a.dist; });
