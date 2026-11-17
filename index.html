@@ -2580,11 +2580,21 @@ function MapView(canvas, cb) {
     });
     if (cb.fixed) {
       c.font = '600 10px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+      /* Sheet: label only what matters to this plan, the crosswalks, bus stops and signals inside the work and sign area, and never stack two labels on top of each other. */
+      var zbx = null; try { zbx = S.sites[S.sel] ? zoneBox(S.sites[S.sel]) : null; } catch (e) {}
+      var padw = 60, near = [], wc = null; try { var wp = S.pins.filter(function (pp) { return pp.site === S.sites[S.sel]; }); if (wp.length) { var wb = bounds(wp); wc = { x: (wb.x0 + wb.x1) / 2, y: (wb.y0 + wb.y1) / 2 }; } } catch (e) {}
       d.nodes.forEach(function (n) {
         var t = n.tags, lb = t.highway === 'bus_stop' ? 'BUS STOP' : t.highway === 'crossing' ? 'CROSSWALK' : t.highway === 'traffic_signals' ? 'SIGNAL' : '';
-        if (!lb) return; var w = toW(n.lat, n.lon), x = sx(w.x), y = sy(w.y);
+        if (!lb) return; var w = toW(n.lat, n.lon);
+        if (zbx && (w.x < zbx.x0 - padw || w.x > zbx.x1 + padw || w.y < zbx.y0 - padw || w.y > zbx.y1 + padw)) return;
+        if (wc && Math.hypot(w.x - wc.x, w.y - wc.y) > (lb === 'CROSSWALK' ? 230 : 330)) return;
+        var x = sx(w.x), y = sy(w.y);
         if (x < 20 || y < 20 || x > S.W - 20 || y > S.H - 10) return;
-        c.lineWidth = 3; c.strokeStyle = C.road; c.strokeText(lb, x, y + r + 12); c.fillStyle = C.txt; c.fillText(lb, x, y + r + 12);
+        near.push({ lb: lb, x: x, y: y, pr: lb === 'SIGNAL' ? 0 : (lb === 'CROSSWALK' ? 1 : 2) });
+      });
+      near.sort(function (a, b) { return a.pr - b.pr; }).forEach(function (q) {
+        if (!claim(q.x, q.y + r + 8, q.lb.length * 7 + 6, 14, 'node')) return;
+        c.lineWidth = 3; c.strokeStyle = C.road; c.strokeText(q.lb, q.x, q.y + r + 12); c.fillStyle = C.txt; c.fillText(q.lb, q.x, q.y + r + 12);
       });
       c.textAlign = 'left';
     }
