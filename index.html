@@ -2626,8 +2626,8 @@ function MapView(canvas, cb) {
       var m = atS(w._w, w._c, tot / 2), x = sx(m.x), y = sy(m.y);
       if (cb.fixed) { // sheet: put the name in clear space, away from the work zone
         var best = null, fr = [0.5, 0.62, 0.38, 0.74, 0.26, 0.86, 0.14, 0.92, 0.08];
-        for (var q = 0; q < fr.length; q++) { var mm = atS(w._w, w._c, tot * fr[q]), xx = sx(mm.x), yy = sy(mm.y); if (xx < 60 || yy < 30 || xx > S.W - 60 || yy > S.H - 30) continue; var dd = sp0 ? Math.hypot(xx - sx(sp0.x), yy - sy(sp0.y)) : 999; if (dd >= 170) { best = { m: mm, x: xx, y: yy }; break; } if (!best) best = { m: mm, x: xx, y: yy }; }
-        if (best) { m = best.m; x = best.x; y = best.y; }
+        for (var q = 0; q < fr.length; q++) { var mm = atS(w._w, w._c, tot * fr[q]), xx = sx(mm.x), yy = sy(mm.y); if (xx < 60 || yy < 30 || xx > S.W - 60 || yy > S.H - 30) continue; var dd = sp0 ? Math.hypot(xx - sx(sp0.x), yy - sy(sp0.y)) : 999; if (dd >= 170) { best = { m: mm, x: xx, y: yy, d: dd }; break; } if (!best || dd > best.d) best = { m: mm, x: xx, y: yy, d: dd }; }
+        if (best) { m = best.m; x = best.x; y = best.y; if (best.d < 60) { y -= 30; } /* short street: no clear spot, so lift the name off the work bar */ }
       }
       if (x < 20 || y < 12 || x > S.W - 20 || y > S.H - 12) continue;
       var ms = parseInt(w.tags.maxspeed, 10), nm2 = nm + (ms ? ' ' + ms : ''), tw = c.measureText(nm2).width + 6, hit = false;
