@@ -5228,7 +5228,35 @@ function nextBar() {
     $('xtcp').onclick = function () { openSheet(sites.slice(0, 300)); };
     $('xcad').onclick = function () { if (!sites.length) { say('xstat', 'Create a plan first.'); return; } try { exportFile('traffic-control-plans.dxf', cadDoc(sites.slice(0, 40))); } catch (e) { say('xstat', 'CAD export failed: ' + e.message); } };
     $('sheetcad').onclick = function () { try { exportFile('traffic-control-plan.dxf', cadDoc((sheetSites || []).slice(0, 40))); } catch (e) { say('sheetnote', 'CAD export failed: ' + e.message); } };
+    /* Get the newest app: wipe the service worker and its caches, then load the page from a new address so the browser's own cache cannot hand back the old copy. Saved sites live in localStorage and stay. */
+    var freshApp = function (btn) {
+      if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
+      var done = function () { var u = location.pathname + '?v=' + Date.now(); try { location.replace(u); } catch (e) { location.href = u; } };
+      try {
+        var jobs = [];
+        if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); }));
+        if (window.caches && caches.keys) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }));
+        Promise.all(jobs).then(done, done); setTimeout(done, 2500);
+      } catch (e) { done(); }
+    };
+    /* Ask the server whether a newer copy exists. At startup, update by itself; when the app comes back from the background, show an Update button instead of reloading under the technician's hands. */
+    var checkNewApp = function (auto) {
+      if (location.protocol.indexOf('http') !== 0 || !window.fetch) return;
+      fetch(location.pathname + '?chk=' + Date.now(), { method: 'HEAD', cache: 'no-store' }).then(function (r) {
+        var lm = r.headers.get('last-modified'); if (!lm) return;
+        var srv = Date.parse(lm), mine = Date.parse(document.lastModified);
+        if (!(srv > mine + 2000)) return;
+        var seen = ''; try { seen = sessionStorage.getItem('utctcUpd') || ''; } catch (e) {}
+        if (seen === lm) return;
+        try { sessionStorage.setItem('utctcUpd', lm); } catch (e) {}
+        if (auto) { freshApp(null); return; }
+        var rb = $('refreshapp'); if (rb) { rb.textContent = 'Update available: tap to update'; rb.style.background = '#c4561f'; rb.style.color = '#fff'; }
+      }).catch(function () {});
+    };
+    checkNewApp(true);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') checkNewApp(false); });
     $('refreshapp').onclick = function () {
+      freshApp(this); return;
       var b = this; b.disabled = true; b.textContent = 'Refreshing...';
       var done = function () { try { location.reload(); } catch (e) { location.href = location.href; } };
       try {
@@ -5246,4 +5274,4 @@ function nextBar() {
   init();
 })();
 
-</script><script>if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script></body></html>
+</script><script>if("serviceWorker" in navigator&&location.protocol.indexOf("http")===0){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(function(){})})}</script></body></html>
