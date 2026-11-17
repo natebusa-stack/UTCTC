@@ -29,7 +29,7 @@ async function one(b, [name, lat, lon]) {
     /* Geometry guard: any rule about devices on ground that is not there fails the whole run, on every site, so this class of bug cannot ship again. */
     R.fit = await p.evaluate(() => { const t = document.body.innerText; const m = t.match(/The work was shortened to \d+ ft[^\n]*/); return m ? m[0] : ''; });
     R.geo = await p.evaluate(() => { const c = document.getElementById('comppre'); return c ? c.innerText.split('\n').filter(l => /^\u2717/.test(l) && /road that is there|past a road end|beyond the end|fits on the street|joins past/i.test(l)) : []; });
-    if (/Sacramento 9th|Stinson Cooper/.test(name)) { try { const raw = await p.evaluate(() => localStorage.getItem('tcp5roads')); if (raw) fs.writeFileSync('road-test-results/raw_' + name.replace(/\W+/g, '_') + '.json', raw); } catch (e) {} }
+    if (/Sacramento 9th|Stinson Cooper|SF Lombard|Santa Rosa Mendocino|Folsom Sutter|I-80 Davis/.test(name)) { try { const raw = await p.evaluate(() => localStorage.getItem('tcp5roads')); if (raw) fs.writeFileSync('road-test-results/raw_' + name.replace(/\W+/g, '_') + '.json', raw); } catch (e) {} }
     await p.evaluate(() => document.querySelectorAll('details').forEach(x => { if (/Aerial view/i.test(x.innerText.slice(0, 40))) x.open = true; }));
     const im = await p.$('details:has(summary:has-text("Aerial view")) img'); if (im) { await im.scrollIntoViewIfNeeded(); await im.screenshot({ path: 'road-test-results/nc_' + name.replace(/\W+/g, '_') + '.png' }); }
   } catch (e) { R.fail = String(e.message).slice(0, 200); }
