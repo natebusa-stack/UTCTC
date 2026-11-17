@@ -2653,7 +2653,7 @@ function MapView(canvas, cb) {
     c.moveTo(x, y - r - 2); c.lineTo(x + r + 2, y); c.lineTo(x, y + r + 2); c.lineTo(x - r - 2, y); c.closePath(); c.fill(); c.stroke();
     claim(x, y, 30, 30, 'dia');
     /* side-street W20-1 labels used to pile on each other and on street names; stack the label upward (or below as a last resort) until it finds clear space, never drop it */
-    if (label) { c.fillStyle = C.ink; c.font = '700 12px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; var lw = c.measureText(label).width + 4, ly = y - r - 9, placed = false;
+    if (label && (cb.fixed || S.k >= 0.5)) { c.fillStyle = C.ink; c.font = '700 12px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; var lw = c.measureText(label).width + 4, ly = y - r - 9, placed = false;
       [y - r - 9, y - r - 23, y - r - 37, y + r + 21].forEach(function (by) { if (placed) return; if (claim(x, by - 5, lw, 14, 'dialab')) { ly = by; placed = true; } });
       if (!placed) claim(x, ly - 5, lw, 14, 'dialab');
       c.strokeText(label, x, ly); c.fillText(label, x, ly); c.textAlign = 'left'; }
@@ -3107,7 +3107,7 @@ function MapView(canvas, cb) {
           c.fillStyle = C.txt; c.font = '600 12px sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.road; c.strokeText(label, x2, ly); c.fillText(label, x2, ly); c.textAlign = 'left';
         }
       };
-      var faceH = cb.fixed ? Math.max(26, Math.min(68, p.space * S.k * 0.62)) : 44, taken = [], big = cb.fixed || S.k > 0.1;
+      var faceH = cb.fixed ? Math.max(26, Math.min(68, p.space * S.k * 0.62)) : Math.max(22, Math.min(44, p.space * S.k * 0.75)), taken = [], big = cb.fixed || S.k > 0.1;
       var LG = !dt ? legsOf(z, s) : null; if (LG) drawLegs(c, C, LG, taken);
       var placeSign = function (code, legend, t, opt) {
         opt = opt || {}; if (!S.lay.signs) return;
@@ -3128,7 +3128,7 @@ function MapView(canvas, cb) {
         SignLib.draw(c, code, cx, cy, fh, o2);
         /* reserve the face so dimension/zone labels drawn after the signs move instead of sitting on top of a sign face */
         claim(cx, cy, sz.w + 8, sz.h + 24, 'sign');
-        c.font = (cb.fixed ? '700 12px' : '700 11px') + ' sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineWidth = 3; c.strokeStyle = C.road; var tx = code + (opt.street ? '' : ''), ty = cy + sz.h / 2 + 11; if (S.lay.labels && S.lay.codes) { c.strokeText(tx, cx, ty); c.fillStyle = C.txt; c.fillText(tx, cx, ty); } c.textAlign = 'left';
+        c.font = (cb.fixed ? '700 12px' : '700 11px') + ' sans-serif'; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.lineWidth = 3; c.strokeStyle = C.road; var tx = code + (opt.street ? '' : ''), ty = cy + sz.h / 2 + 11; if (S.lay.labels && S.lay.codes && (cb.fixed || S.k >= 0.5)) { c.strokeText(tx, cx, ty); c.fillStyle = C.txt; c.fillText(tx, cx, ty); } c.textAlign = 'left';
       };
       var bothWays = !z.eff.oneway && (sc === 'flagging' || sc === 'signal' || sc === 'laneshift' || sc === 'intersection' || !!dt);
       p.signs.forEach(function (sg) {
@@ -3158,8 +3158,8 @@ function MapView(canvas, cb) {
         for (i = 1; i <= nD; i++) cone(tW1 + p.downstream * i / Math.max(1, nD), offI + (off0 - offI) * i / Math.max(1, nD));
       }
       if (S.k > 0.1 && g) {
-        var lab = function (t, text, side) { if (!S.lay.dims) return; var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), x = sx(q.x) - Math.sin(ang) * side, y = sy(q.y) - Math.cos(ang) * side; c.font = '600 12px sans-serif'; var wd = c.measureText(text).width + 6, yy = y, lo = [0, -16, 16, -32, 32, -48, 48], li, lok = false; for (li = 0; li < lo.length; li++) { if (claim(x, y + lo[li], wd, 15, 'zl' + text)) { yy = y + lo[li]; lok = true; break; } } if (!lok) yy = y; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(text, x, yy); c.fillStyle = C.ink; c.fillText(text, x, yy); c.textAlign = 'left'; };
-        var dimL = function (t0, t1, off, text) { if (!S.lay.dims) return;
+        var lab = function (t, text, side) { if (!S.lay.dims || (!cb.fixed && S.k < 0.3)) return; var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), x = sx(q.x) - Math.sin(ang) * side, y = sy(q.y) - Math.cos(ang) * side; c.font = '600 12px sans-serif'; var wd = c.measureText(text).width + 6, yy = y, lo = [0, -16, 16, -32, 32, -48, 48], li, lok = false; for (li = 0; li < lo.length; li++) { if (claim(x, y + lo[li], wd, 15, 'zl' + text)) { yy = y + lo[li]; lok = true; break; } } if (!lok) yy = y; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = C.panel; c.strokeText(text, x, yy); c.fillStyle = C.ink; c.fillText(text, x, yy); c.textAlign = 'left'; };
+        var dimL = function (t0, t1, off, text) { if (!S.lay.dims || (!cb.fixed && S.k < 0.3)) return;
           var q0 = atS(g.pts, g.cum, g.s0 + dir * t0), q1 = atS(g.pts, g.cum, g.s0 + dir * t1), a0 = q0.a + (dir < 0 ? Math.PI : 0), a1 = q1.a + (dir < 0 ? Math.PI : 0);
           var x0 = sx(q0.x) - Math.sin(a0) * off, y0 = sy(q0.y) - Math.cos(a0) * off, x1 = sx(q1.x) - Math.sin(a1) * off, y1 = sy(q1.y) - Math.cos(a1) * off;
           if (Math.hypot(x1 - x0, y1 - y0) < 14) return;
