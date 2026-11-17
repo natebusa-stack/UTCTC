@@ -14,9 +14,11 @@ jobs:
         with: { node-version: 20 }
       - run: npm i playwright@1.48.0 && npx playwright install --with-deps chromium
       - run: (python3 -m http.server 8123 >/dev/null 2>&1 &) ; sleep 2; node tests/norcal-test.js
-      - uses: actions/upload-artifact@v4
+      - if: always()
+        uses: actions/upload-artifact@v4
         with: { name: road-test, path: road-test-results }
-      - name: Save results to the repo
+      - if: always()
+        name: Save results to the repo
         run: |
           git config user.name "road-test"; git config user.email "road-test@users.noreply.github.com"
           git add -f road-test-results; git commit -m "Road read test results" || exit 0

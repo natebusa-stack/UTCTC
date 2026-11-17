@@ -26,6 +26,8 @@ async function one(b, [name, lat, lon]) {
     await p.click('#tab-plan').catch(() => {}); await p.waitForTimeout(1500);
     const d = await p.evaluate(() => { const o = {}; const s = document.getElementById('streetsd'); if (s) s.open = true; o.streets = s ? s.innerText.split('\n').slice(0, 40).join('\n') : ''; const t = document.body.innerText; o.head = (t.match(/Site 1[^\n]*/) || [''])[0]; o.chk = (t.match(/MUTCD check[^\n]*/) || [''])[0]; const mc = [...document.querySelectorAll('*')].filter(e => e.children.length < 12 && /^MUTCD check/.test((e.innerText || '').trim())).pop(); o.chkfull = mc ? mc.parentElement.innerText.slice(0, 700) : ''; o.setup = (t.match(/(One lane|Lane closure|Full closure|Intersection|Shoulder|Sidewalk)[^\n]{0,80}/) || [''])[0]; o.totals = (t.match(/\d+ signs?[^\n]*flagger[^\n]*/i) || [''])[0]; o.matched = /Matched 1 of 1/.test(t); return o; });
     Object.assign(R, d);
+    /* Geometry guard: any rule about devices on ground that is not there fails the whole run, on every site, so this class of bug cannot ship again. */
+    R.geo = await p.evaluate(() => { const c = document.getElementById('comppre'); return c ? c.innerText.split('\n').filter(l => /^\u2717/.test(l) && /road that is there|past a road end|beyond the end|fits on the street|joins past/i.test(l)) : []; });
     if (/Sacramento 9th|Stinson Cooper/.test(name)) { try { const raw = await p.evaluate(() => localStorage.getItem('tcp5roads')); if (raw) fs.writeFileSync('road-test-results/raw_' + name.replace(/\W+/g, '_') + '.json', raw); } catch (e) {} }
     await p.evaluate(() => document.querySelectorAll('details').forEach(x => { if (/Aerial view/i.test(x.innerText.slice(0, 40))) x.open = true; }));
     const im = await p.$('details:has(summary:has-text("Aerial view")) img'); if (im) { await im.scrollIntoViewIfNeeded(); await im.screenshot({ path: 'road-test-results/nc_' + name.replace(/\W+/g, '_') + '.png' }); }
@@ -37,4 +39,6 @@ async function one(b, [name, lat, lon]) {
   const list = only ? SITES.filter(s => s[0].indexOf(only) >= 0) : SITES, out = [];
   for (let i = 0; i < list.length; i += 4) { const r = await Promise.all(list.slice(i, i + 4).map(s => one(b, s))); r.forEach(x => { out.push(x); console.log(x.name, '|', x.secs + 's', '|', (x.mstat || '').slice(0, 70), '|', x.head, '|', x.chk); }); }
   fs.writeFileSync('road-test-results/norcal.json', JSON.stringify(out, null, 2)); await b.close();
+  const bad = out.filter(x => x.geo && x.geo.length); bad.forEach(x => console.log('GEOMETRY FAIL', x.name, x.geo.join(' | ')));
+  if (bad.length) process.exitCode = 1;
 })();

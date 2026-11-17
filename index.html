@@ -2938,7 +2938,7 @@ function MapView(canvas, cb) {
       var mwNames = []; mwLegs.forEach(function (l) { var s = l.name + ' (' + l.lpd + ' lanes in one direction)'; if (mwNames.indexOf(s) < 0) mwNames.push(s); });
       rec.multiWarn = { text: 'Multi-lane approach with no lane closure: ' + mwNames.join('; ') + '. No flagger is assigned to it: a flagger must stand on the shoulder or in a closed lane (CA MUTCD 6D.05), and work on a multi-lane road is divided into lane closures (6N.11). Advance warning signs are still shown for the approach. Decide with a qualified person how traffic from this approach is controlled — this plan does not cover it.' };
     }
-    return { mainGone: mainGone, backGone: backGone, frontGone: frontGone, legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
+    return { over: { front: Math.round(Math.max(0, -(remFront + p.downstream))), back: Math.round(Math.max(0, -(remBack + p.buffer + p.taper))) }, mainGone: mainGone, backGone: backGone, frontGone: frontGone, legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
   }
   /* Service ways are not public streets (R3): driveways, parking aisles, alleys and every other highway=service way, tagged or untagged, get no advance warning and never continue the main road. Public streets are every other DRIVE class. A service way that genuinely carries traffic is counted by hand in the streets panel. */
   function minorWay(w) { var t = w.tags || {}; return t.highway === 'service'; }
@@ -3458,6 +3458,8 @@ function mutcdCheck(rec, eff) {
   if (p.downstream) T(p.downstream >= 100 || id === 'flagging' || id === 'laneshift', 'Downstream taper 100 ft', p.downstream + "'");
   if (id === 'laneclosure' && (+p.lanes || +eff.lanes) >= 2 && S >= 45) T(p.arrowBoard, 'Arrow board for multilane closure', p.arrowBoard ? 'yes' : 'missing');
   if (id === 'flagging') T(p.flaggers >= 2, 'Two flaggers for two-way flagging', (p.flaggers || 0) + ' flaggers');
+  /* The work itself has to be on the street. A court or dead end shorter than the work length means the bar, taper and cones would be drawn and counted on ground that is not there. */
+  if (p.over) T(!(p.over.front > 12 || p.over.back > 12), 'Work area fits on the street that is there', p.over.front > 12 || p.over.back > 12 ? 'the work runs ' + Math.max(p.over.front, p.over.back) + " ft past the end of the street. Shorten the work length or move the pin" : 'ok');
   if (p.legs) {
     var farOf = function (l) { return (l.signs || []).reduce(function (m, q) { return Math.max(m, q.dist); }, 0); };
     var noRoad = p.legs.filter(function (l) { return l.kind === 'main' && l.signs.length && l.room !== undefined && l.room < farOf(l); });
@@ -4634,7 +4636,7 @@ function nextBar() {
       var k = p.approaches || 1; p.legs = null; p.xlegs = (z.items[0].loc && z.items[0].loc.xt) || null;
       p.signs.forEach(function (g) { add(g.code, g.legend, k, k > 1 ? 'each of ' + k + ' approaches' : 'at the work'); });
     } else {
-      p.mainGone = L.mainGone || 0; p.legs = L.legs.map(function (l) { return { prot: l.prot, entry: l.entry, room: l.room, avail: l.avail, ang: l.ang, alongMain: l.alongMain, level: l.level, kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, recommended: l.recommended, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0, multi: !!l.multi, lpd: l.lpd || null, needFlag: !!l.needFlag }; });
+      p.mainGone = L.mainGone || 0; p.over = L.over || null; p.legs = L.legs.map(function (l) { return { prot: l.prot, entry: l.entry, room: l.room, avail: l.avail, ang: l.ang, alongMain: l.alongMain, level: l.level, kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, recommended: l.recommended, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0, multi: !!l.multi, lpd: l.lpd || null, needFlag: !!l.needFlag }; });
       L.legs.forEach(function (l) { l.signs.forEach(function (g) { add(g.code, g.legend, 1, l.name); }); });
       L.zoneSigns.forEach(function (g) { add(g.code, g.legend, 1, 'at the work'); });
       if (['laneclosure', 'twolanes', 'laneshift', 'signal'].indexOf(p.scenario) >= 0) {
