@@ -514,7 +514,7 @@
     "lat": 37.87,
     "lon": -122.268,
     "mstat": "Map data loaded: 1739 roads and paths. Matched 1 of 1 locations to a road.",
-    "secs": 7,
+    "secs": 6,
     "streets": "Streets read at this site (5 streets, 9 approaches)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nShattuck Avenue\tmain road, approach\tW20-7 @100', W4-2R @200', W20-5 @300', W20-1 @400' + flagger\nShattuck Avenue\tmain road, approach\tflagger station + flagger\nCenter Street\tside street, 116 ft before the work centre\tW20-7 @150', W20-1 @250' + flagger\nCenter Street\tside street, 116 ft before the work centre\tW20-7 @150', W20-1 @250' + flagger\nAddison Street\tside street, 441 ft before the work centre\tW20-1 @330'\nAddison Street\tside street, 441 ft before the work centre\tW20-1 @330'\nUniversity Avenue\tside street, 814 ft before the work centre\tW20-1 @100'\nUniversity Avenue\tside street, 780 ft before the work centre\tW20-1 @100'\nKala Bagai Way\tjoins Addison Street\tW20-1 @64'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
     "chk": "MUTCD check: 17 of 17 rules passed",
