@@ -988,6 +988,20 @@ function lookup(loc, osm) {
     var n = nearestOnLine(loc.lat, loc.lon, w.geometry); if (!n) return;
     if (!best || n.d < best.n.d) best = { w: w, n: n };
   });
+  /* A short service stub (a driveway or alley under 150 ft) never beats a real street that is nearly as close: the plan would be built for the stub and the work trimmed to nothing. */
+  if (best && best.w.tags.highway === 'service') {
+    var stubLen = 0, bg = best.w.geometry, cl0 = Math.cos(loc.lat * Math.PI / 180);
+    for (var si = 0; si + 1 < bg.length; si++) stubLen += Math.hypot((bg[si + 1].lat - bg[si].lat) * 364000, (bg[si + 1].lon - bg[si].lon) * 364000 * cl0);
+    if (stubLen < 150) {
+      var alt = null;
+      osm.ways.forEach(function (w) {
+        if (w === best.w || DRIVE.indexOf(w.tags.highway) < 0 || w.tags.highway === 'service') return;
+        var n2 = nearestOnLine(loc.lat, loc.lon, w.geometry); if (!n2 || n2.d > best.n.d + 40) return;
+        if (!alt || n2.d < alt.n.d) alt = { w: w, n: n2 };
+      });
+      if (alt) best = alt;
+    }
+  }
   if (!best || best.n.d > 330) return { found: false, nearest: best ? Math.round(best.n.d) : null };
   var t = best.w.tags, r = { found: true, tags: t, wayId: best.w.id, offset: Math.round(best.n.d), geom: best.w.geometry, s: best.n.s };
   r.latCr = best.n.dy * best.n.cx - best.n.dx * best.n.cy; r.rev = t.oneway === '-1';
