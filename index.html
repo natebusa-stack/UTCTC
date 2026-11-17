@@ -961,7 +961,7 @@ function effective(loc, G) {
   G = G || { pos: 'lane', len: 200, night: false };
   var v = Object.assign({}, loc.vals);
   v.pos = loc.pos || G.pos || 'lane';
-  v.len = Math.max(10, +(loc.lenSet ? loc.len : G.len) || 200);
+  v.len = Math.max(10, +(loc.lenSet ? loc.len : (loc.fitLen ? Math.min(G.len, loc.fitLen) : G.len)) || 200);
   v.night = (loc.night === null || loc.night === undefined) ? !!G.night : !!loc.night;
   v.label = loc.label; v.ovr = loc.ovr || null; v.comboSet = !!(loc.ovr && ['shift', 'flag', 'shoulder', 'none'].indexOf(loc.ovr.combo) >= 0); v.combo = (loc.ovr && ['shift', 'flag', 'shoulder'].indexOf(loc.ovr.combo) >= 0) ? loc.ovr.combo : ''; v.pick = (loc.ovr && typeof loc.ovr.pick === 'string') ? loc.ovr.pick : '';
   var ro = loc.osm;
@@ -2770,7 +2770,7 @@ function MapView(canvas, cb) {
     var far = adv.reduce(function (m, q) { return Math.max(m, q.dist); }, 0), ext = Math.max(far, 100) + Math.min(p.space, 350);
     var a0 = Math.min(tS - ext, tS), a1 = Math.max(tE + (both ? ext : 80), tE);
     var lo = g.s0 + Math.min(dir * a0, dir * a1) - 40, hi = g.s0 + Math.max(dir * a0, dir * a1) + 40;
-    var gTot = g.cum[g.cum.length - 1], contLo = false, contHi = false, cLenLo = 0, cLenHi = 0;
+    var gTot = g.cum[g.cum.length - 1], contLo = false, contHi = false, cLenLo = 0, cLenHi = 0, fitLo = 0, fitHi = 0;
     var rc = it.loc, data = S.store && S.store.count() ? S.store.inBox(rc.lat - 0.012, rc.lon - 0.012, rc.lat + 0.012, rc.lon + 0.012, 9000) : null, found = [], n = 0;
     /* The stitch must cover each main approach's own sign train, not just the junction window: a one-direction closure still signs the opposing approach out to its farthest sign past the work, and the gate checks every sign sits on stitched road. Only the stitch need is widened (a0/a1 and the junction window are unchanged), so no new junctions are searched and only the chain gets longer. */
     var farOfLeg = function (l) { return (l.signs || []).reduce(function (m, q) { return Math.max(m, q.dist || 0); }, 0); };
@@ -2797,6 +2797,8 @@ function MapView(canvas, cb) {
         if (m.d < 24 && m.s >= lo && m.s <= hi) {
           var j2 = i < pts.length - 1 ? i + 1 : i - 1, sa = Math.atan2(pts[j2].y - pts[i].y, pts[j2].x - pts[i].x), ma = atS(g.pts, g.cum, m.s).a, df = Math.abs(((sa - ma) % Math.PI + Math.PI) % Math.PI);
           var jKey = ((w.tags.name || w.tags.ref || '').trim().toLowerCase());
+          /* For the work-fits-on-the-street test only, any way that carries straight on from the end of the main road (whatever its name) is road that is there. */
+          if (Math.min(df, Math.PI - df) < 0.5 && (m.s <= 6 || m.s >= gTot - 6)) { var cf = Math.max(w._c[i], w._c[w._c.length - 1] - w._c[i]); if (m.s <= 6) fitLo = Math.max(fitLo, cf); else fitHi = Math.max(fitHi, cf); }
           /* A shallow-angle way is the main road continuing only when it carries the same street name (or is unnamed, when no name can tell them apart). A differently named road meeting at a shallow angle is a separate road with its own approach (R6): drivers on it still need advance warning. stitchMain is untouched and still follows the straightest same-name continuation, so the main road keeps stitching while shallow junctions are detected here. */
           if (Math.min(df, Math.PI - df) < 0.5 && (!jKey || (mainKey && jKey === mainKey))) { var cl2 = Math.max(w._c[i], w._c[w._c.length - 1] - w._c[i]); if (m.s <= 6) { contLo = true; cLenLo = Math.max(cLenLo, cl2); } else if (m.s >= gTot - 6) { contHi = true; cLenHi = Math.max(cLenHi, cl2); } break; }
           /* one street split into two ways at the junction meets the main road at the same point twice: keep one junction, the stitch follows the whole street from either side */
@@ -2938,7 +2940,7 @@ function MapView(canvas, cb) {
       var mwNames = []; mwLegs.forEach(function (l) { var s = l.name + ' (' + l.lpd + ' lanes in one direction)'; if (mwNames.indexOf(s) < 0) mwNames.push(s); });
       rec.multiWarn = { text: 'Multi-lane approach with no lane closure: ' + mwNames.join('; ') + '. No flagger is assigned to it: a flagger must stand on the shoulder or in a closed lane (CA MUTCD 6D.05), and work on a multi-lane road is divided into lane closures (6N.11). Advance warning signs are still shown for the approach. Decide with a qualified person how traffic from this approach is controlled — this plan does not cover it.' };
     }
-    return { over: { front: Math.round(Math.max(0, -(remFront + p.downstream))), back: Math.round(Math.max(0, -(remBack + p.buffer + p.taper))) }, mainGone: mainGone, backGone: backGone, frontGone: frontGone, legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
+    return { over: (function () { var fF = dir > 0 ? (gTot - sFront) + Math.max(contHi ? cLenHi : 0, fitHi) : sFront + Math.max(contLo ? cLenLo : 0, fitLo), fB = dir > 0 ? sBack + Math.max(contLo ? cLenLo : 0, fitLo) : (gTot - sBack) + Math.max(contHi ? cLenHi : 0, fitHi); return { front: Math.round(Math.max(0, -(fF + p.downstream))), back: Math.round(Math.max(0, -(fB + p.buffer + p.taper))) }; })(), mainGone: mainGone, backGone: backGone, frontGone: frontGone, legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
   }
   /* Service ways are not public streets (R3): driveways, parking aisles, alleys and every other highway=service way, tagged or untagged, get no advance warning and never continue the main road. Public streets are every other DRIVE class. A service way that genuinely carries traffic is counted by hand in the streets panel. */
   function minorWay(w) { var t = w.tags || {}; return t.highway === 'service'; }
@@ -3992,7 +3994,7 @@ function nextBar() {
   };
   function compute() {
     sites = analyzeAll(locs, thr, G);
-    annotateLegs();
+    if (annotateLegs()) { sites = analyzeAll(locs, thr, G); annotateLegs(); }
     if (sel >= sites.length) sel = Math.max(0, sites.length - 1);
     if (mv) mv.setData({ store: store, locs: locs, sites: sites });
     renderCounts(); renderDefaults(); renderList(); renderPlan(); renderMapUI(); if (tab === 'jsa') renderJob();
@@ -4620,14 +4622,18 @@ function nextBar() {
     try {
       if (!sites.length) return;
       var m = MapView(document.createElement('canvas'), { fixed: { W: 1000, H: 548, dpr: 1 }, palette: PAL, detour: getDet });
-      m.setData({ store: store, locs: locs, sites: sites });
+      m.setData({ store: store, locs: locs, sites: sites }); var fitAgain = false;
       sites.forEach(function (s, n) {
         if (mv && mv.flipped && mv.flipped(n)) m.flip(n);
         var seenX = {};
-        s.zones.forEach(function (z, zi) { var r = z.ev.rec; if (!r) return; var L = null; try { L = m.legs(n, zi); } catch (e) {} applyLegs(r.plan, L, z, seenX); });
+        s.zones.forEach(function (z, zi) { var r = z.ev.rec; if (!r) return; var L = null; try { L = m.legs(n, zi); } catch (e) {} applyLegs(r.plan, L, z, seenX);
+          /* The work cannot run past the end of the street. If the length was not typed in, shorten it to the street that is there, once, and rebuild. */
+          if (L && L.over && !fitAgain) { var ov = Math.max(L.over.front, L.over.back); if (ov > 12 && z.items.every(function (it) { return !it.loc.lenSet && !it.loc.fitTried; })) { z.items.forEach(function (it) { it.loc.fitTried = true; it.loc.fitLen = Math.max(20, Math.round((z.eff.len - 2 * ov) / 5) * 5); }); fitAgain = true; } }
+          if (z.items[0].loc.fitLen && r.plan.notes) r.plan.notes.push('The work was shortened to ' + z.items[0].loc.fitLen + ' ft so it stays on the street that is there. Type a work length to override.'); });
         if (s.totals) { var ts = 0, tf = 0; s.zones.forEach(function (z) { var r = z.ev.rec; if (!r) return; ts += signTotal(r.plan); tf += r.plan.flaggers || 0; }); s.totals.signs = ts; s.totals.flaggers = tf; }
       });
-    } catch (e) {}
+      return fitAgain;
+    } catch (e) { return false; }
   }
   function applyLegs(p, L, z, seenX) {
     var cnt = {}, add = function (code, legend, n, where) { var o = cnt[code] || (cnt[code] = { code: code, legend: legend, n: 0, where: {} }); o.n += n; o.where[where] = (o.where[where] || 0) + n; };
