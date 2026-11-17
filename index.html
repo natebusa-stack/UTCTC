@@ -3090,8 +3090,10 @@ function MapView(canvas, cb) {
         c.strokeStyle = C.ink; c.globalAlpha = 0.75; c.lineWidth = 1.2; c.beginPath(); for (var hx = -hl / 2 - hh; hx < hl / 2 + hh; hx += 7) { c.moveTo(hx, hh / 2); c.lineTo(hx + hh, -hh / 2); } c.stroke(); c.globalAlpha = 1; c.restore();
         c.strokeStyle = C.ink; c.lineWidth = 1.6; c.save(); c.translate((hx0 + hx1) / 2 + shx, (hy0 + hy1) / 2 + shy); c.rotate(han); c.strokeRect(-hl / 2, -hh / 2, hl, hh); c.restore();
       }
-      if (p.taper) { c.save(); c.translate(shx * 0.5, shy * 0.5); stroke(c, seg(tS, tS + p.taper), Math.max(3, lwpx * 0.5), C.work, 0.9, 'butt'); c.restore(); }
-      if (sc !== 'sidewalk' && sc !== 'walkway') {
+      /* nothing is drawn where the street is not: p.over is how far the taper and buffer (behind) or the downstream taper (ahead) run past the street's end */
+      var oBk = (p.over && p.over.back > 0) ? p.over.back : 0, oFt = (p.over && p.over.front > 0) ? p.over.front : 0, tLoOK = tS + oBk, tHiOK = tE - oFt;
+      if (p.taper && tS + oBk < tS + p.taper) { c.save(); c.translate(shx * 0.5, shy * 0.5); stroke(c, seg(Math.max(tS, tLoOK), tS + p.taper), Math.max(3, lwpx * 0.5), C.work, 0.9, 'butt'); c.restore(); }
+      if (sc !== 'sidewalk' && sc !== 'walkway' && !oBk) {
         var a = atS(g.pts, g.cum, g.s0 + dir * tS), bpt = atS(g.pts, g.cum, g.s0 + dir * (tS - 60));
         var ang = Math.atan2(-(a.y - bpt.y), a.x - bpt.x), x = sx(a.x), y = sy(a.y);
         c.save(); c.translate(x, y); c.rotate(ang); c.fillStyle = C.ink; c.beginPath(); c.moveTo(10, 0); c.lineTo(-6, -7); c.lineTo(-6, 7); c.closePath(); c.fill(); c.restore();
@@ -3165,7 +3167,7 @@ function MapView(canvas, cb) {
       var coned = ['laneclosure', 'twolanes', 'laneshift', 'shoulder', 'flagging', 'signal'].indexOf(sc) >= 0;
       if (coned) {
         var edge = RWf / 2, off0 = edge, offI = (sc === 'flagging' || sc === 'signal') ? 0 : Math.max(0, edge - (sc === 'shoulder' ? (z.eff.shoulderW || 6) : (z.eff.laneW || 12)));
-        var cone = function (t, off) { if (!S.lay.cones) return; off *= sgn; var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), X = q.x + Math.sin(ang) * off, Y = q.y - Math.cos(ang) * off, px = sx(X), py = sy(Y); if (!dotOK(px, py)) return; c.beginPath(); c.arc(px, py, 2.8, 0, 7); c.fill(); c.stroke(); };
+        var cone = function (t, off) { if (!S.lay.cones || t < tLoOK - 0.5 || t > tHiOK + 0.5) return; off *= sgn; var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), X = q.x + Math.sin(ang) * off, Y = q.y - Math.cos(ang) * off, px = sx(X), py = sy(Y); if (!dotOK(px, py)) return; c.beginPath(); c.arc(px, py, 2.8, 0, 7); c.fill(); c.stroke(); };
         c.fillStyle = C.work; c.strokeStyle = C.ink; c.lineWidth = 0.9;
         var i, nT = Math.min(80, Math.ceil(p.taper / p.devSpacingTaper)), nG = Math.min(120, Math.ceil((tW1 - (tS + p.taper)) / p.devSpacingTangent)), nD = Math.min(60, Math.ceil(p.downstream / p.devSpacingTaper));
         for (i = 0; i <= nT; i++) cone(tS + p.taper * i / Math.max(1, nT), off0 + (offI - off0) * i / Math.max(1, nT));
