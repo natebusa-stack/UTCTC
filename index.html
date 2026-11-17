@@ -602,7 +602,7 @@ function plan(i) {
   var sp = out.space, sg = [];
   if (sc === 'laneclosure') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-5', LW + ' LANE CLOSED AHEAD', 2], ['W4-2' + LS, 'Lane ends (' + LSw + ') symbol', 1]];
   else if (sc === 'twolanes') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-5', LW + ' TWO LANES CLOSED AHEAD', 2], ['W4-2' + LS, 'Lane ends (' + LSw + ') symbol', 1]];
-  else if (sc === 'intersection') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-1', 'ROAD WORK AHEAD', 2], ['W20-7', 'FLAGGER (symbol) AHEAD', 1]];
+  else if (sc === 'intersection') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-4', 'ONE LANE ROAD AHEAD', 2], ['W20-7', 'FLAGGER (symbol) AHEAD', 1]];
   else if (sc === 'laneshift') sg = i.oneway ? [['W20-1', 'ROAD WORK AHEAD', 3], ['W1-4', 'REVERSE CURVE (lane shift)', 2], ['W1-4', 'REVERSE CURVE (lane shift)', 1]]
     : [['W20-1', 'ROAD WORK AHEAD', 3], ['W1-4', 'REVERSE CURVE (lane shift)', 2], ['W13-1P', 'XX MPH advisory speed plaque (optional)', 2], ['W6-3', 'TWO-WAY TRAFFIC', 1]];
   else if (sc === 'flagging') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-4', 'ONE LANE ROAD AHEAD', 2], ['W20-7', 'FLAGGER (symbol) AHEAD', 1]];
@@ -2811,13 +2811,13 @@ function MapView(canvas, cb) {
     var sFront = g.s0 + dir * tE, sBack = g.s0 + dir * tS, needLen = (far || 0) + 20;
     var remFront = dir > 0 ? (gTot - sFront) + (contHi ? cLenHi : 0) : sFront + (contLo ? cLenLo : 0);
     var remBack = dir > 0 ? sBack + (contLo ? cLenLo : 0) : (gTot - sBack) + (contHi ? cLenHi : 0);
-    var endFront = flagSc && both && remFront < needLen, endBack = flagSc && remBack < needLen;
+    var endFront = both && remFront < needLen, endBack = remBack < needLen; /* every setup: no road left for the signs (a court, a dead end, work at the end of the street) means no signs there, the cross street is the approach */
     legs.forEach(function (l) { if (l.kind === 'main') l.room = Math.round(l.ahead === 'front' ? remFront : remBack); });
-    var mainGone = 0;
-    if (endFront) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'front'); }); mainGone++; }
-    if (endBack) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'back'); }); mainGone++; }
-    if (!endFront && !onRoad(tE)) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'front'); }); mainGone++; }
-    if (!endBack && !onRoad(tS)) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'back'); }); mainGone++; }
+    var mainGone = 0, backGone = false, frontGone = false;
+    if (endFront) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'front'); }); mainGone++; frontGone = true; }
+    if (endBack) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'back'); }); mainGone++; backGone = true; }
+    if (!endFront && !onRoad(tE)) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'front'); }); mainGone++; frontGone = true; }
+    if (!endBack && !onRoad(tS)) { legs = legs.filter(function (l) { return !(l.kind === 'main' && l.ahead === 'back'); }); mainGone++; backGone = true; }
     var D = Math.min(p.space, 350), seqAsc = adv.filter(function (q) { return q.code.charAt(0) === 'W'; }).slice(0, 4);
     found.forEach(function (f) {
       var w = f.w, pts = w._w, cum = w._c, tot = cum[cum.length - 1], sj = cum[f.i];
@@ -2938,7 +2938,7 @@ function MapView(canvas, cb) {
       var mwNames = []; mwLegs.forEach(function (l) { var s = l.name + ' (' + l.lpd + ' lanes in one direction)'; if (mwNames.indexOf(s) < 0) mwNames.push(s); });
       rec.multiWarn = { text: 'Multi-lane approach with no lane closure: ' + mwNames.join('; ') + '. No flagger is assigned to it: a flagger must stand on the shoulder or in a closed lane (CA MUTCD 6D.05), and work on a multi-lane road is divided into lane closures (6N.11). Advance warning signs are still shown for the approach. Decide with a qualified person how traffic from this approach is controlled — this plan does not cover it.' };
     }
-    return { mainGone: mainGone, legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
+    return { mainGone: mainGone, backGone: backGone, frontGone: frontGone, legs: legs, zoneSigns: zoneSigns, tS: tS, tE: tE, dir: dir, g: g };
   }
   /* Service ways are not public streets (R3): driveways, parking aisles, alleys and every other highway=service way, tagged or untagged, get no advance warning and never continue the main road. Public streets are every other DRIVE class. A service way that genuinely carries traffic is counted by hand in the streets panel. */
   function minorWay(w) { var t = w.tags || {}; return t.highway === 'service'; }
@@ -3132,14 +3132,14 @@ function MapView(canvas, cb) {
       };
       var bothWays = !z.eff.oneway && (sc === 'flagging' || sc === 'signal' || sc === 'laneshift' || sc === 'intersection' || !!dt);
       p.signs.forEach(function (sg) {
-        if (sg.end) { if (!dt) placeSign(sg.code, sg.legend, tE + 60, {}); }
+        if (sg.end) { if (!dt && !(LG && LG.frontGone)) placeSign(sg.code, sg.legend, tE + 60, {}); }
         else if (sg.opp) {}
-        else if (sg.dist > 0) placeSign(sg.code, sg.legend, tS - sg.dist, {});
+        else if (sg.dist > 0) { if (!(LG && LG.backGone)) placeSign(sg.code, sg.legend, tS - sg.dist, {}); }
         else if (sg.buf) placeSign(sg.code, sg.legend, tS + p.taper + p.buffer * 0.5, {});
         else if (sg.dist === 0 && sg.code !== 'R11-2') placeSign(sg.code, sg.legend, 0, {});
       });
-      if (!z.eff.oneway && (sc === 'laneclosure' || sc === 'twolanes' || sc === 'shoulder')) p.signs.forEach(function (sg) { if (sg.code === 'W20-1' || sg.opp) placeSign(sg.code, sg.legend, tE + sg.dist, { side: -1 }); });
-      if (bothWays) p.signs.forEach(function (sg) { if (!sg.end && sg.dist > 0) placeSign(sg.code, sg.legend, tE + sg.dist, { side: -1 }); });
+      if (!(LG && LG.frontGone) && !z.eff.oneway && (sc === 'laneclosure' || sc === 'twolanes' || sc === 'shoulder')) p.signs.forEach(function (sg) { if (sg.code === 'W20-1' || sg.opp) placeSign(sg.code, sg.legend, tE + sg.dist, { side: -1 }); });
+      if (bothWays && !(LG && LG.frontGone)) p.signs.forEach(function (sg) { if (!sg.end && sg.dist > 0) placeSign(sg.code, sg.legend, tE + sg.dist, { side: -1 }); });
       if (p.pedX && sc !== 'full') {
         /* pedestrian closure signs at both ends of the work, on the sidewalk side of each direction */
         var pl = 'SIDEWALK CLOSED AHEAD, CROSS HERE', pc = 'SIDEWALK CLOSED';
@@ -3177,13 +3177,13 @@ function MapView(canvas, cb) {
           if (p.buffer) dimL(tS + p.taper, tS + p.taper + p.buffer, (RWf * S.k / 2 + 26), 'B = ' + p.buffer + "'");
           dimL(tW0, tW1, (RWf * S.k / 2 + 26), 'Work ' + len + "'");
           var advD = p.signs.filter(function (sg) { return !sg.end && sg.dist > 0; }).sort(function (a, b) { return b.dist - a.dist; });
-          advD.forEach(function (sg, i) { var nd = i < advD.length - 1 ? advD[i + 1].dist : null, t0 = tS - sg.dist, t1 = nd !== null ? tS - nd : tS; dimL(t0, t1, -(RWf * S.k / 2 + 26), (t1 - t0) + "'"); });
+          if (!(LG && LG.backGone)) advD.forEach(function (sg, i) { var nd = i < advD.length - 1 ? advD[i + 1].dist : null, t0 = tS - sg.dist, t1 = nd !== null ? tS - nd : tS; dimL(t0, t1, -(RWf * S.k / 2 + 26), (t1 - t0) + "'"); });
         } else {
         if (p.taper && coned) lab(tS + p.taper / 2, 'Taper ' + p.taper + "'", 30);
         if (p.buffer && coned) lab(tS + p.taper + p.buffer / 2, 'Buffer ' + p.buffer + "'", 30);
         lab(0, 'Work area ' + len + "'", 30);
         var adv = p.signs.filter(function (sg) { return !sg.end && sg.dist > 0; }).sort(function (a, b) { return b.dist - a.dist; });
-        adv.forEach(function (sg, i) { var nd = i < adv.length - 1 ? adv[i + 1].dist : null, t0 = tS - sg.dist, t1 = nd !== null ? tS - nd : tS; lab((t0 + t1) / 2, (t1 - t0) + "'", -26); });
+        if (!(LG && LG.backGone)) adv.forEach(function (sg, i) { var nd = i < adv.length - 1 ? adv[i + 1].dist : null, t0 = tS - sg.dist, t1 = nd !== null ? tS - nd : tS; lab((t0 + t1) / 2, (t1 - t0) + "'", -26); });
         }
         if (!dt) lab(tW0, 'Road ' + Math.round(p.roadWidth) + "' wide", -44);
       }
