@@ -55,14 +55,12 @@
     "secs": 8,
     "streets": "Streets read at this site (2 streets, 2 approaches)\nThe pin is on an unnamed road, but a larger road (Lombard Street) is only 23 ft away. Is the work on the larger road? The plan is built for the road under the pin. If the work is on Lombard Street, drag the pin onto it.\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nLombard Street\tside street, 18 ft before the work centre\tW20-7 @150', W20-4 @250', W20-1 @350' + flagger\nMontclair Terrace\tjoins Lombard Street\tW20-1 @229'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
-    "chk": "MUTCD check: 2 items need attention",
-    "chkfull": "MUTCD check: 2 items need attention\nConflict-area device spacing matches T9 Table 1 (Z): 10'\nWork area fits on the street that is there: the work runs 91 ft past the end of the street. Shorten the work length or move the pin",
+    "chk": "MUTCD check: 1 item need attention",
+    "chkfull": "MUTCD check: 1 item need attention\nConflict-area device spacing matches T9 Table 1 (Z): 10'",
     "setup": "Intersection work with flaggers on every approach",
-    "totals": "32 signs, 3 flaggers)",
+    "totals": "8 signs, 3 flaggers)",
     "matched": false,
-    "geo": [
-      "✗\tWork area fits on the street that is there\tthe work runs 91 ft past the end of the street. Shorten the work length or move the pin"
-    ],
+    "geo": [],
     "errors": []
   },
   {
@@ -102,7 +100,7 @@
     "lat": 37.743,
     "lon": -122.4758,
     "mstat": "Map data loaded: 789 roads and paths. Matched 1 of 1 locations to a road.",
-    "secs": 8,
+    "secs": 7,
     "streets": "Streets read at this site (4 streets, 8 approaches)\nThe pin is on Taraval Street, but a larger road (19th Avenue) is only 23 ft away. Is the work on the larger road? The plan is built for the road under the pin. If the work is on 19th Avenue, drag the pin onto it.\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nTaraval Street\tmain road, approach\tW20-7 @100', W4-2R @200', W20-5 @300', W20-1 @400' + flagger\nTaraval Street\tmain road, approach\tflagger station + flagger\n21st Avenue\tside street, 593 ft before the work centre\tW20-1 @165'\n19th Avenue\tside street, 23 ft past the work centre\tW20-7 @150', W20-1 @250'\n19th Avenue\tside street, 56 ft past the work centre\tW20-7 @150', W20-1 @250'\n20th Avenue\tside street, 284 ft before the work centre\tW20-7 @150', W20-1 @250' + flagger\n20th Avenue\tside street, 284 ft before the work centre\tW20-7 @150', W20-1 @250' + flagger\n21st Avenue\tside street, 593 ft before the work centre\tW20-1 @165'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
     "chk": "MUTCD check: 18 of 18 rules passed",
@@ -153,14 +151,12 @@
     "secs": 7,
     "streets": "Streets read at this site (3 streets, 6 approaches)\nThe pin is 91 ft from the nearest road (unnamed road). Check on the Map tab that this is the road you are working on. If not, drag the pin onto the right road.\nThe pin is on an unnamed road, but a larger road (Orchard Street) is only 115 ft away. Is the work on the larger road? The plan is built for the road under the pin. If the work is on Orchard Street, drag the pin onto it.\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nHumboldt Street\tside street, 123 ft past the work centre\tW20-7 @150', W20-4 @250', W20-1 @350' + flagger\nHumboldt Street\tside street, 123 ft past the work centre\tW20-7 @150', W20-4 @250', W20-1 @350' + flagger\n7th Street\tjoins Humboldt Street\tW20-1 @100'\n7th Street\tjoins Humboldt Street\tW20-1 @100'\nCherry Street\tjoins Humboldt Street\tW20-1 @100'\nCherry Street\tjoins Humboldt Street\tW20-1 @100'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
-    "chk": "MUTCD check: 2 items need attention",
-    "chkfull": "MUTCD check: 2 items need attention\nConflict-area device spacing matches T9 Table 1 (Z): 10'\nWork area fits on the street that is there: the work runs 100 ft past the end of the street. Shorten the work length or move the pin",
+    "chk": "MUTCD check: 1 item need attention",
+    "chkfull": "MUTCD check: 1 item need attention\nConflict-area device spacing matches T9 Table 1 (Z): 10'",
     "setup": "One lane open with flaggers",
-    "totals": "23 signs, 2 flaggers)",
+    "totals": "11 signs, 2 flaggers)",
     "matched": false,
-    "geo": [
-      "✗\tWork area fits on the street that is there\tthe work runs 100 ft past the end of the street. Shorten the work length or move the pin"
-    ],
+    "geo": [],
     "errors": []
   },
   {
@@ -328,7 +324,7 @@
     "lat": 38.5816,
     "lon": -121.4944,
     "mstat": "Map data loaded: 1706 roads and paths. Matched 1 of 1 locations to a road.",
-    "secs": 7,
+    "secs": 6,
     "streets": "Streets read at this site (4 streets, 5 approaches)\nThe pin is on 9th Street, but a larger road (I Street) is only 60 ft away. Is the work on the larger road? The plan is built for the road under the pin. If the work is on I Street, drag the pin onto it.\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\n9th Street\tmain road, approach\tW20-7 @100', W11-1 @200', W16-1P @200', W4-2R @300', W20-5 @400', W20-1 @500' + flagger\n9th Street\tmain road, approach\tflagger station + flagger\nI Street\tside street, 60 ft before the work centre\tW20-7 @150', W20-1 @250'\nH Street\tside street, 480 ft before the work centre\tW20-1 @190'\nG Street\tside street, 899 ft before the work centre\tW20-1 @100'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
     "chk": "MUTCD check: 18 of 18 rules passed",
@@ -347,14 +343,12 @@
     "secs": 6,
     "streets": "Streets read at this site (3 streets, 5 approaches)\nThe pin is 91 ft from the nearest road (Gordon Street). Check on the Map tab that this is the road you are working on. If not, drag the pin onto the right road.\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nSpring Street\tside street, 281 ft before the work centre\tW20-7 @150', W20-4 @250', W20-1 @350' + flagger\nSpring Street\tside street, 281 ft before the work centre\tW20-7 @150', W20-4 @250', W20-1 @350' + flagger\nWoodward Avenue\tjoins Spring Street\tW20-1 @100'\nWoodward Avenue\tjoins Spring Street\tW20-1 @100'\nSpring Hill Circle\nprivate road — signs recommended, not required\tjoins Spring Street\tW20-1 @100'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
-    "chk": "MUTCD check: 1 item need attention",
-    "chkfull": "MUTCD check: 1 item need attention\nWork area fits on the street that is there: the work runs 96 ft past the end of the street. Shorten the work length or move the pin",
+    "chk": "MUTCD check: 18 of 18 rules passed",
+    "chkfull": "MUTCD check: 18 of 18 rules passed\nSign count and spacing, buffer, taper, device spacing, downstream taper, end sign, arrow board and flaggers were tested against the tables in this app. A person still has to confirm the road details.",
     "setup": "One lane open with flaggers",
     "totals": "10 signs, 2 flaggers)",
     "matched": false,
-    "geo": [
-      "✗\tWork area fits on the street that is there\tthe work runs 96 ft past the end of the street. Shorten the work length or move the pin"
-    ],
+    "geo": [],
     "errors": []
   },
   {
@@ -365,14 +359,12 @@
     "secs": 6,
     "streets": "Streets read at this site (3 streets, 6 approaches)\nThe pin is on an unnamed road, but a larger road (Sutter Street) is only 45 ft away. Is the work on the larger road? The plan is built for the road under the pin. If the work is on Sutter Street, drag the pin onto it.\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nSutter Street\tside street, 44 ft past the work centre\tW20-7 @150', W20-4 @250', W20-1 @350' + flagger\nSutter Street\tside street, 44 ft past the work centre\tW20-7 @150', W20-4 @250', W20-1 @350' + flagger\nScott Street\tjoins Sutter Street\tW20-1 @100'\nScott Street\tjoins Sutter Street\tW20-1 @100'\nRiley Street\tjoins Sutter Street\tW20-1 @175'\nRiley Street\tjoins Sutter Street\tW20-1 @175'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
-    "chk": "MUTCD check: 2 items need attention",
-    "chkfull": "MUTCD check: 2 items need attention\nConflict-area device spacing matches T9 Table 1 (Z): 10'\nWork area fits on the street that is there: the work runs 56 ft past the end of the street. Shorten the work length or move the pin",
+    "chk": "MUTCD check: 1 item need attention",
+    "chkfull": "MUTCD check: 1 item need attention\nConflict-area device spacing matches T9 Table 1 (Z): 10'",
     "setup": "Intersection work with flaggers on every approach",
-    "totals": "38 signs, 3 flaggers)",
+    "totals": "30 signs, 3 flaggers)",
     "matched": false,
-    "geo": [
-      "✗\tWork area fits on the street that is there\tthe work runs 56 ft past the end of the street. Shorten the work length or move the pin"
-    ],
+    "geo": [],
     "errors": []
   },
   {
@@ -380,17 +372,15 @@
     "lat": 38.564,
     "lon": -121.725,
     "mstat": "Map data loaded: 306 roads and paths. Matched 1 of 1 locations to a road.",
-    "secs": 6,
-    "streets": "Streets read at this site (2 streets, 2 approaches)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nBaywood Lane\tside street, 186 ft past the work centre\tW20-7 @150', W20-4 @250', W20-1 @350' + flagger\nBenton Place\tjoins Baywood Lane\tW20-1 @100'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
+    "secs": 5,
+    "streets": "Streets read at this site (2 streets, 2 approaches)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nOkeefe Place\tmain road, opposite way\tW20-7 @100', W20-4 @200', W20-1 @300' + flagger\nBaywood Lane\tside street, 186 ft past the work centre\tW20-1 @225'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
-    "chk": "MUTCD check: 1 item need attention",
-    "chkfull": "MUTCD check: 1 item need attention\nWork area fits on the street that is there: the work runs 100 ft past the end of the street. Shorten the work length or move the pin",
+    "chk": "MUTCD check: 18 of 18 rules passed",
+    "chkfull": "MUTCD check: 18 of 18 rules passed\nSign count and spacing, buffer, taper, device spacing, downstream taper, end sign, arrow board and flaggers were tested against the tables in this app. A person still has to confirm the road details.",
     "setup": "One lane open with flaggers",
     "totals": "5 signs, 2 flaggers)",
     "matched": false,
-    "geo": [
-      "✗\tWork area fits on the street that is there\tthe work runs 100 ft past the end of the street. Shorten the work length or move the pin"
-    ],
+    "geo": [],
     "errors": []
   },
   {
