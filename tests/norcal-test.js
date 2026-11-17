@@ -26,6 +26,7 @@ async function one(b, [name, lat, lon]) {
     await p.click('#tab-plan').catch(() => {}); await p.waitForTimeout(1500);
     const d = await p.evaluate(() => { const o = {}; const s = document.getElementById('streetsd'); if (s) s.open = true; o.streets = s ? s.innerText.split('\n').slice(0, 40).join('\n') : ''; const t = document.body.innerText; o.head = (t.match(/Site 1[^\n]*/) || [''])[0]; o.chk = (t.match(/MUTCD check[^\n]*/) || [''])[0]; const mc = [...document.querySelectorAll('*')].filter(e => e.children.length < 12 && /^MUTCD check/.test((e.innerText || '').trim())).pop(); o.chkfull = mc ? mc.parentElement.innerText.slice(0, 700) : ''; o.setup = (t.match(/(One lane|Lane closure|Full closure|Intersection|Shoulder|Sidewalk)[^\n]{0,80}/) || [''])[0]; o.totals = (t.match(/\d+ signs?[^\n]*flagger[^\n]*/i) || [''])[0]; o.matched = /Matched 1 of 1/.test(t); return o; });
     Object.assign(R, d);
+    if (/Sacramento 9th/.test(name)) { try { const raw = await p.evaluate(() => localStorage.getItem('tcp5roads')); if (raw) fs.writeFileSync('road-test-results/raw_Sacramento_9th_and_I.json', raw); } catch (e) {} }
     await p.evaluate(() => document.querySelectorAll('details').forEach(x => { if (/Aerial view/i.test(x.innerText.slice(0, 40))) x.open = true; }));
     const im = await p.$('details:has(summary:has-text("Aerial view")) img'); if (im) { await im.scrollIntoViewIfNeeded(); await im.screenshot({ path: 'road-test-results/nc_' + name.replace(/\W+/g, '_') + '.png' }); }
   } catch (e) { R.fail = String(e.message).slice(0, 200); }
