@@ -2810,7 +2810,7 @@ function MapView(canvas, cb) {
     }
     var jSeen = [];
     if (data) data.ways.forEach(function (w) {
-      if (w.id === mainId || (g.stitched && g.stitched[w.id]) || !RW[w.tags.highway] || minorWay(w) || n > 24) return;
+      if (w.id === mainId || (g.stitched && g.stitched[w.id]) || !RW[w.tags.highway] || minorWay(w)) return; /* the cap on side streets (n > 24) is applied below, so a crowded grid never hides the road that carries on past the end of the main road */
       var pts = wpts(w);
       for (var i = 0; i < pts.length; i++) { var m = nearMain(g, pts[i]);
         if (m.d < 24 && m.s >= lo && m.s <= hi) {
@@ -2822,6 +2822,7 @@ function MapView(canvas, cb) {
           if (Math.min(df, Math.PI - df) < 0.5 && (!jKey || (mainKey && jKey === mainKey))) { var cl2 = Math.max(w._c[i], w._c[w._c.length - 1] - w._c[i]); if (m.s <= 6) { contLo = true; cLenLo = Math.max(cLenLo, cl2); } else if (m.s >= gTot - 6) { contHi = true; cLenHi = Math.max(cLenHi, cl2); } break; }
           /* one street split into two ways at the junction meets the main road at the same point twice: keep one junction, the stitch follows the whole street from either side */
           if (jKey && jSeen.some(function (jj) { return jj.key === jKey && Math.hypot(jj.x - pts[i].x, jj.y - pts[i].y) < 10; })) break;
+          if (n > 24) break;
           jSeen.push({ key: jKey, x: pts[i].x, y: pts[i].y });
           found.push({ w: w, i: i, tJ: dir * (m.s - g.s0) }); n++; break;
         } }
@@ -3506,7 +3507,7 @@ function mutcdCheck(rec, eff) {
     /* Nathan's rule, extended to side streets: the check above only sees the road under the pin. A side street entering the work zone would get a flagger standing on it; on a multi-lane street that station would stand in an open lane, so legsOf assigns none, and this check fails the plan if one ever is. It only appears when a multi-lane approach needed a flagger, so plans without one are unaffected. */
     var ml = p.legs.filter(function (l) { return l.kind === 'side' && l.multi && l.needFlag; });
     if (ml.length) T(ml.every(function (l) { return !l.flagger; }), 'No flagger stands in an open lane of a multilane side street', ml.map(function (l) { return l.name + ' (' + l.lpd + ' lanes in one direction, no flagger assigned)'; }).join('; '));
-    if (p.combo === 'flag') { var pf = p.legs.filter(function (l) { return l.kind === 'main' && l.flagger; }); T(pf.length >= 2 && pf.every(function (l) { return l.prot; }), 'Flaggers stand off the travel lanes', pf.length + ' protected stations'); }
+    if (p.combo === 'flag') { var pf = p.legs.filter(function (l) { return l.kind === 'main' && l.flagger; }); var mainExp = Math.max(0, (eff.oneway ? 1 : 2) - (p.mainGone || 0)); /* a main-road end that is a dead end or a T has no approach to flag */ T(pf.length >= mainExp && pf.every(function (l) { return l.prot; }), 'Flaggers stand off the travel lanes', pf.length + ' protected stations' + (mainExp < 2 ? ' (' + mainExp + ' main-road approach' + (mainExp === 1 ? '' : 'es') + ' on this street)' : '')); }
     if (id === 'flagging' || id === 'intersection') {
       var fl = p.legs.filter(function (l) { return l.flagger; });
       T(fl.length >= (eff.oneway || p.mainGone ? 1 : 2) && p.flaggers >= fl.length, 'One flagger on every approach', fl.length + ' approaches have a flagger, ' + p.flaggers + ' flaggers planned');
