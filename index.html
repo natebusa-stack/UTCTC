@@ -500,7 +500,7 @@ label.xfl input{width:22px;height:22px}
         <label><input type="checkbox" id="ly-roads" checked>Roads</label><label><input type="checkbox" id="ly-walk" checked>Sidewalks</label>
         <label><input type="checkbox" id="ly-cross" checked>Crossings and signals</label><label><input type="checkbox" id="ly-zone" checked>Work zone</label>
         <label><input type="checkbox" id="ly-names" checked>Street names</label></div>
-      <div class="go"><button type="button" class="pri" id="nudgeb">Move pin: tap the spot</button><button type="button" class="ghost" id="nudgeundo" hidden>Undo move</button><button type="button" class="ghost" id="flipb" data-act="flip">Traffic direction: as mapped</button><label class="sm" for="laneside" style="display:inline-flex;gap:6px;align-items:center;margin-left:8px">Work lane <select id="laneside"><option value="">Auto (from the pin)</option><option value="R">Right lane</option><option value="L">Left lane</option></select></label></div>
+      <div class="go"><button type="button" class="pri" id="nudgeb">Move pin: tap the spot</button><button type="button" class="ghost" id="nudgeundo" hidden>Undo move</button><button type="button" class="ghost" id="flipb" data-act="flip">Traffic direction: as mapped</button><label class="sm" for="laneside" style="display:inline-flex;gap:6px;align-items:center;margin-left:8px">Work lane <select id="laneside"><option value="">Auto (from the pin)</option><option value="R">Right lane</option><option value="L">Left lane</option><option value="C">Center lane (3 or more lanes each way)</option></select></label></div>
     </details>
   </section>
 </div>
@@ -576,7 +576,7 @@ function plan(i) {
   out.devSpacingTangent = walk ? 10 : Math.min(2 * S, 100); // T9 Table 1, Y
   out.devSpacingConflict = walk ? 10 : ({ 20: 10, 25: 12, 30: 15, 35: 17, 40: 20, 45: 22 })[S] || 25; // T9 Table 1, Z (taper and tangent sections where there is a conflict between existing markings and channelizers)
   out.signSize = i.area === 'freeway' ? '48 x 48 in' : '36 x 36 in';
-  out.scenarioName = (sc === 'laneclosure' && i.laneSide === 'L') ? 'Left lane closure' : NAMES[sc]; out.scenarioName += ({ shift: ' + lane shift', flag: ' + flaggers off the travel lanes', shoulder: ' + shoulder closure' })[((sc === 'laneclosure' || sc === 'twolanes') && i.combo) || ''] || ''; var LS = i.laneSide === 'L' ? 'L' : 'R', LW = LS === 'L' ? 'LEFT' : 'RIGHT', LSw = LS === 'L' ? 'left' : 'right';
+  out.scenarioName = (sc === 'laneclosure' && i.laneSide === 'L') ? 'Left lane closure' : (sc === 'laneclosure' && i.laneSide === 'C' && lanes >= 3) ? 'Center lane closure' : NAMES[sc]; out.scenarioName += ({ shift: ' + lane shift', flag: ' + flaggers off the travel lanes', shoulder: ' + shoulder closure' })[((sc === 'laneclosure' || sc === 'twolanes') && i.combo) || ''] || ''; var LS = i.laneSide === 'L' ? 'L' : 'R', LW = LS === 'L' ? 'LEFT' : 'RIGHT', LSw = LS === 'L' ? 'left' : 'right', ctr = i.laneSide === 'C' && lanes >= 3 && (sc === 'laneclosure' || sc === 'twolanes'); if (ctr) { LW = 'CENTER'; LSw = 'center'; } else if (i.laneSide === 'C') out.warnings.push('Center lane needs 3 or more lanes each way. This road has ' + lanes + ', so the right lane is used.'); out.laneWord = LW;
   var noBuf = walk || sc === 'full' || sc === 'intersection';
   out.buffer = noBuf ? 0 : SSD[S];
   var o2 = ov('buffer'); if (o2 !== null && !noBuf) out.buffer = o2; else if (o2 !== null) out.edited.pop();
@@ -603,8 +603,8 @@ function plan(i) {
   var o4 = ov('downstream'); if (o4 !== null && hasTaper) out.downstream = o4; else if (o4 !== null) out.edited.pop();
 
   var sp = out.space, sg = [];
-  if (sc === 'laneclosure') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-5', LW + ' LANE CLOSED AHEAD', 2], ['W4-2' + LS, 'Lane ends (' + LSw + ') symbol', 1]];
-  else if (sc === 'twolanes') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-5', LW + ' TWO LANES CLOSED AHEAD', 2], ['W4-2' + LS, 'Lane ends (' + LSw + ') symbol', 1]];
+  if (sc === 'laneclosure') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-5', LW + ' LANE CLOSED AHEAD', 2]].concat(ctr ? [] : [['W4-2' + LS, 'Lane ends (' + LSw + ') symbol', 1]]);
+  else if (sc === 'twolanes') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-5', LW + ' TWO LANES CLOSED AHEAD', 2]].concat(ctr ? [] : [['W4-2' + LS, 'Lane ends (' + LSw + ') symbol', 1]]);
   else if (sc === 'intersection') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-4', 'ONE LANE ROAD AHEAD', 2], ['W20-7', 'FLAGGER (symbol) AHEAD', 1]];
   else if (sc === 'laneshift') sg = i.oneway ? [['W20-1', 'ROAD WORK AHEAD', 3], ['W1-4', 'REVERSE CURVE (lane shift)', 2], ['W1-4', 'REVERSE CURVE (lane shift)', 1]]
     : [['W20-1', 'ROAD WORK AHEAD', 3], ['W1-4', 'REVERSE CURVE (lane shift)', 2], ['W13-1P', 'XX MPH advisory speed plaque (optional)', 2], ['W6-3', 'TWO-WAY TRAFFIC', 1]];
@@ -629,7 +629,8 @@ function plan(i) {
   var maxN = 0, FWY = { 3: 5140, 2: 2500, 1: 1000 };
   sg.forEach(function (s) { out.signs.push({ code: s[0], legend: s[1], dist: (i.area === 'freeway' && FWY[s[2]]) ? FWY[s[2]] : s[2] * sp }); if (s[2] > maxN) maxN = s[2]; });
   out.firstSign = (i.area === 'freeway' && FWY[maxN]) ? FWY[maxN] : maxN * sp;
-  if (sc === 'laneclosure') out.signs.push({ code: 'W20-5', legend: LW + ' LANE CLOSED', dist: -Math.round(out.taper + out.buffer / 2), buf: true });
+  /* Advance warning signs are always ahead of the taper. The one sign inside is LANE CLOSED: it stands in the closed lane, after the arrow board (planner rule, MUTCD Part 6). */
+  if (sc === 'laneclosure' || sc === 'twolanes') out.signs.push({ code: 'W20-5', legend: LW + ' LANE CLOSED', dist: -Math.round(out.taper), buf: true, inLane: true });
   if (sc === 'shoulder') {
     out.signs.push({ code: 'W21-5a', legend: LW + ' SHOULDER CLOSED', dist: 0 });
     if (!i.oneway) out.signs.push({ code: 'W20-1', legend: 'ROAD WORK AHEAD (opposite side of the road, for the other direction)', dist: 2 * sp, opp: true });
@@ -969,7 +970,7 @@ function effective(loc, G) {
   v.label = loc.label; v.ovr = loc.ovr || null; v.comboSet = !!(loc.ovr && ['shift', 'flag', 'shoulder', 'none'].indexOf(loc.ovr.combo) >= 0); v.combo = (loc.ovr && ['shift', 'flag', 'shoulder'].indexOf(loc.ovr.combo) >= 0) ? loc.ovr.combo : ''; v.pick = (loc.ovr && typeof loc.ovr.pick === 'string') ? loc.ovr.pick : '';
   var ro = loc.osm;
   v.turnPocket = !!(ro && ro.found && ro.turnPocket); v.centerTurn = !!(ro && ro.found && ro.centerTurn);
-  v.laneSide = (loc.laneSide === 'L' || loc.laneSide === 'R') ? loc.laneSide : (ro && ro.found && ro.oneway && ro.offset >= 8 ? (((ro.latCr > 0) !== !!ro.rev) ? 'L' : 'R') : 'R');
+  v.laneSide = (loc.laneSide === 'L' || loc.laneSide === 'R' || loc.laneSide === 'C') ? loc.laneSide : (ro && ro.found && ro.oneway && ro.offset >= 8 ? (((ro.latCr > 0) !== !!ro.rev) ? 'L' : 'R') : 'R');
   ['speed','lanes','laneW','shoulderW','sidewalkW'].forEach(function (k) { v[k] = +v[k] || 0; });
   v.lanes = Math.max(1, Math.round(v.lanes)); v.speed = Math.max(15, v.speed || 25); v.laneW = v.laneW || 11; v.sidewalkW = v.sidewalkW || 5;
   v.narrow = !v.oneway && v.lanes * v.laneW <= 16;
@@ -2444,7 +2445,7 @@ function MapView(canvas, cb) {
   }
   function dirOf(s) { return (S.flip[s.n] ? -1 : 1) * autoDirSign(s); }
   function workSideOf(s) {
-    var l = midLoc(s), r = l && l.osm; if (l && (l.laneSide === 'R' || l.laneSide === 'L')) return l.laneSide;
+    var l = midLoc(s), r = l && l.osm; if (l && (l.laneSide === 'R' || l.laneSide === 'L')) return l.laneSide; if (l && l.laneSide === 'C') return 'R';
     if (!r || !r.found || r.offset < 8) return 'R';
     return ((r.latCr > 0) === (dirOf(s) > 0)) ? 'L' : 'R';
   }
@@ -3081,7 +3082,7 @@ function MapView(canvas, cb) {
       }
       var seg = function (a, b) { return sub(g.pts, g.cum, g.s0 + dir * a, g.s0 + dir * b); };
       var sgn = workSideOf(s) === 'L' ? -1 : 1, laneMode = ['laneclosure', 'twolanes', 'laneshift', 'shoulder'].indexOf(sc) >= 0 && !dt;
-      var lwpx = laneMode ? Math.max(8, (sc === 'shoulder' ? (z.eff.shoulderW || 6) : ((z.eff.laneW || 12) + (p.combo === 'shoulder' ? (z.eff.shoulderW || 0) : 0))) * WK * S.k + 2) : rw, shpx = laneMode ? Math.max(0, RWf * S.k / 2 - lwpx / 2 + 1) : 0;
+      var lwpx = laneMode ? Math.max(8, (sc === 'shoulder' ? (z.eff.shoulderW || 6) : ((z.eff.laneW || 12) + (p.combo === 'shoulder' ? (z.eff.shoulderW || 0) : 0))) * WK * S.k + 2) : rw, shpx = laneMode ? Math.max(0, RWf * S.k / 2 - lwpx / 2 + 1) : 0; var ctrLane = laneMode && (sc === 'laneclosure' || sc === 'twolanes') && p.laneWord === 'CENTER'; if (ctrLane) shpx = Math.max(0, shpx - (lwpx - 2));
       var wq = atS(g.pts, g.cum, g.s0), wang = wq.a + (dir < 0 ? Math.PI : 0), shx = sgn * shpx * Math.sin(wang), shy = sgn * shpx * Math.cos(wang);
       if (sc !== 'sidewalk' && sc !== 'walkway') stroke(c, seg(tS, tE), rw + 6, C.work, 0.28, 'butt');
       c.save(); c.translate(shx, shy);
@@ -3134,7 +3135,7 @@ function MapView(canvas, cb) {
       var placeSign = function (code, legend, t, opt) {
         opt = opt || {}; if (!S.lay.signs) return;
         if (!big) { mark(t, '', 'd', C.work); return; }
-        var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), side = opt.side || 1, off = side * (RWd / 2 + 8);
+        var q = atS(g.pts, g.cum, g.s0 + dir * t), ang = q.a + (dir < 0 ? Math.PI : 0), side = opt.side || 1, off = opt.off !== undefined ? opt.off : side * (RWd / 2 + 8);
         var X = q.x + Math.sin(ang) * off, Y = q.y - Math.cos(ang) * off, px = sx(X), py = sy(Y);
         var ux = sx(q.x + Math.sin(ang) * side) - sx(q.x), uy = sy(q.y - Math.cos(ang) * side) - sy(q.y), L = Math.hypot(ux, uy) || 1; ux /= L; uy /= L;
         var o2 = { legend: legend, street: opt.street }, fh = (code.charAt(0) === 'G' || code.charAt(0) === 'R' || code.charAt(0) === 'M') ? faceH * 0.62 : faceH, sz = SignLib.size(code, fh, o2), rad = Math.max(sz.w, sz.h) / 2 + 7, dist = rad + 10, k = 0, cx, cy;
@@ -3157,7 +3158,7 @@ function MapView(canvas, cb) {
         if (sg.end) { if (!dt && !(LG && LG.frontGone)) placeSign(sg.code, sg.legend, tE + 60, {}); }
         else if (sg.opp) {}
         else if (sg.dist > 0) { if (!(LG && LG.backGone)) placeSign(sg.code, sg.legend, tS - sg.dist, {}); }
-        else if (sg.buf) placeSign(sg.code, sg.legend, tS + p.taper + p.buffer * 0.5, {});
+        else if (sg.buf) { var lwW = (z.eff.laneW || 12) * WK; placeSign(sg.code, sg.legend, tS + p.taper, { off: sgn * (RWd / 2 - lwW / 2 - (ctrLane ? lwW : 0)) }); }
         else if (sg.dist === 0 && sg.code !== 'R11-2') placeSign(sg.code, sg.legend, 0, {});
       });
       if (!(LG && LG.frontGone) && !z.eff.oneway && (sc === 'laneclosure' || sc === 'twolanes' || sc === 'shoulder')) p.signs.forEach(function (sg) { if (sg.code === 'W20-1' || sg.opp) placeSign(sg.code, sg.legend, tE + sg.dist, { side: -1 }); });
@@ -3467,6 +3468,8 @@ function mutcdCheck(rec, eff) {
   T(gaps.every(function (g) { return g <= Math.max(p.space, exp) + 1 && g >= Math.min(p.space, exp) - 1; }), 'Sign spacing matches the sign table', 'planned ' + p.space + "', table " + exp + "' urban");
   T(p.space >= exp, 'Sign spacing at least the table value for ' + S + ' mph', p.space + "' vs " + exp + "'");
   if (['laneclosure', 'twolanes', 'flagging', 'signal', 'shoulder'].indexOf(id) >= 0) T((p.signs || []).some(function (g) { return g.end; }), 'END ROAD WORK sign at the end', '');
+  T(!(p.signs || []).some(function (g) { return !g.buf && !g.end && !g.opp && g.dist < 0; }), 'Every advance warning sign is ahead of the taper', '');
+  if (id === 'laneclosure' || id === 'twolanes') T((p.signs || []).some(function (g) { return g.buf && g.inLane; }), 'LANE CLOSED sign stands in the closed lane, after the arrow board', '');
   var bufMin = { 20: 35, 25: 55, 30: 85, 35: 120, 40: 170, 45: 220, 50: 280, 55: 335, 60: 395, 65: 465, 70: 540, 75: 620 };
   var bk = Object.keys(bufMin).map(Number).sort(function (a, b) { return a - b; }).filter(function (k) { return k >= S; })[0] || 75;
   if (p.buffer) T(p.buffer >= bufMin[bk], 'Buffer space at least the MUTCD table', p.buffer + "' vs " + bufMin[bk] + "' minimum");
@@ -3474,7 +3477,8 @@ function mutcdCheck(rec, eff) {
     var W = +eff.laneW || 12, L = S <= 40 ? W * S * S / 60 : W * S;
     T(p.taper >= Math.floor(L) - 5, 'Merging taper length', p.taper + "' vs " + Math.round(L) + "' for a " + W + " ft lane at " + S + ' mph');
   }
-  if (p.devSpacingConflict && id !== 'sidewalk' && id !== 'walkway') T(p.devSpacingConflict === ({ 20: 10, 25: 12, 30: 15, 35: 17, 40: 20, 45: 22 })[S] || (S >= 50 && p.devSpacingConflict === 25), 'Conflict-area device spacing matches T9 Table 1 (Z)', p.devSpacingConflict + "'");
+  var Sz = p.speed || S; /* the table row the plan used (speeds snap to the table), not the raw posted speed */
+  if (p.devSpacingConflict && id !== 'sidewalk' && id !== 'walkway') T(p.devSpacingConflict === ({ 20: 10, 25: 12, 30: 15, 35: 17, 40: 20, 45: 22 })[Sz] || (Sz >= 50 && p.devSpacingConflict === 25), 'Conflict-area device spacing matches T9 Table 1 (Z)', p.devSpacingConflict + "'");
   if (p.devSpacingTaper) T(p.devSpacingTaper <= Math.max(S, 20) + 0.1, 'Device spacing in taper no more than speed in feet', p.devSpacingTaper + "' at " + S + ' mph');
   if (p.devSpacingTangent) T(p.devSpacingTangent <= Math.max(2 * S, 40) + 0.1 && p.devSpacingTangent <= 100, 'Device spacing on tangent no more than twice speed', p.devSpacingTangent + "'");
   if (p.downstream) T(p.downstream >= 100 || id === 'flagging' || id === 'laneshift', 'Downstream taper 100 ft', p.downstream + "'");
@@ -4348,6 +4352,7 @@ function nextBar() {
     var open = $('tune') ? $('tune').open : null, t = s.totals, a = s.items.map(function (it) { return it.loc.name; });
     var needs = s.conf !== 'high';
     var h = '<div class="selbar"><button type="button" class="ghost" data-act="prev"' + (sel === 0 ? ' disabled' : '') + '>Previous</button><div class="seln"><b>' + s.name + '</b><small>' + (sel + 1) + ' of ' + sites.length + '</small></div><button type="button" class="ghost" data-act="next"' + (sel >= sites.length - 1 ? ' disabled' : '') + '>Next</button></div>';
+    h += lanePanel(s);
     h += compPre(s);
     h += '<section class="panel site"><div class="sh"><div><h2>' + s.name + '</h2><p class="coords">' + (a.length > 1 ? 'Locations ' + a.join(', ') : 'Location ' + a[0]) + (s.road ? ' on ' + esc(s.road) : '') + (a.length > 1 ? ' · ' + s.span + ' ft apart at most' : '') + '</p></div>';
     h += '<div class="tot"><span class="pill">' + s.zones.length + ' zone' + (s.zones.length > 1 ? 's' : '') + '</span><span class="pill">' + (t.dev + t.barr) + ' devices</span><span class="pill">' + t.signs + ' signs</span>' + (t.flaggers ? '<span class="pill">' + t.flaggers + ' flaggers</span>' : '') + (t.signals ? '<span class="pill">' + t.signals + ' signals</span>' : '') + (t.arrow ? '<span class="pill">' + t.arrow + ' arrow board</span>' : '') + (t.tma ? '<span class="pill">' + t.tma + ' attenuator</span>' : '') + '</div></div>';
@@ -4488,6 +4493,7 @@ function nextBar() {
     $('flipb').onclick = function () { mv.flip(sel); renderMapUI(); };
     $('nudgeb').onclick = armNudge;
     $('nudgeundo').onclick = function () { if (!nudgeLast) return; moveLoc(nudgeLast.l, nudgeLast.lat, nudgeLast.lon); nudgeLast = null; save(); compute(); if (mv) mv.redraw(); $('nudgeundo').hidden = true; say('mhint', 'Move undone.'); };
+    document.addEventListener('click', function (ev) { var bt = ev.target.closest && ev.target.closest('[data-lanepick]'); if (!bt || bt.disabled) return; var sS = sites[sel]; if (!sS) return; var v0 = bt.getAttribute('data-lanepick'); sS.items.forEach(function (it) { it.loc.laneSide = v0; }); save(); compute(); if (mv) mv.focusSite(sel); renderMapUI(); });
     $('laneside').onchange = function () { var s = sites[sel]; if (!s) return; s.items.forEach(function (it) { it.loc.laneSide = $('laneside').value; }); save(); compute(); if (mv) mv.focusSite(sel); renderMapUI(); };
     $('ovfile').onchange = function (e) {
       var f = e.target.files && e.target.files[0]; if (!f) return;
@@ -4909,6 +4915,24 @@ function nextBar() {
   /* Compliance gate. Every plan is checked against the MUTCD rules and the road geometry before it is shown; a plan with open items is stamped NOT CLEARED everywhere it appears. */
   function gateOf(s) { var mc = mutcdSite(s); var asm = []; s.items.forEach(function (it) { confidence(it.loc).missing.forEach(function (m) { if (asm.indexOf(m) < 0) asm.push(m); }); }); return { ok: !mc.bad.length, bad: mc.bad, n: mc.all.length, assumed: asm }; }
   /* Step 0 of the Plan tab: the compliance review comes FIRST, before any drawing, and lists every rule that was tested. Failing items open the panel and keep the drawing folded until the technician looks. */
+
+  /* ---------- lanes panel: every lane the map shows, what the work does to them, closure or shift ---------- */
+  function lanePanel(s) {
+    var z = s.zones[0], r = z && z.ev.rec; if (!r) return '';
+    var e = z.eff, p = r.plan, ow = !!e.oneway, tot = Math.max(1, e.lanes || 2), lpd = ow ? tot : Math.max(1, Math.floor(tot / 2)), lw = e.laneW || 11, sh = e.shoulderW || 0;
+    var src = (z.items[0].loc.src || {}), srcL = src.lanes === 'osm' ? 'from the map' : (src.lanes === 'user' ? 'confirmed by you' : 'assumed, confirm in person');
+    var width = shiftWidth(e), sel = (z.items[0].loc.laneSide || ''), lsd = e.laneSide || 'R', word = p.laneWord || (lsd === 'L' ? 'LEFT' : 'RIGHT');
+    var isClose = r.id === 'laneclosure' || r.id === 'twolanes', isShift = r.id === 'laneshift', nClosed = r.id === 'twolanes' ? 2 : 1, left = lpd - nClosed;
+    var btn = function (v, t, dis) { return '<button type="button" class="btnlink sm" data-lanepick="' + v + '" aria-pressed="' + (word === t.toUpperCase().split(' ')[0] || (v === '' && !sel)) + '"' + (dis ? ' disabled style="opacity:.45"' : '') + ' style="margin-right:6px;' + ((word === t.toUpperCase().split(' ')[0]) ? 'font-weight:700;text-decoration:underline' : '') + '">' + t + '</button>'; };
+    var h = '<details class="dg lanepanel" open style="border:2px solid #1a4f8a"><summary style="font-weight:700">Lanes at this site and what the work does to them</summary><div style="padding:6px 14px 12px;font-size:14px;line-height:1.4">';
+    h += '<p style="margin:0 0 6px"><b>' + lpd + ' travel lane' + (lpd > 1 ? 's' : '') + (ow ? ', one way' : ' each way') + '</b> (' + srcL + '), ' + lw + ' ft wide' + (e.centerTurn ? ', center turn lane' : '') + (sh >= 1 ? ', ' + sh + ' ft ' + (sh >= 7 ? 'parking' : 'shoulder') + ' each side' : '') + '. Pavement about ' + Math.round(width) + ' ft across.</p>';
+    h += '<div style="margin:6px 0">' + (z.ev.rec ? xsecSVG(z, lsd) : '') + '</div>';
+    if (isClose || isShift) h += '<p style="margin:6px 0"><b>Work lane:</b> ' + btn('', 'Auto') + btn('L', 'Left') + btn('C', 'Center', lpd < 3) + btn('R', 'Right') + '<br><small>The warning sign will read ' + esc(word) + (nClosed === 2 ? ' TWO LANES' : ' LANE') + ' CLOSED AHEAD.</small></p>';
+    h += '<p style="margin:6px 0"><b>This plan: ' + esc(r.name) + '.</b> ' + (isClose ? 'It is a <b>lane closure</b>. The ' + word.toLowerCase() + ' lane' + (nClosed === 2 ? 's go' : ' goes') + ' away, so traffic in ' + (nClosed === 2 ? 'them' : 'it') + ' must merge into the ' + (left > 0 ? left + ' lane' + (left > 1 ? 's' : '') + ' left open' : 'lane that stays') + '. That needs a merging taper of ' + p.taper + ' ft (L = W x S' + (e.speed <= 40 ? '² ÷ 60' : '') + '). ' : isShift ? 'It is a <b>lane shift</b>. Every lane stays open and traffic is moved sideways around the work with a shifting taper of ' + p.taper + ' ft (half of L). It needs about 32 ft of pavement. Here there is about ' + Math.round(width) + ' ft. ' : 'This setup does not close or shift a travel lane. ') + '</p>';
+    h += '<p style="margin:6px 0;color:#374151"><b>Lane closure or lane shift?</b> A closure takes a lane away, so cars in it merge into the others with a merging taper (L). A shift keeps every lane and slides them sideways with a shifting taper (half of L), which needs room across the pavement (about 32 ft). If the work sits in the lane and traffic cannot use it, it is a closure. If traffic can still drive the full width of every lane, it is a shift.</p>';
+    h += '<p style="margin:6px 0"><b>Check in person before you build the plan:</b></p><ul style="margin:0 0 0 18px;padding:0"><li>Count the travel lanes each way and any turn lanes. Does it match ' + lpd + '?</li><li>Which lane is the work in: left, center or right? Set it above.</li><li>Is there a parked car, bike lane or driveway that changes where the closed lane starts?</li><li>Can traffic still use the full width of every lane? If yes, plan a shift, not a closure.</li></ul></div></details>';
+    return h;
+  }
   function compPre(s) {
     var mc = mutcdSite(s), g = gateOf(s), rows = mc.all.slice().sort(function (a, b) { return (a.ok ? 1 : 0) - (b.ok ? 1 : 0); });
     var head = g.ok ? (g.assumed.length ? 'MUTCD compliance review: ' + mc.pass + ' of ' + mc.all.length + ' rules pass (some road data assumed)' : 'MUTCD compliance review: all ' + mc.all.length + ' rules pass') : 'MUTCD compliance review: ' + mc.bad.length + ' rule' + (mc.bad.length > 1 ? 's' : '') + ' FAILED. Fix before using this plan';
