@@ -548,7 +548,8 @@ var NAMES = {
   sidewalk: 'Sidewalk closure, cross to other side',
   walkway: 'Protected walkway in the shoulder',
   turnlane: 'Turn pocket or center turn lane closure',
-  lshape: 'L-shaped closure at an intersection'
+  lshape: 'L-shaped closure at an intersection',
+  moving: 'Moving lane closure (sign, shadow and work vehicles)'
 };
 
 function snapSpeed(s) {
@@ -582,7 +583,7 @@ function plan(i) {
   out.devSpacingConflict = walk ? 10 : ({ 20: 10, 25: 12, 30: 15, 35: 17, 40: 20, 45: 22 })[S] || 25; // T9 Table 1, Z (taper and tangent sections where there is a conflict between existing markings and channelizers)
   out.signSize = i.area === 'freeway' ? '48 x 48 in' : '36 x 36 in';
   out.scenarioName = (sc === 'laneclosure' && i.laneSide === 'L') ? 'Left lane closure' : (sc === 'laneclosure' && i.laneSide === 'C' && lanes >= 3) ? 'Center lane closure' : NAMES[sc]; out.scenarioName += ({ shift: ' + lane shift', flag: ' + flaggers off the travel lanes', shoulder: ' + shoulder closure' })[((sc === 'laneclosure' || sc === 'twolanes') && i.combo) || ''] || ''; var LS = i.laneSide === 'L' ? 'L' : 'R', LW = LS === 'L' ? 'LEFT' : 'RIGHT', LSw = LS === 'L' ? 'left' : 'right', ctr = i.laneSide === 'C' && lanes >= 3 && (sc === 'laneclosure' || sc === 'twolanes'); if (ctr) { LW = 'CENTER'; LSw = 'center'; } else if (i.laneSide === 'C') out.warnings.push('Center lane needs 3 or more lanes each way. This road has ' + lanes + ', so the right lane is used.'); out.laneWord = LW;
-  var noBuf = walk || sc === 'full' || sc === 'intersection' || sc === 'turnlane';
+  var noBuf = walk || sc === 'full' || sc === 'intersection' || sc === 'turnlane' || sc === 'moving';
   out.buffer = noBuf ? 0 : SSD[S];
   var o2 = ov('buffer'); if (o2 !== null && !noBuf) out.buffer = o2; else if (o2 !== null) out.edited.pop();
 
@@ -622,6 +623,12 @@ function plan(i) {
   else if (sc === 'full') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-3', 'ROAD CLOSED AHEAD', 2], ['W20-2', 'DETOUR AHEAD', 1]];
   else if (sc === 'turnlane') sg = [['W20-1', 'ROAD WORK AHEAD', 1]];
   else if (sc === 'lshape') sg = [['W20-1', 'ROAD WORK AHEAD', 3], ['W20-5', LW + ' LANE CLOSED AHEAD', 2], ['W4-2' + LS, 'Lane ends (' + LSw + ') symbol', 1]];
+  var mvInterior = sc === 'moving' && i.laneSide === 'C' && lanes >= 3;
+  if (sc === 'moving') {
+    /* Caltrans 2015 T15/T16: the signs ride on vehicles. V1 (sign vehicle) shows ROAD WORK AHEAD then the lane message; V2 (shadow vehicle) carries the LANE CLOSED panel and a Type II arrow sign. */
+    var mvWord = mvInterior ? 'INTERIOR' : LW;
+    sg = [['SC10(CA)', 'V1 sign vehicle: ' + mvWord + ' LANE CLOSED (changeable message sign shows ROAD WORK AHEAD first, then ' + mvWord + ' LANE CLOSED; or an SC10(CA) panel with a Type II arrow sign)', 1]];
+  }
   // Optional extra signs sit at full sign spacing, like every other sign (levels counted back from the work).
   var lv = [];
   if (sc === 'laneclosure' && i.bike) lv.push([['W11-1', 'BICYCLE (symbol), with SHARE THE ROAD plaque'], ['W16-1P', 'SHARE THE ROAD plaque (bike lane present)']]);
@@ -639,6 +646,7 @@ function plan(i) {
   out.firstSign = (i.area === 'freeway' && FWY[maxN]) ? FWY[maxN] : maxN * sp;
   /* Advance warning signs are always ahead of the taper. The one sign inside is LANE CLOSED: it stands in the closed lane, after the arrow board (planner rule, MUTCD Part 6). */
   if (sc === 'laneclosure' || sc === 'twolanes') out.signs.push({ code: 'W20-5', legend: LW + ' LANE CLOSED', dist: -Math.round(out.taper), buf: true, inLane: true });
+  if (sc === 'moving') out.signs.push({ code: 'SC11(CA)', legend: 'V2 shadow vehicle: LANE CLOSED, with a Type II arrow sign on the rear', dist: 0, buf: true, inLane: true });
   if (sc === 'laneclosure' || sc === 'twolanes') {
     /* Caltrans 2018 Standard Plan T11 notes 4, 5, 6 and 8 */
     out.notes.push('Give drivers at least 1500 ft of sight distance to the first arrow board where possible. Do not start the closure at the top of a crest or on a horizontal curve (Caltrans T11, note 4).');
@@ -655,6 +663,17 @@ function plan(i) {
       { id: 'C', role: 'taper', word: wL, note: 'taper flipped to the other side of the road' },
       { id: 'D', role: 'flag', word: '', note: 'closure ends here: downstream taper, flagger and signs only' }] };
     out.notes.push('L-shaped closure: the work occupies a corner of the intersection. Three approaches are tapered (A, B and C). The fourth (D) gets a downstream taper, a flagger and the flagger signs. Approach C is flipped to the opposite side of the road. Use the flip control to build the other corner. This is a typical application: confirm lane use on site.');
+  }
+  if (sc === 'moving') {
+    out.mobile = true; out.vehicles = 3; out.interior = mvInterior;
+    out.notes.push('Moving lane closure (Caltrans 2015 ' + (mvInterior ? 'T16, interior lane' : 'T15, ' + (i.laneSide === 'L' ? 'median' : 'outside') + ' lane') + '): three vehicles travel together with no cones and no taper. V1 is the sign vehicle on the shoulder. V2 is the shadow vehicle in the closed lane, upstream of V3. V3 is the work or application vehicle.');
+    out.notes.push('V1: ' + (mvInterior ? 'a changeable message sign on the rear shows ROAD WORK AHEAD, then INTERIOR LANE CLOSED (CENTER LANE CLOSED may be used instead).' : 'a changeable message sign on the rear shows ROAD WORK AHEAD, then ' + LW + ' LANE CLOSED. Or use an SC10(CA) sign panel with a Type II flashing arrow sign.' + (i.laneSide === 'L' ? ' For a median lane the arrow is reversed so the arrowhead is on the right.' : '')) + ' Sign panels are ' + (mvInterior ? '54 x 42 in' : '66 x 36 in (SC10) and 54 x 42 in (SC11)') + ' minimum, Type III or better retroreflective sheeting, black on white or black on fluorescent orange, 6 in minimum Series D letters (notes 1 and 5).');
+    out.notes.push('V2 shadow vehicle: truck-mounted attenuator, a Type II flashing arrow sign in double arrow mode on its rear and an SC11(CA) LANE CLOSED sign panel (54 x 42 in minimum). Keep the gap between V2 and V3 as small as practical so drivers cannot cut in between (note 12).');
+    out.notes.push('Sight distance: give drivers at least 1500 ft to see V1. V1 stays at the start of a horizontal or vertical curve until V2 and V3 are far enough past it to restore the 1500 ft. If traffic queues up, V1 moves upstream of the end of the queue, on the shoulder where it is highly visible (notes 2, 3 and 4).');
+    out.notes.push('If V1 reaches into the travel lane because the shoulder is too narrow, V1 also needs a truck-mounted attenuator and stays as close to the edge of the shoulder as it can (note 9).');
+    out.notes.push('All vehicles carry flashing or rotating amber lights and two-way radios, and the drivers keep in contact while working (notes 7 and 8).');
+    out.notes.push('Workers on foot in the work area: use a stationary lane closure instead (T10, T11), not this plan (note 10).' + (mvInterior ? ' This is the interior lane plan. For a median or outside lane use T15 (note 11).' : ' For an interior lane use T16 (note 11).') + (i.laneSide === 'L' ? ' When V3 works in the median lane, V1 drives in the median shoulder and shows LEFT LANE CLOSED AHEAD (note 13).' : ''));
+    if (lanes < 2 && !i.oneway || (i.oneway && lanes < 2)) out.warnings.push('T15 and T16 are for multilane highways. This road has one lane in the direction of travel.');
   }
   if (sc === 'turnlane') {
     var twl = !!i.centerTurn && !i.oneway;
@@ -673,10 +692,12 @@ function plan(i) {
   }
   if (sc === 'sidewalk') out.signs.push({ code: 'R9-9', legend: 'SIDEWALK CLOSED (at barricade)', dist: 0 });
   if (sc === 'full') out.signs.push({ code: 'R11-2', legend: 'ROAD CLOSED (at barricade)', dist: 0 });
-  if (!walk && sc !== 'intersection' && sc !== 'turnlane' && sc !== 'lshape') out.signs.push({ code: 'G20-2', legend: (typeof JUR !== 'undefined' && JUR === 'CA') ? 'END ROAD WORK (required unless the end of work is obvious)' : 'END ROAD WORK (optional)', dist: -(out.downstream + 50), end: true });
+  if (!walk && sc !== 'intersection' && sc !== 'turnlane' && sc !== 'lshape' && sc !== 'moving') out.signs.push({ code: 'G20-2', legend: (typeof JUR !== 'undefined' && JUR === 'CA') ? 'END ROAD WORK (required unless the end of work is obvious)' : 'END ROAD WORK (optional)', dist: -(out.downstream + 50), end: true });
 
   out.workLen = i.workLen;
-  if (sc === 'full') {
+  if (sc === 'moving') {
+    out.tangentLen = 0; out.devTaper = 0; out.devTangent = 0; out.devDownstream = 0;
+  } else if (sc === 'full') {
     out.barricades = 2 * Math.ceil(out.roadWidth / 8);
     out.tangentLen = i.workLen;
     out.devTaper = 0; out.devTangent = out.barricades; out.devDownstream = 0;
@@ -700,9 +721,9 @@ function plan(i) {
   out.devTotal = out.devTaper + out.devTangent + out.devDownstream;
   out.flaggers = sc === 'flagging' ? 2 : (sc === 'lshape' ? 1 : sc === 'intersection' ? 4 : (combo === 'flag' ? 2 : 0));
   out.signals = sc === 'signal' ? 2 : 0;
-  out.arrowBoard = sc === 'laneclosure' || sc === 'twolanes' || sc === 'lshape';
-  out.arrowBoards = sc === 'twolanes' ? 2 : (sc === 'lshape' ? 3 : (out.arrowBoard ? 1 : 0));
-  out.tma = S >= 45 && (sc === 'lshape' || sc === 'laneclosure' || sc === 'twolanes' || sc === 'laneshift' || sc === 'shoulder' || sc === 'flagging' || sc === 'signal');
+  out.arrowBoard = sc === 'laneclosure' || sc === 'twolanes' || sc === 'lshape' || sc === 'moving';
+  out.arrowBoards = sc === 'moving' ? 2 : sc === 'twolanes' ? 2 : (sc === 'lshape' ? 3 : (out.arrowBoard ? 1 : 0));
+  out.tma = sc === 'moving' || S >= 45 && (sc === 'lshape' || sc === 'laneclosure' || sc === 'twolanes' || sc === 'laneshift' || sc === 'shoulder' || sc === 'flagging' || sc === 'signal' || sc === 'moving');
   /* Rumble strips are required over 60 mph (R7c, Nathan's rule). The requirement is flagged on the plan; no placement table (number of sets, set spacing, distance before the first sign) is held in the app, so no distances or quantities are invented — the note sends the technician to the agency or the approved plan. The test uses the effective speed, not the snapped table speed, so a 62 mph road is not missed. */
   out.rumbleStrips = +i.speed > 60;
   if (out.rumbleStrips) out.notes.push('RUMBLE STRIPS REQUIRED: the speed here is over 60 mph, so temporary rumble strips are required on the approach. The app does not hold a placement table for rumble strips — confirm the number of sets, spacing and distances with the agency or the approved plan before setting up.');
@@ -768,10 +789,10 @@ function plan(i) {
       full: 'Put barricades across the full pavement, at a cross street where possible so drivers can turn off before they reach them.'
     };
     if (PAINT[sc]) out.notes.push(PAINT[sc]);
-    out.notes.push('Install in the direction of traffic: the first advance sign first, then each sign toward the work, then the taper from the upstream end. Work from the shoulder side with the protection vehicle upstream. Take everything down in the reverse order.');
+    if (sc !== 'moving') out.notes.push('Install in the direction of traffic: the first advance sign first, then each sign toward the work, then the taper from the upstream end. Work from the shoulder side with the protection vehicle upstream. Take everything down in the reverse order.');
   }
-  if (out.tma) out.notes.push('At ' + S + ' mph and above, use a shadow vehicle with a truck-mounted attenuator.');
-  if (out.arrowBoard) out.notes.push('Put an arrow board at the start of the taper.');
+  if (out.tma && sc !== 'moving') out.notes.push('At ' + S + ' mph and above, use a shadow vehicle with a truck-mounted attenuator.');
+  if (out.arrowBoard && sc !== 'moving') out.notes.push('Put an arrow board at the start of the taper.');
   out.notes.push('Arrow boards (MUTCD 11th, 6L.06): arrow or chevron mode only to close a lane on a multi-lane road. Use caution mode for shoulder work and for one-lane closures on two-lane roads. Never use an arrow board to show a lane shift.');
   out.notes.push('Signs: ' + out.signSize + ' minimum, orange background, mounted at least 7 ft to the bottom in urban or pedestrian areas and 5 ft elsewhere.');
   return out;
@@ -1186,9 +1207,9 @@ function evaluate(v) {
     v.comboAuto = !!v.combo;
   }
   var base = { speed: v.speed, lanesPerDir: lpd, laneW: v.laneW, shoulderW: v.shoulderW, area: area, oneway: v.oneway, workLen: v.len, sidewalkW: v.sidewalkW, sidewalks: v.sidewalks, ovr: v.ovr, laneSide: v.laneSide, combo: v.combo, bike: !!v.bike, hold: v.jhold === 'yes', narrow: !!v.narrow, padW: Math.round(v.lanes * v.laneW) };
-  var servesMap = { corner: { lshape: 1 }, turn: { turnlane: 1 }, lane: { laneclosure: 1, laneshift: 1, twolanes: 1, intersection: 1, flagging: 1, signal: 1, full: 1 }, shoulder: { shoulder: 1, laneclosure: 1, flagging: 1, signal: 1, full: 1 }, sidewalk: { sidewalk: 1, walkway: 1 } }[v.pos];
+  var servesMap = { corner: { lshape: 1 }, turn: { turnlane: 1 }, lane: { moving: 1, laneclosure: 1, laneshift: 1, twolanes: 1, intersection: 1, flagging: 1, signal: 1, full: 1 }, shoulder: { shoulder: 1, laneclosure: 1, flagging: 1, signal: 1, full: 1 }, sidewalk: { sidewalk: 1, walkway: 1 } }[v.pos];
   var shoulderOK = v.shoulderW >= 4;
-  var ids = ['shoulder','laneclosure','laneshift','twolanes','intersection','flagging','signal','full','sidewalk','walkway','turnlane','lshape'];
+  var ids = ['shoulder','laneclosure','laneshift','twolanes','intersection','flagging','signal','full','sidewalk','walkway','turnlane','lshape','moving'];
   var cands = ids.map(function (id) {
     var c = { id: id, name: (id === 'laneclosure' && v.laneSide === 'L') ? 'Left lane closure' : NAMES[id], feasible: true, serves: true, hazards: [], pros: [], block: '', why: '' };
     var p = c.plan = plan(Object.assign({}, base, { setup: id }));
@@ -1230,6 +1251,14 @@ function evaluate(v) {
       c.pros.push('Traffic keeps moving on every approach. One flagger handles the untapered approach.');
       A(spdSev, spd * 0.7, 'At ' + S + ' mph each tapered approach needs a ' + p.taper + ' ft taper, an arrow board and a shadow vehicle.');
       if (lpd < 2) { c.feasible = false; c.block = 'The closure takes a lane on three approaches. With one lane each way it would stop traffic. Use flaggers instead.'; }
+    }
+    if (id === 'moving') {
+      if (v.pick !== 'moving') { c.serves = false; c.why = 'A moving closure is for short, mobile work with nobody on foot, such as sweeping, striping or pothole patching. Choose it by hand under "Setup for this zone" if that is the job.'; }
+      if (lpd < 2) { c.feasible = false; c.block = 'T15 and T16 are for multilane highways. With one lane in the direction of travel, closing it stops traffic.'; }
+      if (v.inInt) { c.feasible = false; c.block = 'The work is inside an intersection. A moving closure does not control the cross street.'; }
+      c.pros.push('No cones to set or pick up. The vehicles keep moving with the work.');
+      c.pros.push('Needs three vehicles, two Type II arrow signs and a truck-mounted attenuator.');
+      A(spdSev, spd * 0.5, 'At ' + S + ' mph the shadow vehicle takes the hit if a driver does not merge. Keep the gap to the work vehicle short.');
     }
     if (id === 'turnlane') {
       if (!v.centerTurn && !v.turnPocket) { c.pros.push('Confirm in person that the work is in a turn pocket or center turn lane. The map does not show one here.'); }
@@ -1419,11 +1448,11 @@ function evaluate(v) {
     if (id === 'signal' || id === 'full') c.crew.push('permit or approved plan');
     return c;
   });
-  var ok = cands.filter(function (c) { return c.feasible && c.serves; }).sort(function (a, b) { return b.score - a.score || b.safety - a.safety; });
+  var ok = cands.filter(function (c) { return c.feasible && c.serves && (c.id !== 'moving' || v.pick === 'moving'); }).sort(function (a, b) { return b.score - a.score || b.safety - a.safety; });
   // A full closure is the last resort. Try every setup that works with the paint and keeps traffic moving first.
   var fullC = ok.filter(function (c) { return c.id === 'full'; })[0], lane = ok.filter(function (c) { return c.id !== 'full'; });
   // Least disruption first: shoulder closure, then lane shift, then lane closure, then flagging or signals. Only step down a tier when the gentler one is clearly unsafe.
-  var TIER = { shoulder: 0, laneshift: 1, laneclosure: 2, twolanes: 2, intersection: multi ? 3 : 2, flagging: 3, signal: 3, sidewalk: 0, walkway: 1 };
+  var TIER = { moving: 2, shoulder: 0, laneshift: 1, laneclosure: 2, twolanes: 2, intersection: multi ? 3 : 2, flagging: 3, signal: 3, sidewalk: 0, walkway: 1 };
   lane.sort(function (a, b) { return (TIER[a.id] - TIER[b.id]) || (b.score - a.score); });
   var safeL = lane.filter(function (c) { return c.safety >= 40; }), riskyL = lane.filter(function (c) { return c.safety < 40; }); lane = safeL.concat(riskyL);
   if (fullC) ok = lane.concat([fullC]);
@@ -1453,7 +1482,7 @@ function evaluate(v) {
   }).sort(function (a, b) { return a.ord - b.ord || b.c.score - a.c.score; });
   var comp = [];
   if (rec) {
-    var roadRec = ['shoulder','laneclosure','laneshift','twolanes','flagging','signal','intersection','full','turnlane','lshape'].indexOf(rec.id) >= 0;
+    var roadRec = ['shoulder','laneclosure','laneshift','twolanes','flagging','signal','intersection','full','turnlane','lshape','moving'].indexOf(rec.id) >= 0;
     var laneRec = roadRec && rec.id !== 'full';
     if (roadRec && v.sidewalkBlocked && v.sidewalks !== 'none') {
       var po = cands.filter(function (c) { return (c.id === 'sidewalk' || c.id === 'walkway') && c.feasible; }).sort(function (a, b) { return b.score - a.score; });
@@ -2129,6 +2158,47 @@ var CAD = (function () {
 function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 /* ---------- plan view ---------- */
 
+/* Moving lane closure (Caltrans T15/T16): schematic, vehicles travel left to right with traffic. Not to scale. */
+function drawM(p, v, opt) {
+  var W = 1080, H = 525, n = Math.max(2, Math.min(4, p.lanes || 2)), lh = 62, y0 = 122, sh = 48, o = [], S = p.speed;
+  var ci = p.interior ? 1 : (p.laneWord === 'LEFT' ? 0 : n - 1);   /* index of the closed lane, 0 = top (median side) */
+  var yL = function (k) { return y0 + k * lh; }, yEdge = y0 + n * lh;
+  var ln = function (x1, y1, x2, y2, st, sw, da) { o.push('<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + st + '" stroke-width="' + (sw || 2) + '"' + (da ? ' stroke-dasharray="' + da + '"' : '') + '/>'); };
+  var tx = function (x, y, t, sz, wt, anc, col) { o.push('<text x="' + x + '" y="' + y + '" font-size="' + (sz || 13) + '" font-weight="' + (wt || 400) + '" text-anchor="' + (anc || 'middle') + '" fill="' + (col || '#111') + '">' + esc(t) + '</text>'); };
+  var veh = function (x, y, lab, tma) {
+    if (tma) o.push('<rect x="' + (x - 26) + '" y="' + (y - 10) + '" width="24" height="20" fill="#fff" stroke="#111" stroke-width="1.5"/>');
+    o.push('<rect x="' + x + '" y="' + (y - 14) + '" width="74" height="28" rx="3" fill="#fff" stroke="#111" stroke-width="2"/><rect x="' + (x + 54) + '" y="' + (y - 14) + '" width="20" height="28" fill="#cfd4d8" stroke="#111"/>');
+    tx(x + 28, y + 5, lab, 14, 800);
+  };
+  var fas = function (x, y) { o.push('<rect x="' + (x - 22) + '" y="' + (y - 11) + '" width="44" height="22" fill="#111"/>'); tx(x, y + 5, '→ → →', 11, 700, 'middle', '#ffd34a'); };
+  var panel = function (x, y, a, b, c) { o.push('<rect x="' + (x - 34) + '" y="' + (y - 20) + '" width="68" height="40" fill="#fff" stroke="#111" stroke-width="1.5"/>'); [a, b, c].forEach(function (t, k) { if (t) tx(x, y - 8 + k * 12, t, 10, 800); }); };
+  o.push('<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif" role="img" aria-label="Moving lane closure, typical application"><rect width="' + W + '" height="' + H + '" fill="#fff"/>');
+  o.push('<rect x="0" y="' + (y0 - sh) + '" width="' + W + '" height="' + (n * lh + 2 * sh) + '" fill="#d5d9dc"/><rect x="0" y="' + y0 + '" width="' + W + '" height="' + (n * lh) + '" fill="#a7aeb4"/>');
+  ln(0, y0, W, y0, '#fff', 2); ln(0, yEdge, W, yEdge, '#fff', 2);
+  for (var k = 1; k < n; k++) ln(0, yL(k), W, yL(k), '#fff', 2, '26 22');
+  for (k = 0; k < n; k++) o.push('<text x="30" y="' + (yL(k) + lh / 2 + 5) + '" font-size="20" fill="#fff">→</text>');
+  tx(16, y0 - sh / 2 + 4, 'MEDIAN SHOULDER', 11, 600, 'start', '#444'); tx(16, yEdge + sh / 2 + 4, 'SHOULDER', 11, 600, 'start', '#444');
+  tx(1064, yL(ci) + lh / 2 + 4, (p.interior ? 'INTERIOR' : (p.laneWord || 'RIGHT')) + ' LANE', 11, 800, 'end', '#7a3b00');
+  var yc = yL(ci) + lh / 2, ys = yEdge + sh / 2;
+  veh(130, ys, 'V1', true);
+  veh(600, yc, 'V2', true);
+  veh(790, yc, 'V3', false);
+  /* signs on V1 and V2 */
+  panel(100, yEdge + sh + 62, 'ROAD WORK', 'AHEAD', ''); panel(190, yEdge + sh + 62, p.interior ? 'INTERIOR' : (p.laneWord || 'RIGHT'), 'LANE', 'CLOSED');
+  tx(24, yEdge + sh + 108, 'V1 sign vehicle: CMS shows the two messages in turn', 12, 700, 'start');
+  fas(520, yEdge + sh + 50); panel(520, yEdge + sh + 88, 'LANE', 'CLOSED', '');
+  tx(520, yEdge + sh + 124, 'V2 shadow vehicle: Type II arrow + SC11(CA)', 12, 700);
+  ln(240, ys + 16, 330, ys + 16, '#111', 1.2); ln(240, ys + 10, 240, ys + 22, '#111', 1.2); ln(330, ys + 10, 330, ys + 22, '#111', 1.2);
+  tx(285, ys + 32, 'upstream of queue, 1500 ft sight distance', 11, 400, 'middle');
+  ln(676, yc - 24, 790, yc - 24, '#111', 1.2); tx(733, yc - 30, 'gap as small as practical', 11, 600);
+  tx(870, yc - 30, 'V3 work vehicle', 12, 700, 'start');
+  tx(24, 28, 'MOVING LANE CLOSURE (' + S + ' mph)', 16, 800, 'start');
+  tx(24, 50, 'No cones, no taper. Vehicles travel with traffic. Not to scale.', 12, 400, 'start', '#444');
+  tx(24, H - 10, 'Caltrans 2015 Standard Plan ' + (p.interior ? 'T16' : 'T15') + '. Use a stationary closure if anyone is on foot in the work area.', 11, 400, 'start', '#444');
+  o.push('</svg>');
+  return o.join('');
+}
+
 /* L-shaped closure: typical application drawn as a schematic (like the Caltrans standard plans). Distances are written in, the drawing is not to scale. */
 function drawL(p, v, opt) {
   var W = 1080, H = 700, fl = !!(p.lshape && p.lshape.flip), X = function (x) { return fl ? W - x : x; }, o = [], cx = 540, cy = 350, rw = 110, sp = p.space, S = p.speed;
@@ -2179,6 +2249,7 @@ function draw(p, v, opt) {
   opt = opt || {};
   if (p.scenario === 'intersection') return drawInt(p, v, opt);
   if (p.scenario === 'lshape') return drawL(p, v, opt);
+  if (p.scenario === 'moving') return drawM(p, v, opt);
   var sc = p.scenario, W = 1080, padX = 40, sp = p.space, taper = p.taper, buf = p.buffer, wl = v.len, down = p.downstream;
   var wStart = taper + buf, wEnd = wStart + wl, dEnd = wEnd + down;
   var xMin = -(p.firstSign + 60), xMax = dEnd + 130, k = (W - 2 * padX) / (xMax - xMin);
@@ -3556,6 +3627,15 @@ var GUIDE = [
 function mutcdCheck(rec, eff) {
   var p = rec && rec.plan, out = [];
   if (!p) return out;
+  if (rec.id === 'moving') {
+    var Tm = function (ok, rule, det) { out.push({ ok: !!ok, rule: rule, det: det }); };
+    Tm((p.signs || []).some(function (g) { return g.code === 'SC10(CA)'; }), 'Sign vehicle V1 carries the lane closed message', '');
+    Tm((p.signs || []).some(function (g) { return g.code === 'SC11(CA)' && g.inLane; }), 'Shadow vehicle V2 carries LANE CLOSED in the closed lane', '');
+    Tm(p.vehicles === 3 && p.arrowBoards >= 2, 'Three vehicles and two Type II arrow signs', p.vehicles + ' vehicles, ' + p.arrowBoards + ' arrow signs');
+    Tm(p.tma, 'Truck-mounted attenuator on the shadow vehicle', p.tma ? 'yes' : 'missing');
+    Tm(!p.devTotal, 'No cones or taper (moving operation)', (p.devTotal || 0) + ' devices');
+    return out;
+  }
   var S = +eff.speed || p.speed || 0, id = rec.id, T = function (ok, rule, det) { out.push({ ok: !!ok, rule: rule, det: det }); };
   var adv = (p.signs || []).filter(function (g) { return !g.end && !g.buf && !g.opp && g.dist > 0; }).map(function (g) { return g.dist; }).sort(function (a, b) { return a - b; });
   var uniq = adv.filter(function (d, i) { return adv.indexOf(d) === i; });
@@ -4286,8 +4366,9 @@ function nextBar() {
     else if (p.devTotal) k.push([p.devTotal, 'Cones or drums', (night || p.speed >= 45) ? '28 in minimum at night or 45 mph and above' : '18 in minimum in daylight']);
     if (p.flaggers) k.push([p.flaggers, 'Flaggers', 'One on every approach' + (p.legs ? ': ' + p.legs.filter(function (l) { return l.flagger; }).map(function (l) { return l.fid + (l.xf ? ' + ' + l.fx : '') + ' ' + l.name; }).join(', ') : '') + (p.extraFlag ? '. Includes ' + p.extraFlag + ' extra station' + (p.extraFlag > 1 ? 's' : '') + ' you turned on' : '') + '. STOP/SLOW paddles and high-visibility clothing']);
     if (p.signals) k.push([p.signals, 'Signal trailers', 'With power and a backup']);
-    if (p.arrowBoard) k.push([String(p.arrowBoards || 1), p.arrowBoards > 1 ? 'Arrow boards' : 'Arrow board', p.arrowBoards > 1 ? 'One at each taper' : 'At the start of the taper']);
-    if (p.tma) k.push(['1', 'Shadow vehicle', 'With truck-mounted attenuator']);
+    if (p.arrowBoard) k.push([String(p.arrowBoards || 1), p.arrowBoards > 1 ? 'Arrow boards' : 'Arrow board', r.id === 'moving' ? 'Type II, on V2 (and on V1 if no changeable message sign)' : p.arrowBoards > 1 ? 'One at each taper' : 'At the start of the taper']);
+    if (r.id === 'moving') { k.push(['1', 'V1 sign vehicle', 'Changeable message sign, or SC10(CA) panel with a Type II arrow sign. TMA if it reaches into the lane']); k.push(['1', 'V3 work vehicle', 'Does the work in the closed lane']); k.push(['2-way radios', 'All vehicles', 'Flashing or rotating amber lights on every vehicle']); }
+    if (p.tma) k.push(['1', 'Shadow vehicle', 'V2 with truck-mounted attenuator, Type II arrow sign and LANE CLOSED panel']);
     return k;
   }
   function checklist(r, v) {
@@ -4423,7 +4504,7 @@ function nextBar() {
     var lanesAssumed = z.items.some(function (it) { return it.loc.src.lanes !== 'user' && it.loc.src.lanes !== 'osm'; }), lnOpts = '';
     for (var lk = 1; lk <= 8; lk++) lnOpts += '<option value="' + lk + '"' + (v.lanes === lk ? ' selected' : '') + '>' + lk + (lk === 1 ? ' lane' : ' lanes') + '</option>';
     h += '<div style="padding:4px 20px 0"><label for="ln' + n + '" style="font-size:13px;color:var(--muted)">Lanes on this road, both directions' + (lanesAssumed ? ' (NOT IN THE MAP DATA. This is a guess. Flagger setups stay off until you confirm it.)' : '') + '</label><select id="ln' + n + '" data-lanes="' + pidx + '" style="width:100%;min-height:44px">' + lnOpts + '</select></div>';
-    h += '<div style="padding:4px 20px 0"><label for="pick' + n + '" style="font-size:13px;color:var(--muted)">Setup for this zone</label><select id="pick' + n + '" data-pick="' + pidx + '" style="width:100%;min-height:44px"><option value="">Auto (the app picks)</option>' + ['shoulder', 'laneshift', 'laneclosure', 'twolanes', 'intersection', 'flagging', 'signal', 'full', 'sidewalk', 'walkway'].map(function (id) { return '<option value="' + id + '"' + (v.pick === id ? ' selected' : '') + '>' + esc(NAMES[id]) + '</option>'; }).join('') + '</select></div>';
+    h += '<div style="padding:4px 20px 0"><label for="pick' + n + '" style="font-size:13px;color:var(--muted)">Setup for this zone</label><select id="pick' + n + '" data-pick="' + pidx + '" style="width:100%;min-height:44px"><option value="">Auto (the app picks)</option>' + ['shoulder', 'laneshift', 'laneclosure', 'twolanes', 'intersection', 'flagging', 'signal', 'full', 'sidewalk', 'walkway', 'moving'].map(function (id) { return '<option value="' + id + '"' + (v.pick === id ? ' selected' : '') + '>' + esc(NAMES[id]) + '</option>'; }).join('') + '</select></div>';
     if (r && (r.plan.scenario === 'laneclosure' || r.plan.scenario === 'twolanes')) {
       /* Combo select: the shift partner follows shiftPartnerOK — 6N.11 multi-lane roads need a suicide lane, two-lane roads need ~32 ft (TA-102(CA) scope). The option stays listed and disabled with the failing condition when the rule fails. */
       var cmb = (v.combo || ''), hints = [], lpdN = v.oneway ? v.lanes : Math.max(1, Math.floor(v.lanes / 2)), shiftOk = shiftPartnerOK(v);
