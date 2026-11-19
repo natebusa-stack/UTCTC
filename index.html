@@ -388,6 +388,7 @@ label.xfl input{width:22px;height:22px}
 header{--hbg:#111A21;background:var(--hbg);color:#fff;padding:14px 0 14px;position:relative;box-shadow:0 0 0 100vmax var(--hbg);clip-path:inset(0 -100vmax -8px -100vmax);margin-bottom:22px}
 header::after{content:"";position:absolute;left:-100vmax;right:-100vmax;bottom:-8px;height:8px;background:repeating-linear-gradient(135deg,#F08A2E 0 14px,#111A21 14px 28px)}
 html,body{overflow-x:clip}
+@media (min-width:701px){header{flex-wrap:nowrap;justify-content:flex-start;gap:12px}header .brand{flex:1;min-width:0}header .sub{max-width:520px}header .badge,header .ghost{flex:none;white-space:nowrap}}
 header h1{color:#fff;font-size:30px}
 header .sub{color:#A9B6C1}
 header .badge{background:transparent;border-color:#3A4854;color:#C9D3DB}
