@@ -4348,6 +4348,7 @@ function nextBar() {
     h += '<details class="dg"><summary>Change history (' + hist.length + ')</summary><ul class="l" style="padding:0 20px">' + hist.slice().reverse().map(function (e) { return '<li><b>' + fldTime(e.t) + '</b> ' + esc(e.x) + '</li>'; }).join('') + '</ul></details>';
     h += '<div class="go" style="margin:6px 20px 12px"><button type="button" data-fld="handoff" data-k="' + esc(hk) + '">Share crew brief</button> <button type="button" data-fld="reset" data-k="' + esc(hk) + '">Clear checklist</button></div></div>';
     FLD.txt[hk] = fldBrief(r, v, z, nm, hist); FLD.nm[hk] = nm;
+    FLD.rf = FLD.rf || {}; FLD.rf[hk] = function () { var c = fldConds(r, v, p); FLD.txt[hk] = fldBrief(r, v, z, nm, hist); return c.map(function (t) { return '<div class="nt med">' + esc(t) + '</div>'; }).join(''); };
     return h;
   }
   function fldBrief(r, v, z, nm, hist) {
@@ -4372,9 +4373,9 @@ function nextBar() {
   }
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('button[data-fld]'); if (!b) return; var a = b.getAttribute('data-fld'), k = b.getAttribute('data-k');
-    if (a === 'cond') { FLD.cond[k] = !FLD.cond[k]; fldSave(); b.classList.toggle('on', !!FLD.cond[k]); b.setAttribute('aria-pressed', FLD.cond[k] ? 'true' : 'false'); if (typeof render === 'function') try { render(); } catch (x) {} }
+    if (a === 'cond') { FLD.cond[k] = !FLD.cond[k]; fldSave(); b.classList.toggle('on', !!FLD.cond[k]); b.setAttribute('aria-pressed', FLD.cond[k] ? 'true' : 'false'); var bl = b.closest('[data-fldblk]'), hk2 = bl && bl.getAttribute('data-fldblk'), nb = bl && bl.querySelector('#fldc'); if (nb && FLD.rf && FLD.rf[hk2]) nb.innerHTML = FLD.rf[hk2](); }
     else if (a === 'handoff') { var tx = FLD.txt[k] || ''; if (navigator.share) navigator.share({ title: 'Traffic control brief', text: tx }).catch(function () {}); else if (navigator.clipboard) { navigator.clipboard.writeText(tx).then(function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Share crew brief'; }, 1800); }); } }
-    else if (a === 'reset') { Object.keys(FLD.chk).forEach(function (x) { if (x.indexOf(k + '|f') === 0) delete FLD.chk[x]; }); fldSave(); if (typeof render === 'function') try { render(); } catch (x) {} }
+    else if (a === 'reset') { Object.keys(FLD.chk).forEach(function (x) { if (x.indexOf(k + '|f') === 0) delete FLD.chk[x]; }); fldSave(); var bl2 = b.closest('[data-fldblk]'); if (bl2) bl2.querySelectorAll('input[data-fld=chk]').forEach(function (i) { i.checked = false; var sm = i.parentNode.querySelector('small'); if (sm) sm.remove(); }); }
   });
   document.addEventListener('change', function (e) {
     var t = e.target; if (!t.getAttribute || !t.getAttribute('data-fld')) return; var a = t.getAttribute('data-fld'), k = t.getAttribute('data-k');
