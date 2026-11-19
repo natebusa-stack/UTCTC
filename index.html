@@ -823,6 +823,12 @@ function plan(i) {
   }
   if (out.tma && sc !== 'moving') out.notes.push('At ' + S + ' mph and above, use a shadow vehicle with a truck-mounted attenuator.');
   if (out.arrowBoard && sc !== 'moving') out.notes.push('Put an arrow board at the start of the taper.');
+  if (out.arrowBoard) {
+    /* TCT book, Figure 6F-6 (Table 6F-6 arrow board types) and slide 67 (mounting height) */
+    out.arrowType = S <= 25 ? 'A' : (S <= 40 ? 'B' : 'C');
+    out.arrowSize = ({ A: '48 x 24 in, 12 elements, seen from 1/2 mi', B: '60 x 30 in, 13 elements, seen from 3/4 mi', C: '96 x 48 in, 15 elements, seen from 1 mi' })[out.arrowType];
+    out.notes.push('Arrow board for ' + S + ' mph: Type ' + out.arrowType + ' (' + out.arrowSize + '). A Type II (72 x 36 in, 13 elements, 3/4 mi) may be used in place of Type B or C in California. Mount a trailer board 7 ft above the road at the bottom of the board; on a vehicle mount it as high as practical (Figure 6F-6). On a road with no shoulder or a narrow one, put the board in the closed lane.');
+  }
   out.notes.push('Arrow boards (MUTCD 11th, 6L.06): arrow or chevron mode only to close a lane on a multi-lane road. Use caution mode for shoulder work and for one-lane closures on two-lane roads. Never use an arrow board to show a lane shift.');
   out.notes.push('Signs: ' + out.signSize + ' minimum, orange background, mounted at least 7 ft to the bottom in urban or pedestrian areas and 5 ft elsewhere.');
   return out;
@@ -4440,7 +4446,7 @@ function nextBar() {
     else if (p.devTotal) k.push([p.devTotal, 'Cones or drums', (night || p.speed >= 45) ? '28 in minimum at night or 45 mph and above' : '18 in minimum in daylight']);
     if (p.flaggers) k.push([p.flaggers, 'Flaggers', 'One on every approach' + (p.legs ? ': ' + p.legs.filter(function (l) { return l.flagger; }).map(function (l) { return l.fid + (l.xf ? ' + ' + l.fx : '') + ' ' + l.name; }).join(', ') : '') + (p.extraFlag ? '. Includes ' + p.extraFlag + ' extra station' + (p.extraFlag > 1 ? 's' : '') + ' you turned on' : '') + '. STOP/SLOW paddles and high-visibility clothing']);
     if (p.signals) k.push([p.signals, 'Signal trailers', 'With power and a backup']);
-    if (p.arrowBoard) k.push([String(p.arrowBoards || 1), p.arrowBoards > 1 ? 'Arrow boards' : 'Arrow board', r.id === 'moving' ? 'Type II, on V2 (and on V1 if no changeable message sign)' : p.arrowBoards > 1 ? 'One at each taper' : 'At the start of the taper']);
+    if (p.arrowBoard) k.push([String(p.arrowBoards || 1), p.arrowBoards > 1 ? 'Arrow boards' : 'Arrow board', r.id === 'moving' ? 'Type II, on V2 (and on V1 if no changeable message sign)' : 'Type ' + p.arrowType + (p.arrowBoards > 1 ? ', one at each taper' : ', at the start of the taper')]);
     if (r.id === 'moving') { k.push(['1', 'V1 sign vehicle', 'Changeable message sign, or SC10(CA) panel with a Type II arrow sign. TMA if it reaches into the lane']); k.push(['1', 'V3 work vehicle', 'Does the work in the closed lane']); k.push(['2-way radios', 'All vehicles', 'Flashing or rotating amber lights on every vehicle']); }
     if (r.id === 'halfroad') k.push(['2', 'Flags per sign', 'At least two 16 x 16 in orange flags on each advance warning sign (daytime); flashing beacons at night']);
     if (p.tma) k.push(['1', 'Shadow vehicle', r.id === 'moving' ? 'V2 with truck-mounted attenuator, Type II arrow sign and LANE CLOSED panel' : 'With truck-mounted attenuator']);
