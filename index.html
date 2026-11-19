@@ -5529,7 +5529,7 @@ function nextBar() {
       h += '<div class="qt">' + esc(q2.q) + '</div><div class="opts sm">' + q2.o.map(function (o) { return opt(null, q2.id, o[0], o[1], '', j[q2.id] === o[0], 'jq'); }).join('') + '</div>';
     });
     h += '<div id="jadvice">' + adviceHTML() + '</div>';
-    h += '<div class="go" style="margin-top:14px"><button type="button" class="pri" id="jpacket">Make the close-out packet</button><button type="button" class="ghost" id="jjsa">JSA only</button><button type="button" class="ghost" id="jrcpt">Work receipt only</button></div><p class="hint">The packet has the plan to follow, the completed JSA and the work receipt, ready to print and sign.</p>';
+    h += '<div class="go" style="margin-top:14px"><button type="button" class="pri" id="jpacket">Make the close-out packet</button><button type="button" class="ghost" id="jpermit">City approval only</button><button type="button" class="ghost" id="jjsa">JSA only</button><button type="button" class="ghost" id="jrcpt">Work receipt only</button></div><p class="hint">The packet has the city approval application, the plan to follow, the completed JSA and the work receipt, ready to print and sign. Fill in the Sheet details on the Plan tab first so the application is complete.</p>';
     el.innerHTML = h;
   }
   function adviceHTML() {
@@ -5568,6 +5568,52 @@ function nextBar() {
     h += '<div class="pb2"></div><h2>End of day review</h2><table class="jt"><tr><td>The setup matched the plan</td><td>[ ] Yes &nbsp; [ ] No, changes made:</td></tr><tr><td>Changes made to the plan</td><td style="height:44px"></td></tr><tr><td>Near misses, incidents or injuries</td><td>[ ] None &nbsp; [ ] Yes, describe:<div style="height:40px"></div></td></tr><tr><td>Devices missing or damaged</td><td style="height:30px"></td></tr><tr><td>All devices picked up and counted</td><td>[ ] Yes</td></tr></table><p style="margin-top:10px"><b>Foreman signature at end of day:</b> <span class="sigline" style="display:inline-block;width:260px"></span> &nbsp; Date: <span class="sigline" style="display:inline-block;width:100px"></span></p>';
     return h + '</article>';
   }
+  /* City approval submittal: filled in from the title block, job info and the plans themselves. Blanks are left only for facts the app cannot know. */
+  function permitHTML() {
+    var t = totals(), d = new Date(), hs = J.hosp, agency = SD.agency || J.customer || '', co = SD.contractor || J.company || '';
+    var work = J.desc || (WORK.filter(function (x) { return x[0] === G.work; })[0] || [0, ''])[1] || '';
+    var hours = SD.hours || ((J.start || J.end) ? (J.start + ' to ' + J.end) : '');
+    var zs = []; sites.forEach(function (s2) { s2.zones.forEach(function (z) { if (z.ev.rec) zs.push({ s: s2, z: z, r: z.ev.rec, p: z.ev.rec.plan }); }); });
+    var anyFull = zs.some(function (x) { return x.r.id === 'full'; }), anyFlag = zs.some(function (x) { return /flag|signal/.test(x.r.id); }), anyWalk = zs.some(function (x) { return /sidewalk|walkway/.test(x.r.id); });
+    var fast = zs.some(function (x) { return (x.p.speed || 0) >= 45; });
+    var blank = function (v, w) { return v ? esc(v) : '<span class="bl" style="display:inline-block;min-width:' + (w || 120) + 'px;border-bottom:1px solid #000">&nbsp;</span>'; };
+    var h = '<article class="sheet pb jsa permit"><h1>Traffic Control Plan: Application for Approval</h1>';
+    h += '<p class="hint">Submitted to: <b>' + blank(agency, 200) + '</b> &nbsp; Date submitted: <b>' + esc(d.toLocaleDateString()) + '</b></p>';
+    h += '<h2>1. Applicant and responsible people</h2><table class="jt">' +
+      '<tr><th>Contractor / applicant</th><td>' + blank(co) + '</td><th>Job / project no.</th><td>' + blank(SD.job || J.job) + '</td></tr>' +
+      '<tr><th>Permit / encroachment no.</th><td>' + blank(SD.permit) + '</td><th>Foreman</th><td>' + blank(J.foreman) + '</td></tr>' +
+      '<tr><th>Traffic Control Supervisor</th><td>' + blank(SD.tcs) + '</td><th>TCS certification no.</th><td>' + blank(SD.cert) + '</td></tr>' +
+      '<tr><th>Plan prepared by</th><td>' + blank(SD.by) + '</td><th>Phone for TCP questions</th><td>' + blank(SD.phone) + '</td></tr>' +
+      '<tr><th>24-hour emergency contact</th><td>' + blank(SD.emerg) + '</td><th>Contractor license no.</th><td>' + blank('') + '</td></tr></table>';
+    h += '<h2>2. Work</h2><table class="jt"><tr><th>Description of work</th><td colspan="3">' + blank(work, 300) + '</td></tr>' +
+      '<tr><th>Start date</th><td>' + blank('') + '</td><th>End date</th><td>' + blank('') + '</td></tr>' +
+      '<tr><th>Hours of work</th><td>' + blank(hours) + '</td><th>Day or night work</th><td>' + (G.night ? 'Night work (retroreflective devices, lighting and high-visibility apparel required)' : 'Daytime work') + '</td></tr>' +
+      '<tr><th>Closures</th><td colspan="3">' + (anyFull ? '<b>Full road closure.</b> A detour is required (see section 6).' : 'No full road closure. At least one lane stays open to traffic at all times.') + '</td></tr></table>';
+    h += '<h2>3. Locations</h2>' + locsTable();
+    h += '<h2>4. Traffic control narrative</h2>';
+    zs.forEach(function (x, n) {
+      var p = x.p, S = p.speed, L = [];
+      L.push('<b>' + esc(x.s.name) + (x.s.road ? ' (' + esc(x.s.road) + ')' : '') + ':</b> the work is on a road posted or assumed at ' + S + ' mph. Traffic will be controlled with: <b>' + esc(x.r.name) + '</b>.');
+      if (p.firstSign) L.push('Advance warning begins ' + p.firstSign + ' ft ahead of the work. ' + (signTotal(p) || 0) + ' sign' + (signTotal(p) === 1 ? '' : 's') + ' are used.');
+      if (p.taper) L.push('Taper length ' + Math.round(p.taper) + ' ft, buffer space ' + Math.round(p.buffer || 0) + ' ft, work length ' + Math.round(p.workLen || x.s.items[0].len || 0) + ' ft' + (p.downstream ? ', downstream taper ' + Math.round(p.downstream) + ' ft' : '') + '. Devices are spaced no farther than ' + (p.devSpacingTaper || '') + ' ft in the taper and ' + (p.devSpacingTangent || '') + ' ft along the work.');
+      if (p.flaggers) L.push(p.flaggers + ' certified flaggers control traffic with STOP/SLOW paddles' + (/signal/.test(x.r.id) ? ' (portable signals if used)' : '') + '. Flagger stations are at the start of the taper and across from the end of the termination area.');
+      if (p.arrowBoard) L.push('Arrow board: Type ' + (p.arrowType || 'C') + '.');
+      if (p.tma) L.push('A truck-mounted attenuator is used.');
+      (p.warnings || []).forEach(function (w) { L.push('Note: ' + w); });
+      h += '<p>' + (n + 1) + '. ' + L.join(' ') + '</p>';
+    });
+    h += '<p><b>Access and safety.</b> Access for emergency vehicles, residents and businesses is kept open at all times. Driveways are not blocked longer than needed, and a flagger or a plate is provided where one is closed. Work zone devices are checked at least every ' + (G.night ? 'two hours at night' : 'four hours') + ' and after any change in the work. Devices meet MUTCD and Caltrans Standard Plan requirements, and cones are 28 in minimum' + (fast || G.night ? ' for this speed or night work' : '') + '. All crew and flaggers wear Class 3 high-visibility apparel.</p>';
+    h += '<h2>5. Traffic control items</h2><table class="jt"><tr><th>Item</th><th>Quantity</th></tr><tr><td>Cones, drums and channelizers</td><td>' + t.dev + '</td></tr><tr><td>Signs</td><td>' + t.signs + '</td></tr><tr><td>Barricades</td><td>' + t.barr + '</td></tr><tr><td>Flaggers</td><td>' + t.flag + '</td></tr><tr><td>Arrow boards</td><td>' + t.arrow + '</td></tr><tr><td>Truck-mounted attenuators</td><td>' + t.tma + '</td></tr></table>';
+    h += '<h2>6. Pedestrians, bicycles, transit and detour</h2><ul><li>' + (anyWalk ? 'Pedestrian path is closed or shifted at the work. A marked ADA-accessible route, at least 4 ft wide, stays open or a protected alternate route is provided with signs at both ends.' : 'Sidewalks and crossings stay open. If one must close, the pedestrian route is signed and kept ADA accessible with at least 4 ft clear width.') + '</li><li>Bicycles are accommodated through the work zone or signed around it. Bicycle lanes are not closed without a sign.</li><li>' + (anyFull ? 'Detour route: ' + blank('', 280) + ' (attach detour map).' : 'No detour is required.') + '</li><li>Transit stops and routes affected: ' + blank('', 200) + '</li></ul>';
+    h += '<h2>7. Notifications</h2><table class="jt"><tr><th>Who</th><th>Needed</th><th>Notified by</th><th>Date</th></tr>' + [
+      ['Police department', anyFlag || anyFull], ['Fire department and EMS', true], ['Transit agency', anyFull || anyFlag], ['School district (if a school is near)', false], ['Businesses and residents on the street (written notice)', true], ['Trash and recycling hauler', false], ['Caltrans (if on or near a state route)', false]
+    ].map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + (r[1] ? '[ ] Yes' : '[ ] If applicable') + '</td><td></td><td></td></tr>'; }).join('') + '</table>';
+    h += '<h2>8. Standards used</h2><p>FHWA MUTCD 11th Edition and the California MUTCD, with Caltrans Standard Plans T9 to T16 for lane closures and sign spacing. Sign spacing, taper lengths and buffer space come from those tables for the speed shown. Emergency: call 911. Nearest hospital: ' + esc(hs.name || '') + ' ' + esc(hs.addr || '') + ' ' + esc(hs.phone || '') + '.</p>';
+    h += '<h2>9. Attachments</h2><p>[X] Traffic control plan sheets (attached, one per site) &nbsp; [X] Job safety analysis &nbsp; [ ] Certificate of insurance naming the agency &nbsp; [ ] Contractor license &nbsp; [ ] TCS certification card &nbsp; [ ] Flagger certifications &nbsp; [ ] Permit fee &nbsp; [ ] Detour map &nbsp; [ ] Haul route</p>';
+    h += '<h2>10. Certification</h2><p>I certify that this plan follows the MUTCD, the California MUTCD and the conditions of the permit, and that the work will be set up as shown.</p><table class="jt"><tr><td style="width:50%"><b>Traffic Control Supervisor</b><div class="sigline"></div><small>' + esc(SD.tcs) + ' &nbsp; Cert no. ' + esc(SD.cert) + ' &nbsp; Date:</small></td><td><b>Contractor representative</b><div class="sigline"></div><small>Print name and title: &nbsp; Date:</small></td></tr></table>';
+    h += '<h2>11. For agency use</h2><table class="jt"><tr><td>[ ] Approved &nbsp; [ ] Approved as noted &nbsp; [ ] Revise and resubmit &nbsp; [ ] Rejected</td><td>Permit no.: ' + esc(SD.permit) + '</td></tr><tr><td colspan="2" style="height:60px">Conditions or comments:</td></tr><tr><td><b>Reviewed by</b>' + (SD.approver ? ': ' + esc(SD.approver) : '') + '<div class="sigline"></div></td><td>Date:</td></tr></table>';
+    return h + '</article>';
+  }
   function receiptHTML() {
     var t = totals(), h = '<article class="sheet pb jsa rcpt">' + jobHead('Work Receipt');
     h += '<h2>Work performed</h2><p>' + esc(J.desc || (WORK.filter(function (x) { return x[0] === G.work; })[0] || [0, ''])[1] || '') + '</p>' + locsTable();
@@ -5582,12 +5628,13 @@ function nextBar() {
   function packetHTML(which) {
     if (which === 'jsa') return jsaHTML();
     if (which === 'rcpt') return receiptHTML();
-    return yardHTML() + sheetHTML(sites.slice(0, 40)) + jsaHTML() + receiptHTML();
+    if (which === 'permit') return permitHTML();
+    return permitHTML() + yardHTML() + sheetHTML(sites.slice(0, 40)) + jsaHTML() + receiptHTML();
   }
   function openPacket(which) {
     if (!sites.length) { say('jstat', 'Enter job coordinates first so there is a plan to attach.'); return; }
     sheetSites = sites.slice(0, 40); var ov = $('sheetov'); $('sheetbody').innerHTML = packetHTML(which); ov.hidden = false; ov.scrollTop = 0;
-    $('sheetnote').textContent = which === 'jsa' ? 'JSA. Print it, then have the crew and foreman sign.' : which === 'rcpt' ? 'Work receipt. Print it and have the foreman sign.' : 'Close-out packet: plan to follow, JSA and work receipt.';
+    $('sheetnote').textContent = which === 'jsa' ? 'JSA. Print it, then have the crew and foreman sign.' : which === 'rcpt' ? 'Work receipt. Print it and have the foreman sign.' : which === 'permit' ? 'City approval application. Check the blanks, then print and sign.' : 'Close-out packet: city approval application, plan to follow, JSA and work receipt.';
   }
   function jobWire() {
     var el = $('jobpane'); if (!el) return;
@@ -5602,7 +5649,7 @@ function nextBar() {
       if (act === 'jq') { var k = t.getAttribute('data-k'), v = t.getAttribute('data-v'); G.j = G.j || {}; if (G.j[k] === v) delete G.j[k]; else G.j[k] = v; save(); compute(); renderJob(); }
       else if (act === 'crewdel') { J.crew.splice(+t.getAttribute('data-v'), 1); jSave(); renderJob(); }
       else if (t.id === 'j-crewbtn') { var inp = $('j-crewadd'), nm = inp.value.trim(); if (nm) { J.crew.push(nm); jSave(); renderJob(); } }
-      else if (t.id === 'jback') setTab(sites.length ? 'plan' : 'locs'); else if (t.id === 'jpacket') openPacket('all'); else if (t.id === 'jjsa') openPacket('jsa'); else if (t.id === 'jrcpt') openPacket('rcpt');
+      else if (t.id === 'jback') setTab(sites.length ? 'plan' : 'locs'); else if (t.id === 'jpacket') openPacket('all'); else if (t.id === 'jjsa') openPacket('jsa'); else if (t.id === 'jrcpt') openPacket('rcpt'); else if (t.id === 'jpermit') openPacket('permit');
     });
     el.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.id === 'j-crewadd') { e.preventDefault(); $('j-crewbtn').click(); } });
   }
