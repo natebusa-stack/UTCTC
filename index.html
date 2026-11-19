@@ -2385,9 +2385,9 @@ function draw(p, v, opt) {
       o.push('<text class="s-t" x="' + R(X(taper)) + '" y="' + R(ys1 - 8) + '">Traffic shifts sideways and keeps its lanes</text>');
     }
     if (sc === 'flagging' || sc === 'signal') {
-      [[X(-30), yE + 9, sc === 'signal' ? 'S1' : 'F1'], [X(dEnd + 30), yL0 - 9, sc === 'signal' ? 'S2' : 'F2']].forEach(function (f) {
+      [[X(0), yE + 15, sc === 'signal' ? 'S1' : 'F1', -1], [X(dEnd), yL0 - 15, sc === 'signal' ? 'S2' : 'F2', 1]].forEach(function (f) {
         if (sc === 'signal') cones.push('<rect class="s-sg" x="' + R(f[0] - 5) + '" y="' + R(f[1] - 10) + '" width="10" height="20" rx="2"/><text class="s-tb" x="' + R(f[0] + 10) + '" y="' + R(f[1] + 4) + '">' + f[2] + '</text>');
-        else cones.push('<line x1="' + R(f[0]) + '" y1="' + R(f[1] + 7) + '" x2="' + R(f[0]) + '" y2="' + R(f[1] - 11) + '" stroke="#1b1b1b" stroke-width="1.5"/><polygon points="' + R(f[0]) + ',' + R(f[1] - 11) + ' ' + R(f[0]) + ',' + R(f[1] - 3) + ' ' + R(f[0] + 10) + ',' + R(f[1] - 7) + '" fill="#c4161c" stroke="#7a0b0f" stroke-width="1"/><circle cx="' + R(f[0]) + '" cy="' + R(f[1] + 7) + '" r="2" fill="#1b1b1b"/><text class="s-tb" x="' + R(f[0] + 14) + '" y="' + R(f[1] + 4) + '">' + f[2] + '</text>');
+        else cones.push('<line x1="' + R(f[0]) + '" y1="' + R(f[1] + 7) + '" x2="' + R(f[0]) + '" y2="' + R(f[1] - 11) + '" stroke="#1b1b1b" stroke-width="1.5"/><polygon points="' + R(f[0]) + ',' + R(f[1] - 11) + ' ' + R(f[0]) + ',' + R(f[1] - 3) + ' ' + R(f[0] + 10) + ',' + R(f[1] - 7) + '" fill="#c4161c" stroke="#7a0b0f" stroke-width="1"/><circle cx="' + R(f[0]) + '" cy="' + R(f[1] + 7) + '" r="2" fill="#1b1b1b"/><text class="s-tb" text-anchor="' + (f[3] < 0 ? 'end' : 'start') + '" x="' + R(f[0] + (f[3] < 0 ? -12 : 14)) + '" y="' + R(f[1] + 4) + '">' + f[2] + '</text>');
       });
     }
   } else if (sc === 'sidewalk' || sc === 'walkway') {
@@ -3466,7 +3466,7 @@ function MapView(canvas, cb) {
       if (LG) {{
         LG.legs.forEach(function (lg) { if (lg.kind !== 'main' || !lg.flagger) return; var side = lg.prot ? sgn : (lg.ahead === 'back' ? 1 : -1), q = atS(g.pts, g.cum, g.s0 + dir * lg.t), ang = q.a + (dir < 0 ? Math.PI : 0), off = side * (RWd / 2 + 8) + side * 4 + (lg.entry ? side * 6 : 0); flagMark(c, sx(q.x + Math.sin(ang) * off), sy(q.y - Math.cos(ang) * off), lg.fid); if (lg.xf) { var t2 = lg.t + (lg.ahead === 'back' ? -50 : 50), q2 = atS(g.pts, g.cum, g.s0 + dir * t2), ang2 = q2.a + (dir < 0 ? Math.PI : 0); flagMark(c, sx(q2.x - Math.sin(ang2) * off), sy(q2.y + Math.cos(ang2) * off), lg.fx); } });
       } }
-      if (sc === 'flagging' && !LG) { mark(tS - 40, 'F1', 'c', C.acc); mark(tE + 40, 'F2', 'c', C.acc); }
+      if (sc === 'flagging' && !LG) { mark(tS - 15, 'F1', 'c', C.acc); mark(tE + 15, 'F2', 'c', C.acc); }
       if (sc === 'signal') { mark(tS - 40, 'S1', 's', C.bad); mark(tE + 40, 'S2', 's', C.bad); }
       if (sc === 'full') {
         var nmA = dt ? ((dir > 0 ? dt.A : dt.B).streets[0] || {}).name : '', nmB = dt ? ((dir > 0 ? dt.B : dt.A).streets[0] || {}).name : '';
