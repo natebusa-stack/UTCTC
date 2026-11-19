@@ -4945,7 +4945,7 @@ function nextBar() {
     var T = { signs: {}, total: 0, flag: [], flagN: 0, dev: 0, barr: 0, arrow: 0, tma: 0, signal: 0, pedBarr: 0, zones: 0, devTaper: 0, devTangent: 0, devDown: 0 };
     (list || sites).forEach(function (s) { s.zones.forEach(function (z, zi) {
       var r = z.ev.rec; if (!r) return; var p = r.plan; T.zones++;
-      (p.signCounts || []).forEach(function (o) { var t = T.signs[o.code] || (T.signs[o.code] = { code: o.code, legend: o.legend, n: 0 }); t.n += o.n; T.total += o.n; });
+      (p.signCounts || []).forEach(function (o) { var kx = o.code + '|' + o.legend, t = T.signs[kx] || (T.signs[kx] = { code: o.code, legend: o.legend, n: 0 }); t.n += o.n; T.total += o.n; });
       if (p.flaggers) { T.flag.push({ label: s.name + (s.zones.length > 1 ? ', zone ' + (zi + 1) : ''), n: p.flaggers, what: r.name }); T.flagN += p.flaggers; }
       T.dev += p.devTotal || 0; T.devTaper += p.devTaper || 0; T.devTangent += p.devTangent || 0; T.devDown += p.devDownstream || 0; T.barr += p.barricades || 0; T.arrow += p.arrowBoards || (p.arrowBoard ? 1 : 0); T.tma += p.tma ? 1 : 0; T.signal += p.signals || 0; T.pedBarr += p.pedBarr || 0;
     }); });
