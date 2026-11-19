@@ -664,7 +664,7 @@ function plan(i) {
   if (sc === 'laneclosure' || sc === 'twolanes') {
     /* Caltrans 2018 Standard Plan T11 notes 4, 5, 6 and 8 */
     out.notes.push('Give drivers at least 1500 ft of sight distance to the first arrow board where possible. Do not start the closure at the top of a crest or on a horizontal curve (Caltrans T11, note 4).');
-    out.notes.push('Past the work area, T11 shows 100 to 150 ft before the closure ends. The engineer may shorten it for site conditions (note 6).');
+    out.notes.push('Past the work area, the 2018 T11 shows 100 to 150 ft (the 2015 sheet shows 50 to 100 ft; the 2022 edition governs, so confirm it) before the closure ends. The engineer may shorten it for site conditions (note 6).');
     if (i.workLen > 1000) out.notes.push('Long closure: repeat the LANE CLOSED sign every 500 to 1000 ft along the work (T11, note 5).');
     if (S > 50 && !i.oneway) out.notes.push('Approach speed over 50 mph: T11 note 8 says to use the freeway and expressway lane closure plan (T10) instead.');
   }
@@ -680,7 +680,7 @@ function plan(i) {
   }
   if (sc === 'moving') {
     out.mobile = true; out.vehicles = 3; out.interior = mvInterior;
-    out.notes.push('Moving lane closure (Caltrans 2015 ' + (mvInterior ? 'T16, interior lane' : 'T15, ' + (i.laneSide === 'L' ? 'median' : 'outside') + ' lane') + '): three vehicles travel together with no cones and no taper. V1 is the sign vehicle on the shoulder. V2 is the shadow vehicle in the closed lane, upstream of V3. V3 is the work or application vehicle.');
+    out.notes.push('Moving lane closure (from Caltrans 2015 plans, confirm against the 2022 edition: ' + (mvInterior ? 'T16, interior lane' : 'T15, ' + (i.laneSide === 'L' ? 'median' : 'outside') + ' lane') + '): three vehicles travel together with no cones and no taper. V1 is the sign vehicle on the shoulder. V2 is the shadow vehicle in the closed lane, upstream of V3. V3 is the work or application vehicle.');
     out.notes.push('V1: ' + (mvInterior ? 'a changeable message sign on the rear shows ROAD WORK AHEAD, then INTERIOR LANE CLOSED (CENTER LANE CLOSED may be used instead).' : 'a changeable message sign on the rear shows ROAD WORK AHEAD, then ' + LW + ' LANE CLOSED. Or use an SC10(CA) sign panel with a Type II flashing arrow sign.' + (i.laneSide === 'L' ? ' For a median lane the arrow is reversed so the arrowhead is on the right.' : '')) + ' Sign panels are ' + (mvInterior ? '54 x 42 in' : '66 x 36 in (SC10) and 54 x 42 in (SC11)') + ' minimum, Type III or better retroreflective sheeting, black on white or black on fluorescent orange, 6 in minimum Series D letters (notes 1 and 5).');
     out.notes.push('V2 shadow vehicle: truck-mounted attenuator, a Type II flashing arrow sign in double arrow mode on its rear and an SC11(CA) LANE CLOSED sign panel (54 x 42 in minimum). Keep the gap between V2 and V3 as small as practical so drivers cannot cut in between (note 12).');
     out.notes.push('Sight distance: give drivers at least 1500 ft to see V1. V1 stays at the start of a horizontal or vertical curve until V2 and V3 are far enough past it to restore the 1500 ft. If traffic queues up, V1 moves upstream of the end of the queue, on the shoulder where it is highly visible (notes 2, 3 and 4).');
@@ -691,7 +691,7 @@ function plan(i) {
   }
   if (sc === 'halfroad') {
     out.mobile = false;
-    out.notes.push('Half road closure (Caltrans 2018 T12, multilane conventional highway or expressway): the work takes the outside lane and shoulder of one direction. That direction merges left with a taper L = ' + (S <= 40 ? 'W x S^2 / 60' : 'W x S') + ' = ' + taper + ' ft, then shifts across the center line with a shifting taper of L/2 = ' + Math.round(taper / 2) + ' ft. The opposing direction closes its left lane the same way so the two streams share the lanes that are left.');
+    out.notes.push('Half road closure (from Caltrans 2018 T12, confirm against the 2022 edition; multilane conventional highway or expressway): the work takes the outside lane and shoulder of one direction. That direction merges left with a taper L = ' + (S <= 40 ? 'W x S^2 / 60' : 'W x S') + ' = ' + taper + ' ft, then shifts across the center line with a shifting taper of L/2 = ' + Math.round(taper / 2) + ' ft. The opposing direction closes its left lane the same way so the two streams share the lanes that are left.');
     out.notes.push('Use the tangent L/2 = ' + Math.round(taper / 2) + ' ft between tapers (note 7). Downstream of the work allow 100 to 150 ft minimum (note 6); the engineer may shorten it for site conditions.');
     out.notes.push('Each advance warning sign gets at least two flags, 16 x 16 in or larger, orange or fluorescent red-orange, for daytime closures. At night add flashing beacons at the sign locations used for a lane closure (note 2). Sign sizes: 48 x 48 in (A), 24 x 24 in advisory plaques (B), 36 x 18 in END ROAD WORK (C).');
     out.notes.push('Advisory speed on the reverse curve is set by the engineer. The W13-1P plaque is not used when the advisory speed is above the posted or maximum speed (note 5).');
@@ -2226,7 +2226,7 @@ function drawH(p, v, opt) {
   ln(640, yB + 14, 800, yB + 14, '#111', 1.2); tx(720, yB + 28, 'tangent L/2 = ' + h2 + ' ft', 11, 700);
   tx(24, 28, 'HALF ROAD CLOSURE (' + S + ' mph)', 16, 800, 'start');
   tx(24, 50, 'Typical application, not to scale. Cone spacing: ' + p.devSpacingTaper + ' ft in tapers, ' + p.devSpacingTangent + ' ft on the tangent.', 12, 400, 'start', '#444');
-  tx(24, H - 10, 'Caltrans 2018 Standard Plan T12. Advisory speed set by the engineer. END ROAD WORK sign at the end in each direction.', 11, 400, 'start', '#444');
+  tx(24, H - 10, 'Caltrans 2018 Standard Plan T12 (confirm against the 2022 edition). Advisory speed set by the engineer. END ROAD WORK sign at the end in each direction.', 11, 400, 'start', '#444');
   o.push('</svg>');
   return o.join('');
 }
@@ -2267,7 +2267,7 @@ function drawM(p, v, opt) {
   tx(870, yc - 30, 'V3 work vehicle', 12, 700, 'start');
   tx(24, 28, 'MOVING LANE CLOSURE (' + S + ' mph)', 16, 800, 'start');
   tx(24, 50, 'No cones, no taper. Vehicles travel with traffic. Not to scale.', 12, 400, 'start', '#444');
-  tx(24, H - 10, 'Caltrans 2015 Standard Plan ' + (p.interior ? 'T16' : 'T15') + '. Use a stationary closure if anyone is on foot in the work area.', 11, 400, 'start', '#444');
+  tx(24, H - 10, 'Caltrans 2015 Standard Plan ' + (p.interior ? 'T16' : 'T15') + ' (confirm against the 2022 edition). Use a stationary closure if anyone is on foot in the work area.', 11, 400, 'start', '#444');
   o.push('</svg>');
   return o.join('');
 }
