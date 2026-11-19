@@ -2204,7 +2204,7 @@ function drawH(p, v, opt) {
   var cone = function (x, y) { o.push('<circle cx="' + x + '" cy="' + y + '" r="3.6" fill="#f26a0a" stroke="#7a2e00"/>'); };
   var along = function (n, xa, ya, xb, yb) { for (var t = 0; t < n; t++) { var f = n > 1 ? t / (n - 1) : 0; cone(xa + (xb - xa) * f, ya + (yb - ya) * f); } };
   var dia = function (x, y, code) { o.push('<polygon points="' + x + ',' + (y - 17) + ' ' + (x + 17) + ',' + y + ' ' + x + ',' + (y + 17) + ' ' + (x - 17) + ',' + y + '" fill="#f26a0a" stroke="#111" stroke-width="1.5"/>'); tx(x, y + 3, code, 8, 800); };
-  var ab = function (x, y) { o.push('<rect x="' + (x - 18) + '" y="' + (y - 9) + '" width="36" height="18" fill="#111"/>'); tx(x, y + 4, '→', 12, 700, 'middle', '#ffd34a'); };
+  var ab = function (x, y, ar) { o.push('<rect x="' + (x - 18) + '" y="' + (y - 9) + '" width="36" height="18" fill="#111"/>'); tx(x, y + 4, '→', 12, 700, 'middle', '#ffd34a'); };
   o.push('<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" font-family="Arial,sans-serif" role="img" aria-label="Half road closure, typical application"><rect width="' + W + '" height="' + H + '" fill="#fff"/>');
   o.push('<rect x="0" y="' + (yT - 30) + '" width="' + W + '" height="' + (4 * lh + 60) + '" fill="#d5d9dc"/><rect x="0" y="' + yT + '" width="' + W + '" height="' + (4 * lh) + '" fill="#a7aeb4"/>');
   ln(0, yT + lh, W, yT + lh, '#fff', 2, '24 20'); ln(0, yB - lh, W, yB - lh, '#fff', 2, '24 20');
@@ -2215,7 +2215,7 @@ function drawH(p, v, opt) {
   o.push('<rect x="660" y="' + (yC + 30) + '" width="90" height="' + (lh * 2 - 40) + '" fill="#fff" stroke="#111" stroke-width="1.5" stroke-dasharray="5 3"/>'); tx(705, yC + 30 + lh - 8, 'WORK AREA', 11, 800);
   along(9, 470, yB, 640, yC + 6); along(6, 640, yC + 6, 800, yC + 6); along(6, 800, yC + 6, 880, yB);   /* near direction: taper across the center line, tangent, return */
   along(8, 500, yC - 6, 640, yT + lh - 2); along(5, 640, yT + lh - 2, 800, yT + lh - 2); along(6, 800, yT + lh - 2, 900, yC - 6);   /* opposing direction: left lane closed */
-  ab(430, yB + 22); ab(560, yT - 16);
+  ab(430, yB + 22); ab(560, yT - 16, '\u2190');
   /* advance signs, near direction (bottom left) and opposing (top right) */
   dia(110, yB + 52, 'W20-1'); dia(210, yB + 52, 'C20R'); dia(310, yB + 52, 'W4-2R');
   dia(960, yT - 52, 'W20-1'); dia(880, yT - 52, 'C20L'); dia(800, yT - 52, 'W4-2L');
