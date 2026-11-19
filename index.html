@@ -344,6 +344,9 @@ ol.steps>li.done::before{content:"\2713";background:var(--ok);color:#fff}
 .tcplegend{grid-template-columns:190px minmax(0,1fr)!important}.tcplegend .lgi{columns:1!important}.tcplegend .lgi>b{display:block;border-bottom:1.5px solid #111;margin-bottom:3px;padding-bottom:1px}.tcplegend .sched{display:block!important;columns:2;column-gap:12px}.tcplegend .lgn{display:block!important}.tcplegend .lgi{display:block!important}@media print{.sheet.tcp{max-width:975px}}.tcplegend .li{display:flex;align-items:center;gap:6px;break-inside:avoid;margin:0 0 3px;padding:0 0 2px;border-bottom:1px dotted #9aa5ad}.tcplegend .ls{flex:none;width:34px;display:flex;justify-content:center;align-items:center}.tcplegend .ls img{height:28px;max-width:34px;object-fit:contain}.tcplegend .ls svg{width:16px;height:14px}.tcplegend .lt{flex:1;min-width:0;line-height:1.15}.tcplegend .lt small{display:block;font-size:8.5px;color:#4a5560}.tcplegend .lq{flex:none;min-width:22px;text-align:right;font-weight:800;font-size:13px}.tcplegend .lgn{margin-top:3px;font-size:8.5px;color:#4a5560;display:block}.tcplegend .tcpnp{grid-column:1/3}
 .tcpt.crit td{vertical-align:top}.tcpt.crit td small{display:block;font-weight:400;font-size:8.5px;line-height:1.15;color:#4a5560}.tcpt.crit th small{font-weight:400;text-transform:none;letter-spacing:0}.spdw{margin-top:6px}.spdw>b{display:block;font-size:11px}table.spd{width:100%;border-collapse:collapse;margin-top:2px}table.spd th,table.spd td{border:1px solid #333;padding:1px 3px;font-size:9px;text-align:center;line-height:1.1}table.spd th small{font-size:7.5px;font-weight:400}table.spd tr.on td{background:#ffe9c2;font-weight:800}.spdn{font-size:8px;line-height:1.2;color:#4a5560;margin-top:2px}
 
+@media screen and (max-width:760px){.tcpbox{display:block}.tcpbox>.tcpnotes,.tcpbox>.tcplegend{border-right:0}.tcplegend{display:block!important;grid-template-columns:1fr!important}.tcplegend .sched{columns:1!important}.tcplegend .li{margin-bottom:6px}.tcplegend .lt{font-size:13px}.tcplegend .lt small{font-size:11px}.tcplegend .lq{font-size:15px;min-width:30px}.tcplegend .tcpxs svg{max-height:none}.tcpmain{border-right:0}}
+.xbox.over{position:fixed;inset:0;z-index:90;background:#fff;padding:16px;display:flex;flex-direction:column;gap:10px}.xbox.over textarea{flex:1;min-height:0}
+
 @page tcpl{size:landscape;margin:.4in}
 .sheet.tcp{page:tcpl;max-width:1100px;padding:12px}
 .tcpbox{position:relative;border:2px solid #111;background:#fff;display:grid;grid-template-columns:minmax(0,1fr) 270px;align-items:stretch}
@@ -4287,6 +4290,98 @@ function nextBar() {
     if (r.hazards.some(function (h) { return h.sev === 'high'; })) L.push('Something on the red list cannot be fixed by the setup. Stop and call your supervisor.');
     return L;
   }
+
+  /* ---------- field kit: day-of checklist, conditions, handoff, site photos, change history ---------- */
+  var FLD = { cond: {}, chk: {}, sig: {}, hist: {}, txt: {}, nm: {} };
+  try { var _f = JSON.parse(localStorage.getItem('tcp5f') || '{}'); ['cond', 'chk', 'sig', 'hist'].forEach(function (k) { if (_f[k]) FLD[k] = _f[k]; }); } catch (e) {}
+  function fldSave() { try { localStorage.setItem('tcp5f', JSON.stringify({ cond: FLD.cond, chk: FLD.chk, sig: FLD.sig, hist: FLD.hist })); } catch (e) {} }
+  function fldTime(t) { var d = new Date(t); return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+  function fldHistory(r, v, hk) {
+    var p = r.plan, sig = { setup: r.name, speed: p.speed, lanes: v.lanes, taper: p.taper, buffer: p.buffer, spacing: p.space, devices: p.devTotal || 0, flaggers: p.flaggers || 0, signs: p.signTotal || p.signs.length, arrow: p.arrowBoards || 0 }, old = FLD.sig[hk], h = FLD.hist[hk] || (FLD.hist[hk] = []);
+    var dirty = false;
+    if (!old) { h.push({ t: Date.now(), x: 'Plan created: ' + r.name + ', ' + p.speed + ' mph' }); dirty = true; }
+    else {
+      var N = { setup: 'Setup', speed: 'Speed', lanes: 'Lanes', taper: 'Taper', buffer: 'Buffer', spacing: 'Sign spacing', devices: 'Cones', flaggers: 'Flaggers', signs: 'Signs', arrow: 'Arrow boards' }, ch = [];
+      for (var k in sig) if (sig[k] !== old[k]) ch.push(N[k] + ' ' + old[k] + ' to ' + sig[k]);
+      if (ch.length) { h.push({ t: Date.now(), x: ch.join('; ') }); dirty = true; }
+    }
+    if (dirty) { FLD.sig[hk] = sig; if (h.length > 40) h.splice(0, h.length - 40); fldSave(); }
+    return h;
+  }
+  function fldPhases(r, v, p) {
+    var inl = p.signs.some(function (g) { return g.inLane; }), flg = p.flaggers || 0, night = v.night || !!FLD.cond.night;
+    var A = ['Check in with your supervisor or dispatch: where you are, what you are setting up, crew size.', 'Walk the site. Count the lanes and look for side streets, driveways and dead ends. Compare with this plan.', 'Photograph the site before you set up anything.', 'Brief the crew: who does what, where the escape route is, hand and radio signals.'];
+    if (flg) A.push('Each flagger needs ' + p.stopSight + ' ft of clear view, an escape route, and a STOP/SLOW paddle.');
+    var S = [];
+    if (p.tma) S.push('Park the shadow vehicle with its truck-mounted attenuator upstream of the taper.');
+    S.push('Place the advance signs from the farthest toward the work: ' + (p.signCounts ? p.signCounts.length + ' sign types, ' + p.signTotal + ' signs in all.' : p.signs.filter(function (g) { return !g.buf && !g.opp && !g.end; }).map(function (g) { return g.code; }).join(', ') + ' at ' + p.space + ' ft spacing.'));
+    if (p.arrowBoards) S.push('Set up ' + (p.arrowBoards > 1 ? p.arrowBoards + ' arrow boards' : 'the arrow board') + ' at the start of the taper' + (p.arrowBoards > 1 ? 's' : '') + '. Check the display and brightness.');
+    if (inl) S.push('Put the LANE CLOSED sign inside the closed lane, after the arrow board.');
+    if (p.taper) S.push('Taper: ' + p.taper + ' ft long, cones ' + p.devSpacingTaper + ' ft apart. Then ' + p.devSpacingTangent + ' ft apart along the work. About ' + p.devTotal + ' devices in all.');
+    S.push('Drive or walk it from the driver’s view. Fix anything confusing.', 'Photograph the finished setup.');
+    var E = ['Walk the line. Cones upright, signs upright, clean and facing traffic.', 'Check the arrow board and lights: power, fuel, brightness.', 'Rotate flaggers and check water, shade or warmth.', 'Look at the queue. It must not reach the first advance sign.', 'Photograph anything that changed. Write down who changed it.'];
+    if (!p.arrowBoards) E.splice(1, 1);
+    var T = ['Take it down in reverse: devices first, signs last.', 'Count every device against the Bring list.', 'Remove or cover the signs. Leave nothing at the roadside.', 'Photograph the cleared site.', 'Tell dispatch the road is open and the crew is clear.'];
+    return [['Arrive and walk the site', A], ['Set up', S], ['Every 2 hours', E], ['Take down', T]];
+  }
+  function fldConds(r, v, p) {
+    var c = FLD.cond, o = [], wet = Math.round(p.buffer * 1.3 / 10) * 10;
+    if (c.night || v.night) o.push('Night: use 28 in cones or drums, flashing lights on devices, class 3 retroreflective gear, and light every flagger station. Check that signs are clean and reflective.');
+    if (c.rain) o.push('Wet road: stopping takes longer. Advisory only, not a code value: add about 30 percent to the buffer (' + p.buffer + ' to ' + wet + ' ft) and watch for devices sliding. Check your agency.');
+    if (c.fog) o.push('Fog or low visibility: if drivers cannot see ' + p.buffer + ' ft ahead, stop work and call your supervisor. Keep every light on.');
+    if (c.wind) o.push('Wind: sandbag every sign stand and cone base, and check them more often.');
+    if (c.hot) o.push('Heat: water, shade and rest breaks. Rotate flaggers every hour.');
+    return o;
+  }
+  function fieldHTML(r, v, z, hk) {
+    var p = r.plan, h = '', nm = z.items.map(function (it) { return it.loc.name + (it.loc.label ? ' (' + it.loc.label + ')' : ''); }).join(' + '), hist = fldHistory(r, v, hk), CN = { night: 'Night', rain: 'Rain or wet', fog: 'Fog', wind: 'Wind', hot: 'Hot' };
+    h += '<div class="blk" data-fldblk="' + esc(hk) + '"><h4>Field kit</h4><div style="padding:0 20px">';
+    h += '<p class="plain" style="margin:0 0 6px">Conditions today</p><div class="opts w">' + Object.keys(CN).map(function (k) { var on = k === 'night' ? (FLD.cond.night || v.night) : FLD.cond[k]; return '<button type="button" class="tile' + (on ? ' on' : '') + '" aria-pressed="' + (on ? 'true' : 'false') + '" data-fld="cond" data-k="' + k + '">' + CN[k] + '</button>'; }).join('') + '</div>';
+    h += '<div class="notes" id="fldc" style="padding:8px 0 0">' + fldConds(r, v, p).map(function (t) { return '<div class="nt med">' + esc(t) + '</div>'; }).join('') + '</div></div>';
+    fldPhases(r, v, p).forEach(function (ph, pi) {
+      h += '<details class="dg"' + (pi === 0 ? ' open' : '') + '><summary>' + esc(ph[0]) + '</summary><div class="ck">' + ph[1].map(function (x, i) {
+        var k = hk + '|f' + pi + '|' + i, on = FLD.chk[k];
+        return '<label><input type="checkbox" data-fld="chk" data-k="' + esc(k) + '"' + (on ? ' checked' : '') + '><span>' + esc(x) + (on ? ' <small style="color:#555">' + fldTime(on) + '</small>' : '') + '</span></label>';
+      }).join('') + '</div></details>';
+    });
+    h += '<details class="dg"><summary>Site photos</summary><div style="padding:0 20px 10px"><p class="plain" style="margin:0 0 8px">Take before and after photos. Compare what you see with the plan: lane count, side streets, dead ends, where signs can stand.</p><div class="opts w"><label class="tile" style="cursor:pointer">Before<input type="file" accept="image/*" capture="environment" hidden data-fld="photo" data-k="' + esc(hk) + '" data-tag="Before"></label><label class="tile" style="cursor:pointer">After setup<input type="file" accept="image/*" capture="environment" hidden data-fld="photo" data-k="' + esc(hk) + '" data-tag="After"></label></div><div id="ph_' + esc(hk).replace(/[^a-z0-9]/gi, '_') + '" class="fldph"></div></div></details>';
+    h += '<details class="dg"><summary>Change history (' + hist.length + ')</summary><ul class="l" style="padding:0 20px">' + hist.slice().reverse().map(function (e) { return '<li><b>' + fldTime(e.t) + '</b> ' + esc(e.x) + '</li>'; }).join('') + '</ul></details>';
+    h += '<div class="go" style="margin:6px 20px 12px"><button type="button" data-fld="handoff" data-k="' + esc(hk) + '">Share crew brief</button> <button type="button" data-fld="reset" data-k="' + esc(hk) + '">Clear checklist</button></div></div>';
+    FLD.txt[hk] = fldBrief(r, v, z, nm, hist); FLD.nm[hk] = nm;
+    return h;
+  }
+  function fldBrief(r, v, z, nm, hist) {
+    var p = r.plan, t = ['TRAFFIC CONTROL BRIEF', 'Site: ' + nm, 'Setup: ' + r.name, 'Speed ' + p.speed + ' mph, ' + (v.lanes || '?') + ' lane' + (v.lanes === 1 ? '' : 's') + (v.night ? ', night work' : ''), 'Taper ' + p.taper + ' ft | Buffer ' + p.buffer + ' ft | Sign spacing ' + p.space + ' ft', '', 'BRING'];
+    kitList(r, v).forEach(function (k) { t.push('- ' + k[0] + ' x ' + k[1] + ': ' + k[2]); });
+    t.push('', 'WATCH OUT'); if (r.hazards.length) r.hazards.forEach(function (h) { t.push('- ' + h.text); }); else t.push('- None found. Confirm on site.');
+    var c = fldConds(r, v, p); if (c.length) { t.push('', 'TODAY'); c.forEach(function (x) { t.push('- ' + x); }); }
+    t.push('', 'Drawn by UTCTC from map data. Confirm lanes, speed and side streets on site before setting up.');
+    return t.join('\n');
+  }
+  function fldPhotoDB(cb) { try { var q = indexedDB.open('tcp5photos', 1); q.onupgradeneeded = function () { q.result.createObjectStore('p', { autoIncrement: true }).createIndex('k', 'k'); }; q.onsuccess = function () { cb(q.result); }; q.onerror = function () { cb(null); }; } catch (e) { cb(null); } }
+  function fldShowPhotos(hk) {
+    var box = document.getElementById('ph_' + hk.replace(/[^a-z0-9]/gi, '_')); if (!box) return;
+    fldPhotoDB(function (db) { if (!db) { box.textContent = 'Photos cannot be saved in this browser.'; return; }
+      var out = [], rq = db.transaction('p').objectStore('p').openCursor(); rq.onsuccess = function () { var c = rq.result; if (c) { if (c.value.k === hk) out.push(c.value); c.continue(); } else box.innerHTML = out.map(function (o) { return '<figure style="margin:6px 0"><img src="' + o.d + '" style="width:100%;max-width:420px;border:1px solid var(--line)" alt="' + esc(o.tag) + ' photo"><figcaption style="font-size:12px;color:#555">' + esc(o.tag) + ', ' + fldTime(o.t) + '</figcaption></figure>'; }).join('') || '<p class="cap">No photos yet.</p>'; }; });
+  }
+  function fldAddPhoto(file, hk, tag) {
+    var img = new Image(), u = URL.createObjectURL(file);
+    img.onload = function () { var sc = Math.min(1, 900 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      var d = c.toDataURL('image/jpeg', 0.7); fldPhotoDB(function (db) { if (!db) return; var tx = db.transaction('p', 'readwrite'); tx.objectStore('p').add({ k: hk, tag: tag, t: Date.now(), d: d }); tx.oncomplete = function () { fldShowPhotos(hk); }; }); };
+    img.src = u;
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('button[data-fld]'); if (!b) return; var a = b.getAttribute('data-fld'), k = b.getAttribute('data-k');
+    if (a === 'cond') { FLD.cond[k] = !FLD.cond[k]; fldSave(); b.classList.toggle('on', !!FLD.cond[k]); b.setAttribute('aria-pressed', FLD.cond[k] ? 'true' : 'false'); if (typeof render === 'function') try { render(); } catch (x) {} }
+    else if (a === 'handoff') { var tx = FLD.txt[k] || ''; if (navigator.share) navigator.share({ title: 'Traffic control brief', text: tx }).catch(function () {}); else if (navigator.clipboard) { navigator.clipboard.writeText(tx).then(function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Share crew brief'; }, 1800); }); } }
+    else if (a === 'reset') { Object.keys(FLD.chk).forEach(function (x) { if (x.indexOf(k + '|f') === 0) delete FLD.chk[x]; }); fldSave(); if (typeof render === 'function') try { render(); } catch (x) {} }
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target; if (!t.getAttribute || !t.getAttribute('data-fld')) return; var a = t.getAttribute('data-fld'), k = t.getAttribute('data-k');
+    if (a === 'chk') { if (t.checked) FLD.chk[k] = Date.now(); else delete FLD.chk[k]; fldSave(); var sp = t.parentNode.querySelector('span'); if (sp) { var sm = sp.querySelector('small'); if (sm) sm.remove(); if (t.checked) sp.insertAdjacentHTML('beforeend', ' <small style="color:#555">' + fldTime(FLD.chk[k]) + '</small>'); } }
+    else if (a === 'photo' && t.files && t.files[0]) { fldAddPhoto(t.files[0], k, t.getAttribute('data-tag')); t.value = ''; }
+  });
+  document.addEventListener('toggle', function (e) { var d = e.target; if (d && d.open && d.tagName === 'DETAILS' && d.querySelector('.fldph')) { var f = d.querySelector('[data-fld=photo]'); if (f) fldShowPhotos(f.getAttribute('data-k')); } }, true);
   function zoneTitle(z, n, multi) {
     var names = z.items.map(function (it) { return it.loc.name; });
     return z.merged ? 'Zone ' + n + ': ' + names.join(' + ') + ' as one closure' : (multi ? 'Zone ' + n + ': ' : '') + 'Location ' + names[0] + (z.items[0].loc.label ? ', ' + z.items[0].loc.label : '');
@@ -4358,6 +4453,7 @@ function nextBar() {
       });
       h += '<div class="blk"><h4>Bring</h4><div class="kit">' + kitList(r, v).concat(cps.reduce(function (acc, c) { return acc.concat(c.kit.map(function (x) { return [x[0], x[1], x[2] + ' (' + c.name.split(':')[0].toLowerCase() + ')']; })); }, [])).map(function (x) { return '<div class="ki"><b>' + esc(x[0]) + '</b>' + esc(x[1]) + '<small>' + esc(x[2]) + '</small></div>'; }).join('') + '</div></div>';
       h += '<div class="blk"><h4>Before you start</h4><div class="ck">' + checklist(r, v).map(function (x) { return '<label><input type="checkbox">' + esc(x) + '</label>'; }).join('') + '</div></div>';
+      try { h += fieldHTML(r, v, z, 'z' + n + '|' + z.items[0].loc.id); } catch (e) {}
       if (p.legs) h += '<details class="dg" open><summary>Approaches, flaggers and signs (' + p.legs.length + ' approaches, ' + signTotal(p) + ' signs' + (p.flaggers ? ', ' + p.flaggers + ' flaggers' : '') + ')</summary><div style="padding:0 14px 10px">' + legsTable(p, n - 1) + '</div></details>';
       var aer = n === 1 && sites[sel] ? planImageCached(sites[sel]) : null;
       if (aer) h += '<details class="dg"' + (gateOf(sites[sel]).ok ? ' open' : '') + '><summary>Aerial view: signs on every approach' + (gateOf(sites[sel]).ok ? '' : ' (NOT CLEARED, tap to view)') + '</summary><div style="padding:0 12px 10px">' + layChips() + '<img src="' + aer + '" alt="Aerial plan view of the work zone with all advance warning signs on each approach" style="width:100%;height:auto;display:block;border:1px solid var(--line)"><p class="cap">Road runs left to right. Signs are shown at their planned distances ahead of the work on the main road and on each side street that feeds it.</p></div></details>';
@@ -5150,7 +5246,7 @@ function nextBar() {
     $('sheetbody').innerHTML = sheetHTML(arr); ov.hidden = false; ov.scrollTop = 0;
     $('sheetnote').textContent = arr.length > 1 ? arr.length + ' sites, one page group each.' : arr[0].name + '.';
   }
-  function printSheet() { if (!gateAll() && !window.confirm('This plan is NOT CLEARED. It has open MUTCD or road issues. Print it anyway? The sheet will carry a NOT CLEARED stamp.')) return; try { window.print(); } catch (e) { say('sheetnote', 'Printing is blocked here. Tap Save as file, open the file in your browser, and print from there.'); } }
+  function printSheet() { if (!gateAll() && !window.confirm('This plan is NOT CLEARED. It has open MUTCD or road issues. Print it anyway? The sheet will carry a NOT CLEARED stamp.')) return; var framed = false; try { framed = window.self !== window.top; } catch (e) { framed = true; } if (framed) { say('sheetnote', 'Printing is blocked inside this page. Saving the plan so you can open it and print from there.'); exportFile('traffic-control-plan.html', sheetDoc(sheetSites || [])); return; } try { window.print(); } catch (e) { say('sheetnote', 'Printing is blocked here. Tap Save as file, open the file in your browser, and print from there.'); exportFile('traffic-control-plan.html', sheetDoc(sheetSites || [])); } }
   /* ---------- exports ---------- */
   function csvCell(x) { x = String(x === null || x === undefined ? '' : x); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }
   function buildCSV() {
@@ -5181,11 +5277,22 @@ function nextBar() {
     return L.join('\n');
   }
   function exportFile(name, text) {
-    if (dl) {
-      dl.save({ filename: name, data: text }).then(function () { say('xstat', 'Saved ' + name + '.'); }, function (err) {
-        if (err && err.code === 'declined') say('xstat', 'Download cancelled.'); else showText(name, text);
-      });
-    } else showText(name, text);
+    var type = /\.html$/.test(name) ? 'text/html' : /\.dxf$/.test(name) ? 'application/dxf' : 'text/plain';
+    var viaShare = function () {
+      try {
+        var f = new File([text], name, { type: type });
+        if (navigator.canShare && navigator.canShare({ files: [f] })) return navigator.share({ files: [f], title: name }).then(function () { say('xstat', 'Saved ' + name + '.'); say('sheetnote', 'Shared ' + name + '.'); return true; }, function (err) { if (err && err.name === 'AbortError') { say('xstat', 'Cancelled.'); return true; } return false; });
+      } catch (e) {}
+      return Promise.resolve(false);
+    };
+    var viaLink = function () {
+      try { var u = URL.createObjectURL(new Blob([text], { type: type })), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); setTimeout(function () { a.remove(); URL.revokeObjectURL(u); }, 4000); say('xstat', 'Saved ' + name + '.'); return true; } catch (e) { return false; }
+    };
+    var touch = /iPhone|iPad|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
+    var fallback = function () { if (!viaLink()) showText(name, text); };
+    var next = function () { if (touch) viaShare().then(function (ok) { if (!ok) fallback(); }); else fallback(); };
+    if (dl) dl.save({ filename: name, data: text }).then(function () { say('xstat', 'Saved ' + name + '.'); say('sheetnote', 'Saved ' + name + '.'); }, function (err) { if (err && err.code === 'declined') say('xstat', 'Download cancelled.'); else next(); });
+    else next();
   }
   /* CAD export (DXF, feet). Each site is drawn exactly like its plan sheet, recorded as vectors. */
   function cadDoc(arr) {
@@ -5210,8 +5317,10 @@ function nextBar() {
   }
   function showText(name, text) {
     say('xstat', 'Downloads are not available here. Copy the text below and save it as ' + name + '.');
-    var b = $('xbox'); b.hidden = false; $('xtext').value = text; $('xtext').select();
+    var b = $('xbox'); b.hidden = false; b.classList.toggle('over', !$('sheetov').hidden); $('xtext').value = text; try { $('xtext').select(); } catch (e) {}
+    if (!$('xclose')) { b.querySelector('.go').insertAdjacentHTML('beforeend', '<button type="button" class="ghost" id="xclose">Close</button>'); $('xclose').onclick = function () { b.hidden = true; b.classList.remove('over'); }; }
     $('xcopy').onclick = function () { copyText(text, 'xstat'); };
+    say('sheetnote', 'Copy the text and save it as ' + name + '.');
   }
 
   /* ---------- start ---------- */
