@@ -4484,7 +4484,7 @@ function nextBar() {
   function fldPhases(r, v, p) {
     var inl = p.signs.some(function (g) { return g.inLane; }), flg = p.flaggers || 0, night = v.night || !!FLD.cond.night;
     var A = ['Check in with your supervisor or dispatch: where you are, what you are setting up, crew size.', 'Walk the site. Count the lanes and look for side streets, driveways and dead ends. Compare with this plan.', 'Photograph the site before you set up anything.', 'Brief the crew: who does what, where the escape route is, hand and radio signals.'];
-    if (flg) A.push('Each flagger needs ' + p.stopSight + ' ft of clear view, an escape route, and a STOP/SLOW paddle.');
+    if (flg) A.push('Each flagger needs ' + p.stopSight + ' ft of clear view, an escape route, and a STOP/SLOW paddle (24 x 24 in on state highways, 18 x 18 in minimum elsewhere, per your TCT book).');
     var S = [];
     if (p.tma) S.push('Park the shadow vehicle with its truck-mounted attenuator upstream of the taper.');
     S.push('Place the advance signs from the farthest toward the work: ' + (p.signCounts ? p.signCounts.length + ' sign types, ' + p.signTotal + ' signs in all.' : p.signs.filter(function (g) { return !g.buf && !g.opp && !g.end; }).map(function (g) { return g.code; }).join(', ') + ' at ' + p.space + ' ft spacing.'));
