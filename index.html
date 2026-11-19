@@ -383,6 +383,33 @@ label.xfl input{width:22px;height:22px}
 .tcpnp{display:flex;gap:8px;align-items:center;margin-top:8px;border-top:1px solid #111;padding-top:6px;font-size:10.5px}
 @media print{.sheet.rcpt .notebox{height:22px!important}.sheet.rcpt .sigt td{height:20px!important}.sheet.rcpt .sigline{height:16px!important}.sheet.rcpt td,.sheet.rcpt th{padding:1px 5px!important;font-size:10px!important}.sheet.rcpt td[style*="height:34px"]{height:22px!important}.sheet.rcpt h2{margin:6px 0 2px!important}.sheet.rcpt{break-after:auto!important;page-break-after:auto!important}.sheet.rcpt p{margin:1px 0!important}.sheet.rcpt .hint{font-size:9px!important;margin:0!important}.sheet.rcpt .sigt td{height:16px!important}.tcpmain>img,.tcpmain .zsv svg{max-height:240px!important}.sheet.tcp .tcpnotes,.sheet.tcp .tcplegend{font-size:9.5px!important;padding:5px 8px!important}.sheet.tcp .legt th,.sheet.tcp .legt td{font-size:9px!important;padding:1px 3px!important}.sheet.tcp .tb b{font-size:11px!important}}
 @media (max-width:700px){.tb{grid-template-columns:repeat(2,minmax(0,1fr))}.tcpbox{display:block}.tcpmain{border-right:0}.tcplegend{border-top:1px solid #111}}
+
+/* ---- polish: dark app bar with hazard stripe, calmer cards, stacked tab bar ---- */
+header{--hbg:#111A21;background:var(--hbg);color:#fff;padding:14px 0 14px;position:relative;box-shadow:0 0 0 100vmax var(--hbg);clip-path:inset(0 -100vmax -8px 0);margin-bottom:22px}
+header::after{content:"";position:absolute;left:-100vmax;right:-100vmax;bottom:-8px;height:8px;background:repeating-linear-gradient(135deg,#F08A2E 0 14px,#111A21 14px 28px)}
+header h1{color:#fff;font-size:30px}
+header .sub{color:#A9B6C1}
+header .badge{background:transparent;border-color:#3A4854;color:#C9D3DB}
+header .ghost{background:#1C2832;border-color:#3A4854;color:#fff}
+header .mark{box-shadow:inset 0 0 0 3px var(--accent),inset 0 0 0 5px #111A21}
+.panel{border-radius:14px;box-shadow:0 1px 2px rgba(17,26,33,.06),0 6px 18px rgba(17,26,33,.06);border-color:transparent}
+.step h2 .n{background:var(--accent);color:#fff}
+button.pri,button.big{box-shadow:0 2px 0 rgba(0,0,0,.18),0 6px 14px rgba(212,72,11,.28);border-radius:12px;letter-spacing:.01em}
+button.pri:active,button.big:active{transform:translateY(1px)}
+.tabs{box-shadow:0 -6px 20px rgba(17,26,33,.10)}
+.tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:600;letter-spacing:.01em}
+.tabs button b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--line);color:var(--ink);font:600 12px var(--ff-mono)}
+.tabs button[aria-selected="true"]{color:var(--accent)}
+.tabs button[aria-selected="true"] b{background:var(--accent);color:#fff}
+@media (max-width:700px){
+  header{flex-wrap:wrap;gap:2px 8px;padding:10px 0 10px;margin-bottom:18px}
+  header h1{font-size:24px}
+  header .sub{display:none}
+  header .badge{order:3;flex-basis:100%;margin:-4px 0 0 0;padding-left:44px;border:0;font-size:10px;letter-spacing:.08em;color:#8FA0AD;background:transparent}
+  header .brand{flex:1}
+  header .brand .mark{margin-right:2px}
+  header #refreshapp{min-height:36px;padding:0 12px;font-size:13px;margin-left:auto}
+}
 </style>
 
 <div class="sheetov zoomov" id="zoomov" hidden><div class="stool"><button type="button" id="zclose">Close</button><button type="button" id="zin2" aria-label="Zoom in" style="font-size:20px;min-width:46px">+</button><button type="button" id="zout2" aria-label="Zoom out" style="font-size:20px;min-width:46px">&minus;</button><button type="button" id="zfit">Fit</button><label style="color:#fff;display:flex;gap:8px;align-items:center;margin:0"><input type="checkbox" id="zdet" style="width:20px;height:20px">Station labels</label><span id="ztitle"></span></div><div id="zbody" style="flex:1;min-height:0;touch-action:none;background:var(--grass)"></div></div>
@@ -395,11 +422,11 @@ label.xfl input{width:22px;height:22px}
 </header>
 
 <nav class="tabs" aria-label="Sections">
-  <button type="button" id="tab-locs" aria-selected="true">1 Site</button>
-  <button type="button" id="tab-map" aria-selected="false">Map</button>
-  <button type="button" id="tab-plan" aria-selected="false">2 Plan</button>
-  <button type="button" id="tab-jsa" aria-selected="false">3 Paperwork</button>
-  <button type="button" id="tab-guide" aria-selected="false">Help</button>
+  <button type="button" id="tab-locs" aria-selected="true"><b>1</b>Site</button>
+  <button type="button" id="tab-map" aria-selected="false"><b>◎</b>Map</button>
+  <button type="button" id="tab-plan" aria-selected="false"><b>2</b>Plan</button>
+  <button type="button" id="tab-jsa" aria-selected="false"><b>3</b>Paperwork</button>
+  <button type="button" id="tab-guide" aria-selected="false"><b>?</b>Help</button>
 </nav>
 
 <div class="nextbar" id="nextbar" role="status"><div class="nxt" id="nexttxt"></div><button type="button" id="nextbtn">Next</button></div>
