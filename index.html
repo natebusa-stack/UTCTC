@@ -823,6 +823,10 @@ function plan(i) {
   }
   if (out.tma && sc !== 'moving') out.notes.push('At ' + S + ' mph and above, use a shadow vehicle with a truck-mounted attenuator.');
   if (out.arrowBoard && sc !== 'moving') out.notes.push('Put an arrow board at the start of the taper.');
+  if (out.devTotal && !walk) {
+    /* TCT book, module 2 (slides 100-135): cones, drums, panels, barricades */
+    out.notes.push('Devices (TCT book): cones ' + ((S >= 45 || i.area === 'freeway') ? '28 in minimum at this speed' : '28 in minimum at night, 18 in in daylight on a low-speed road') + '. Night cones need two orange and two white retroreflective stripes 4 to 6 in wide, top stripe orange, or a warning light. Drums are 36 in minimum, 18 in wide, closed top, with a low base ballast and no sandbags or anything on top. Use cones only while workers are present.');
+  }
   if (out.arrowBoard) {
     /* TCT book, Figure 6F-6 (Table 6F-6 arrow board types) and slide 67 (mounting height) */
     out.arrowType = S <= 25 ? 'A' : (S <= 40 ? 'B' : 'C');
