@@ -639,6 +639,13 @@ function plan(i) {
   out.firstSign = (i.area === 'freeway' && FWY[maxN]) ? FWY[maxN] : maxN * sp;
   /* Advance warning signs are always ahead of the taper. The one sign inside is LANE CLOSED: it stands in the closed lane, after the arrow board (planner rule, MUTCD Part 6). */
   if (sc === 'laneclosure' || sc === 'twolanes') out.signs.push({ code: 'W20-5', legend: LW + ' LANE CLOSED', dist: -Math.round(out.taper), buf: true, inLane: true });
+  if (sc === 'laneclosure' || sc === 'twolanes') {
+    /* Caltrans 2018 Standard Plan T11 notes 4, 5, 6 and 8 */
+    out.notes.push('Give drivers at least 1500 ft of sight distance to the first arrow board where possible. Do not start the closure at the top of a crest or on a horizontal curve (Caltrans T11, note 4).');
+    out.notes.push('Past the work area, T11 shows 100 to 150 ft before the closure ends. The engineer may shorten it for site conditions (note 6).');
+    if (i.workLen > 1000) out.notes.push('Long closure: repeat the LANE CLOSED sign every 500 to 1000 ft along the work (T11, note 5).');
+    if (S > 50 && !i.oneway) out.notes.push('Approach speed over 50 mph: T11 note 8 says to use the freeway and expressway lane closure plan (T10) instead.');
+  }
   if (sc === 'lshape') {
     var fl = i.laneSide === 'L';  /* flip: the closure sits on the other side of the intersection */
     var wR = fl ? 'LEFT' : 'RIGHT', wL = fl ? 'RIGHT' : 'LEFT';
@@ -666,7 +673,7 @@ function plan(i) {
   }
   if (sc === 'sidewalk') out.signs.push({ code: 'R9-9', legend: 'SIDEWALK CLOSED (at barricade)', dist: 0 });
   if (sc === 'full') out.signs.push({ code: 'R11-2', legend: 'ROAD CLOSED (at barricade)', dist: 0 });
-  if (!walk && sc !== 'intersection' && sc !== 'turnlane' && sc !== 'lshape') out.signs.push({ code: 'G20-2', legend: 'END ROAD WORK (optional)', dist: -(out.downstream + 50), end: true });
+  if (!walk && sc !== 'intersection' && sc !== 'turnlane' && sc !== 'lshape') out.signs.push({ code: 'G20-2', legend: (typeof JUR !== 'undefined' && JUR === 'CA') ? 'END ROAD WORK (required unless the end of work is obvious)' : 'END ROAD WORK (optional)', dist: -(out.downstream + 50), end: true });
 
   out.workLen = i.workLen;
   if (sc === 'full') {
