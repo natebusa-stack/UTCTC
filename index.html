@@ -385,8 +385,9 @@ label.xfl input{width:22px;height:22px}
 @media (max-width:700px){.tb{grid-template-columns:repeat(2,minmax(0,1fr))}.tcpbox{display:block}.tcpmain{border-right:0}.tcplegend{border-top:1px solid #111}}
 
 /* ---- polish: dark app bar with hazard stripe, calmer cards, stacked tab bar ---- */
-header{--hbg:#111A21;background:var(--hbg);color:#fff;padding:14px 0 14px;position:relative;box-shadow:0 0 0 100vmax var(--hbg);clip-path:inset(0 -100vmax -8px 0);margin-bottom:22px}
+header{--hbg:#111A21;background:var(--hbg);color:#fff;padding:14px 0 14px;position:relative;box-shadow:0 0 0 100vmax var(--hbg);clip-path:inset(0 -100vmax -8px -100vmax);margin-bottom:22px}
 header::after{content:"";position:absolute;left:-100vmax;right:-100vmax;bottom:-8px;height:8px;background:repeating-linear-gradient(135deg,#F08A2E 0 14px,#111A21 14px 28px)}
+html,body{overflow-x:clip}
 header h1{color:#fff;font-size:30px}
 header .sub{color:#A9B6C1}
 header .badge{background:transparent;border-color:#3A4854;color:#C9D3DB}
