@@ -5645,7 +5645,8 @@ function nextBar() {
       notes: 'Standards are the CA MUTCD (which wins any conflict) and the WATCH handbook. Full street closures are generally not allowed, and partial closures need a flagger or other device. Flagger paddle on a 6 ft post. Cones 28 in with reflective sheeting. First W20-1 sign 48 x 48 in above 35 mph. No weekend work without City approval. Weekday hours and review time are not stated.', src: 'https://fairfield.ca.gov/home/showpublisheddocument/10696/638478196562030000', checked: '2026-11-19' }
   ];
   BUILTIN.sort(function (x, y) { return x.name < y.name ? -1 : 1; });
-  function builtinFor(nm) { nm = String(nm || '').toLowerCase(); return BUILTIN.filter(function (b) { return b.name.toLowerCase() === nm; })[0] || null; }
+  function cityKey(n) { return String(n || '').toLowerCase().replace(/^(city and county of|city of|town of)\s+/, '').replace(/[^a-z0-9 ]/g, '').trim(); }
+  function builtinFor(nm) { var k = cityKey(nm); return BUILTIN.filter(function (b) { return cityKey(b.name) === k; })[0] || null; }
   function addBuiltin(b) { var c = CITIES.filter(function (x) { return x.name === b.name; })[0]; if (!c) { c = { id: 'c' + Date.now() + Math.floor(Math.random() * 99) }; CITIES.push(c); } Object.keys(b).forEach(function (k) { c[k] = b[k]; }); cSave(); return c; }
   var HIST = []; try { HIST = JSON.parse(localStorage.getItem('tcp5h') || '[]') || []; } catch (e) {}
   function hSave() { try { localStorage.setItem('tcp5h', JSON.stringify(HIST.slice(0, 12))); } catch (e) { say('jstat', 'This device has no room to save more jobs.'); } }
