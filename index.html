@@ -5581,6 +5581,7 @@ function nextBar() {
   function cityHTML() {
     var c = curCity(), h = '<h2 class="jh">City or agency</h2><p class="hint">Each city asks for different things. Save a city once with its rules and the approval application will list them. Pick the city for this job.</p>';
     h += '<div class="fld"><label for="j-citysel">City for this job</label><select id="j-citysel"><option value="">Not chosen</option>' + CITIES.map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === J.city ? ' selected' : '') + '>' + esc(x.name || 'Unnamed city') + '</option>'; }).join('') + '</select></div>';
+    h += '<div class="go" style="margin:6px 0"><button type="button" class="pri" id="cityfind">Find city rules for this job site</button></div><p class="hint" id="cityfindnote"></p>';
     h += '<div class="go" style="margin:6px 0"><button type="button" class="ghost" id="cityadd">Add a city</button>' + (c ? '<button type="button" class="ghost" id="citydel">Delete this city</button>' : '') + '</div>';
     if (c) {
       var cf = function (k, label, ph, ta) { return '<div class="fld"><label for="c-' + k + '">' + label + '</label>' + (ta ? '<textarea id="c-' + k + '" data-c="' + k + '" rows="3" placeholder="' + esc(ph || '') + '">' + esc(c[k] || '') + '</textarea>' : '<input id="c-' + k + '" data-c="' + k + '" type="text" value="' + esc(c[k] || '') + '" placeholder="' + esc(ph || '') + '" autocomplete="off">') + '</div>'; };
@@ -5714,7 +5715,21 @@ function nextBar() {
     el.addEventListener('input', function (e) { var t = e.target, k = t.getAttribute && t.getAttribute('data-c'), c0 = curCity(); if (!k || !c0) return; c0[k] = t.value; if (k === 'name') { SD.agency = t.value; sdSave(); } cSave(); });
     el.addEventListener('click', function (e) {
       var b = e.target.closest ? e.target.closest('button') : null; if (!b) return;
-      if (b.id === 'cityadd') { var nc = { id: 'c' + Date.now(), name: '' }; CITIES.push(nc); J.city = nc.id; cSave(); jSave(); renderJob(); var ni = document.getElementById('c-name'); if (ni) ni.focus(); }
+      if (b.id === 'cityfind') {
+        var nt = document.getElementById('cityfindnote'), l0 = sites.length ? sites[0].items[0].loc : null;
+        if (!l0) { nt.textContent = 'Enter the job location first.'; return; }
+        nt.textContent = 'Finding the city for this site...';
+        var ctl2 = typeof AbortController !== 'undefined' ? new AbortController() : null, tm = setTimeout(function () { if (ctl2) ctl2.abort(); }, 12000);
+        fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&addressdetails=1&lat=' + l0.lat + '&lon=' + l0.lon, { signal: ctl2 ? ctl2.signal : undefined, headers: { 'Accept': 'application/json' } }).then(function (r) { return r.json(); }).then(function (d) {
+          clearTimeout(tm); var a = (d && d.address) || {}, city = a.city || a.town || a.village || a.hamlet || a.municipality || '', cty = a.county || '', st = a.state || 'California';
+          if (!city) { nt.textContent = 'No city found here. This may be unincorporated county land. Search the county instead.'; city = cty || ''; if (!city) return; }
+          var nm = /county/i.test(city) ? city : 'City of ' + city, c1 = CITIES.filter(function (x) { return x.name.toLowerCase() === nm.toLowerCase(); })[0];
+          if (!c1) { c1 = { id: 'c' + Date.now(), name: nm, county: cty }; CITIES.push(c1); cSave(); }
+          J.city = c1.id; SD.agency = c1.name; sdSave(); jSave(); renderJob();
+          var q = encodeURIComponent(nm + ' ' + st + ' encroachment permit traffic control plan requirements'), q2 = encodeURIComponent(nm + ' ' + st + ' right of way permit lane closure traffic control');
+          var n2 = document.getElementById('cityfindnote'); if (n2) n2.innerHTML = 'Site is in <b>' + esc(nm) + '</b>' + (cty ? ' (' + esc(cty) + ')' : '') + '. Open these, read the rules, then type them into the boxes below: <a href="https://www.google.com/search?q=' + q + '" target="_blank" rel="noopener">Permit requirements</a> &middot; <a href="https://www.google.com/search?q=' + q2 + '" target="_blank" rel="noopener">Lane closure rules</a>. Check the date on every page.';
+        }).catch(function () { clearTimeout(tm); nt.textContent = 'Could not look up the city. Check your signal and try again, or add the city by hand.'; });
+      } else if (b.id === 'cityadd') { var nc = { id: 'c' + Date.now(), name: '' }; CITIES.push(nc); J.city = nc.id; cSave(); jSave(); renderJob(); var ni = document.getElementById('c-name'); if (ni) ni.focus(); }
       else if (b.id === 'citydel') { CITIES = CITIES.filter(function (x) { return x.id !== J.city; }); J.city = ''; cSave(); jSave(); renderJob(); }
       else if (b.id === 'hsave') {
         var m0 = {}; try { m0 = (JSON.parse(localStorage.getItem('tcp5') || '{}') || {}).m || {}; } catch (e2) {}
