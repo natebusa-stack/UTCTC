@@ -1574,6 +1574,9 @@ function evaluate(v) {
 }
 
 /* ---------- grouping ---------- */
+function roadOf(l) { var o = l && l.osm; return o && o.found && o.name ? String(o.name).toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\b(street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|lane|ln|way|court|ct)\b/g, '').replace(/\s+/g, ' ').trim() : ''; }
+/* Points on two named streets more than 300 ft apart are separate jobs even when closer than the group distance. Closer than 300 ft they may be one intersection. */
+function diffStreet(a, b) { var x = roadOf(a), y = roadOf(b); return !!(x && y && x !== y && dist(a, b) > 300); }
 function clusterLocs(locs, thr) {
   var n = locs.length, par = new Array(n), i, j, k;
   for (i = 0; i < n; i++) par[i] = i;
@@ -1586,7 +1589,7 @@ function clusterLocs(locs, thr) {
     var a = cx(locs[i]), b = cy(locs[i]);
     for (j = a - 1; j <= a + 1; j++) for (k = b - 1; k <= b + 1; k++) {
       var l = grid[j + ',' + k]; if (!l) continue;
-      for (var m = 0; m < l.length; m++) if (l[m] > i && dist(locs[i], locs[l[m]]) <= thr) par[find(i)] = find(l[m]);
+      for (var m = 0; m < l.length; m++) if (l[m] > i && dist(locs[i], locs[l[m]]) <= thr && !diffStreet(locs[i], locs[l[m]])) par[find(i)] = find(l[m]);
     }
   }
   var groups = {}, order = [];
@@ -4226,7 +4229,7 @@ function signCell(g) {
     var tl = e.target; if (tl.hasAttribute && tl.hasAttribute('data-lanes')) { tl.getAttribute('data-lanes').split(',').forEach(function (ix) { var l4 = locs[+ix]; if (!l4) return; l4.vals.lanes = +tl.value; l4.src.lanes = 'user'; }); save(); compute(); return; }
     var tc = e.target; if (tc.hasAttribute && tc.hasAttribute('data-combo')) { tc.getAttribute('data-combo').split(',').forEach(function (ix) { var l3 = locs[+ix]; if (!l3) return; l3.ovr = l3.ovr || {}; l3.ovr.combo = tc.value || 'none'; }); save(); compute(); return; }
     var tp = e.target; if (tp.getAttribute && tp.getAttribute('data-pick') !== null && tp.getAttribute('data-pick') !== undefined && tp.hasAttribute('data-pick')) { tp.getAttribute('data-pick').split(',').forEach(function (ix) { var l2 = locs[+ix]; if (!l2) return; l2.ovr = l2.ovr || {}; if (tp.value) l2.ovr.pick = tp.value; else delete l2.ovr.pick; }); save(); compute(); return; }
-    var t0 = e.target; if (t0.getAttribute && t0.getAttribute('data-sd')) { SD[t0.getAttribute('data-sd')] = t0.value; sdSave(); return; }
+    var t0 = e.target; if (t0.getAttribute && t0.getAttribute('data-sd')) { SD[t0.getAttribute('data-sd')] = t0.value; sdSave(); profRemember(t0.getAttribute('data-sd'), t0.value); return; }
     if (t0.getAttribute && t0.getAttribute('data-sdc')) { SD[t0.getAttribute('data-sdc')] = t0.checked; sdSave(); var lb = t0.closest('label'); if (lb) lb.classList.toggle('on', t0.checked); return; }
     var t = e.target, a = t.getAttribute('data-num'), o = t.getAttribute('data-ovr'), c = t.getAttribute('data-coord'), li = t.getAttribute('data-li'), l = li !== null ? locs[+li] : null;
     if (a) {
@@ -4996,6 +4999,11 @@ function nextBar() {
   var SD = { job: '', agency: '', loc: '', contractor: '', by: '', initials: '', phone: '', hours: '', permit: '', tcs: '', cert: '', emerg: '', approver: '', notes: DEFNOTES.join('\n'), noPark: false, flash: false };
   try { var sdv = JSON.parse(localStorage.getItem('tcp5s') || 'null'); if (sdv) SD = Object.assign(SD, sdv); } catch (e) {}
   function sdSave() { try { localStorage.setItem('tcp5s', JSON.stringify(SD)); } catch (e) {} }
+  /* Saved profile: company, TCS and license details typed once are remembered and fill blank fields on every new job. */
+  var PROF = {}; try { PROF = JSON.parse(localStorage.getItem('tcp5prof') || '{}') || {}; } catch (e) {}
+  var PK = { company: 'j', foreman: 'j', license: 'j', tcs: 's', cert: 's', phone: 's', emerg: 's', by: 's', contractor: 's' };
+  function profRemember(k, v) { if (!PK[k]) return; PROF[k] = v; try { localStorage.setItem('tcp5prof', JSON.stringify(PROF)); } catch (e) {} }
+  Object.keys(PK).forEach(function (k) { if (PK[k] === 's' && !SD[k] && PROF[k]) SD[k] = PROF[k]; });
   var PAL = { bg: '#FFFFFF', road: '#8C9299', cas: '#8C9299', walk: '#D3D7DA', txt: '#111111', acc: '#D4480B', work: '#F08A2E', ok: '#1B7A43', bad: '#B42318', yel: '#E9B800', ped: '#0F7C80', ink: '#111111', panel: '#FFFFFF' };
   function sdForm() {
     var f = function (k, label, ph) { return '<div class="fld"><label for="sd-' + k + '">' + label + '</label><input type="text" id="sd-' + k + '" data-sd="' + k + '" value="' + esc(SD[k]) + '" placeholder="' + esc(ph || '') + '" autocomplete="off"></div>'; };
@@ -5531,6 +5539,13 @@ function nextBar() {
   /* ---------- job info, crew, JSA questions, close-out packet ---------- */
   var J = { company: '', customer: '', job: '', chargeType: 'PM', chargeNo: '', foreman: '', crew: [], desc: '', hosp: { name: '', addr: '', phone: '', auto: true, d: null }, start: '', end: '', equip: '' };
   try { var jv = JSON.parse(localStorage.getItem('tcp5j') || 'null'); if (jv) J = Object.assign(J, jv); } catch (e) {}
+  Object.keys(PK).forEach(function (k) { if (PK[k] === 'j' && !J[k] && PROF[k]) J[k] = PROF[k]; });
+  if (!SD.contractor && J.company) SD.contractor = J.company;
+  var CITIES = []; try { CITIES = JSON.parse(localStorage.getItem('tcp5c') || '[]') || []; } catch (e) {}
+  function cSave() { try { localStorage.setItem('tcp5c', JSON.stringify(CITIES)); } catch (e) {} }
+  function curCity() { return CITIES.filter(function (c) { return c.id === J.city; })[0] || null; }
+  var HIST = []; try { HIST = JSON.parse(localStorage.getItem('tcp5h') || '[]') || []; } catch (e) {}
+  function hSave() { try { localStorage.setItem('tcp5h', JSON.stringify(HIST.slice(0, 12))); } catch (e) { say('jstat', 'This device has no room to save more jobs.'); } }
   function jSave() { try { localStorage.setItem('tcp5j', JSON.stringify(J)); } catch (e) {} }
   function jf(id, label, val, ph, type) { return '<div class="fld"><label for="j-' + id + '">' + label + '</label><input id="j-' + id + '" data-j="' + id + '" type="' + (type || 'text') + '" value="' + esc(val || '') + '" placeholder="' + esc(ph || '') + '" autocomplete="off"></div>'; }
   function autoHospital() {
@@ -5546,6 +5561,7 @@ function nextBar() {
       '<div class="fld"><label for="j-chargeType">Charge to</label><select id="j-chargeType" data-j="chargeType">' + ['PM', 'VP', 'RX#'].map(function (t) { return '<option' + (J.chargeType === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div>' + jf('chargeNo', 'PM, VP or RX number', J.chargeNo, 'Number to charge') +
       jf('foreman', 'Foreman', J.foreman, 'Foreman name') + jf('start', 'Start time', J.start, '', 'time') + jf('end', 'End time', J.end, '', 'time') + jf('startDate', 'Start date', J.startDate, '', 'date') + jf('endDate', 'End date', J.endDate, '', 'date') + jf('license', 'Contractor license no.', J.license, 'License number') + jf('detour', 'Detour route (full closures)', J.detour, 'Streets used for the detour') + jf('transit', 'Transit routes or stops affected', J.transit, 'None, or route numbers') + '</div>' +
       '<div class="fld"><label for="j-desc">Work being done</label><input id="j-desc" data-j="desc" type="text" value="' + esc(J.desc || (WORK.filter(function (x) { return x[0] === G.work; })[0] || [0, ''])[1]) + '" placeholder="For example: pothole repair on Main St"></div>';
+    h += cityHTML() + histHTML();
     h += '<h2 class="jh">Crew on site</h2><p class="hint">Everyone listed here gets a signature line on the JSA and the work receipt.</p><div class="crew">' +
       J.crew.map(function (c, i) { return '<div class="crewrow"><span>' + esc(c) + '</span><button type="button" class="ghost sm" data-act="crewdel" data-v="' + i + '">Remove</button></div>'; }).join('') +
       '</div><div class="crewadd"><input id="j-crewadd" type="text" placeholder="Technician name" autocomplete="off"><button type="button" id="j-crewbtn" class="pri">Add</button></div>';
@@ -5561,6 +5577,21 @@ function nextBar() {
     h += '<div id="jadvice">' + adviceHTML() + '</div>';
     h += '<div class="go" style="margin-top:14px"><button type="button" class="pri" id="jpacket">Make the close-out packet</button><button type="button" class="ghost" id="jpermit">City approval only</button><button type="button" class="ghost" id="jjsa">JSA only</button><button type="button" class="ghost" id="jrcpt">Work receipt only</button></div><p class="hint">The packet has the city approval application, the plan to follow, the completed JSA and the work receipt, ready to print and sign. Fill in the Sheet details on the Plan tab first so the application is complete.</p>';
     el.innerHTML = h;
+  }
+  function cityHTML() {
+    var c = curCity(), h = '<h2 class="jh">City or agency</h2><p class="hint">Each city asks for different things. Save a city once with its rules and the approval application will list them. Pick the city for this job.</p>';
+    h += '<div class="fld"><label for="j-citysel">City for this job</label><select id="j-citysel"><option value="">Not chosen</option>' + CITIES.map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === J.city ? ' selected' : '') + '>' + esc(x.name || 'Unnamed city') + '</option>'; }).join('') + '</select></div>';
+    h += '<div class="go" style="margin:6px 0"><button type="button" class="ghost" id="cityadd">Add a city</button>' + (c ? '<button type="button" class="ghost" id="citydel">Delete this city</button>' : '') + '</div>';
+    if (c) {
+      var cf = function (k, label, ph, ta) { return '<div class="fld"><label for="c-' + k + '">' + label + '</label>' + (ta ? '<textarea id="c-' + k + '" data-c="' + k + '" rows="3" placeholder="' + esc(ph || '') + '">' + esc(c[k] || '') + '</textarea>' : '<input id="c-' + k + '" data-c="' + k + '" type="text" value="' + esc(c[k] || '') + '" placeholder="' + esc(ph || '') + '" autocomplete="off">') + '</div>'; };
+      h += '<div class="jgrid">' + cf('name', 'City or agency name', 'City of ...') + cf('dept', 'Department', 'Public Works, Encroachment') + cf('form', 'Their permit or form name', 'Encroachment Permit') + cf('submit', 'Where to submit', 'Email, portal link or address') + cf('lead', 'Days of notice they need', 'For example 5') + cf('fee', 'Fee', 'Amount or how it is paid') + '</div>' + cf('extras', 'Other things this city requires (one per line)', 'Certificate of insurance\nNotice to residents 72 hours ahead\nHaul route', true);
+    }
+    return h;
+  }
+  function histHTML() {
+    var h = '<h2 class="jh">Past jobs</h2><p class="hint">Save this job, then start a new one from it later. Dates and permit numbers are cleared when you copy it.</p><div class="go" style="margin:6px 0"><button type="button" class="ghost" id="hsave">Save this job</button></div>';
+    HIST.forEach(function (x, i) { h += '<div class="crewrow"><span>' + esc(x.name) + '</span><span><button type="button" class="ghost sm" data-hact="load" data-hi="' + i + '">Copy to new job</button> <button type="button" class="ghost sm" data-hact="del" data-hi="' + i + '">Delete</button></span></div>'; });
+    return h;
   }
   function adviceHTML() {
     var a = JSAAdvice(G.j, sites);
@@ -5608,7 +5639,13 @@ function nextBar() {
     var fast = zs.some(function (x) { return (x.p.speed || 0) >= 45; });
     var blank = function (v, w) { return v ? esc(v) : '<span class="bl" style="display:inline-block;min-width:' + (w || 120) + 'px;border-bottom:1px solid #000">&nbsp;</span>'; };
     var h = '<article class="sheet pb jsa permit"><h1>Traffic Control Plan: Application for Approval</h1>';
+    var ct = curCity(); if (ct && ct.name) agency = ct.name + (ct.dept ? ', ' + ct.dept : '');
     h += '<p class="hint">Submitted to: <b>' + blank(agency, 200) + '</b> &nbsp; Date submitted: <b>' + esc(d.toLocaleDateString()) + '</b></p>';
+    if (ct) {
+      var ln = parseInt(ct.lead, 10), warn = '';
+      if (ln > 0 && J.startDate) { var dd = (new Date(J.startDate + 'T12:00') - new Date()) / 864e5; if (dd < ln) warn = ' <b>Start date is less than ' + ln + ' days away. Ask the agency if they will accept a late application.</b>'; }
+      h += '<p class="hint">' + (ct.form ? 'Agency form: <b>' + esc(ct.form) + '</b>. ' : '') + (ct.submit ? 'Submit to: <b>' + esc(ct.submit) + '</b>. ' : '') + (ln > 0 ? 'Notice needed: <b>' + ln + ' days</b>. ' : '') + (ct.fee ? 'Fee: <b>' + esc(ct.fee) + '</b>. ' : '') + warn + '</p>';
+    }
     h += '<h2>1. Applicant and responsible people</h2><table class="jt">' +
       '<tr><th>Contractor / applicant</th><td>' + blank(co) + '</td><th>Job / project no.</th><td>' + blank(SD.job || J.job) + '</td></tr>' +
       '<tr><th>Permit / encroachment no.</th><td>' + blank(SD.permit) + '</td><th>Foreman</th><td>' + blank(J.foreman) + '</td></tr>' +
@@ -5639,7 +5676,7 @@ function nextBar() {
       ['Police department', anyFlag || anyFull], ['Fire department and EMS', true], ['Transit agency', anyFull || anyFlag], ['School district (if a school is near)', false], ['Businesses and residents on the street (written notice)', true], ['Trash and recycling hauler', false], ['Caltrans (if on or near a state route)', false]
     ].map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + (r[1] ? '[ ] Yes' : '[ ] If applicable') + '</td><td></td><td></td></tr>'; }).join('') + '</table>';
     h += '<h2>8. Standards used</h2><p>FHWA MUTCD 11th Edition and the California MUTCD, with Caltrans Standard Plans T9 to T16 for lane closures and sign spacing. Sign spacing, taper lengths and buffer space come from those tables for the speed shown. Emergency: call 911. Nearest hospital: ' + esc(hs.name || '') + ' ' + esc(hs.addr || '') + ' ' + esc(hs.phone || '') + '.</p>';
-    h += '<h2>9. Attachments</h2><p>[X] Traffic control plan sheets (attached, one per site) &nbsp; [X] Job safety analysis &nbsp; [ ] Certificate of insurance naming the agency &nbsp; [ ] Contractor license &nbsp; [ ] TCS certification card &nbsp; [ ] Flagger certifications &nbsp; [ ] Permit fee &nbsp; [ ] Detour map &nbsp; [ ] Haul route</p>';
+    h += '<h2>9. Attachments</h2><p>[X] Traffic control plan sheets (attached, one per site) &nbsp; [X] Job safety analysis &nbsp; [ ] Certificate of insurance naming the agency &nbsp; [ ] Contractor license &nbsp; [ ] TCS certification card &nbsp; [ ] Flagger certifications &nbsp; [ ] Permit fee &nbsp; [ ] Detour map &nbsp; [ ] Haul route' + ((ct && ct.extras) ? ct.extras.split(/\n+/).filter(function (z) { return z.trim(); }).map(function (z) { return ' &nbsp; [ ] ' + esc(z.trim()); }).join('') : '') + '</p>';
     h += '<h2>10. Certification</h2><p>I certify that this plan follows the MUTCD, the California MUTCD and the conditions of the permit, and that the work will be set up as shown.</p><table class="jt"><tr><td style="width:50%"><b>Traffic Control Supervisor</b><div class="sigline"></div><small>' + esc(SD.tcs) + ' &nbsp; Cert no. ' + esc(SD.cert) + ' &nbsp; Date:</small></td><td><b>Contractor representative</b><div class="sigline"></div><small>Print name and title: &nbsp; Date:</small></td></tr></table>';
     h += '<h2>11. For agency use</h2><table class="jt"><tr><td>[ ] Approved &nbsp; [ ] Approved as noted &nbsp; [ ] Revise and resubmit &nbsp; [ ] Rejected</td><td>Permit no.: ' + esc(SD.permit) + '</td></tr><tr><td colspan="2" style="height:60px">Conditions or comments:</td></tr><tr><td><b>Reviewed by</b>' + (SD.approver ? ': ' + esc(SD.approver) : '') + '<div class="sigline"></div></td><td>Date:</td></tr></table>';
     return h + '</article>';
@@ -5670,9 +5707,26 @@ function nextBar() {
     var el = $('jobpane'); if (!el) return;
     el.addEventListener('input', function (e) {
       var t = e.target, k = t.getAttribute && t.getAttribute('data-j'); if (!k) return;
-      if (k === 'hname') { J.hosp.name = t.value; J.hosp.auto = false; } else if (k === 'haddr') { J.hosp.addr = t.value; J.hosp.auto = false; } else if (k === 'hphone') { J.hosp.phone = t.value; J.hosp.auto = false; } else J[k] = t.value; jSave();
+      if (k === 'hname') { J.hosp.name = t.value; J.hosp.auto = false; } else if (k === 'haddr') { J.hosp.addr = t.value; J.hosp.auto = false; } else if (k === 'hphone') { J.hosp.phone = t.value; J.hosp.auto = false; } else { J[k] = t.value; profRemember(k, t.value); } jSave();
     });
-    el.addEventListener('change', function (e) { var t = e.target, k = t.getAttribute && t.getAttribute('data-j'); if (k === 'chargeType') { J.chargeType = t.value; jSave(); } });
+    el.addEventListener('change', function (e) { var t = e.target, k = t.getAttribute && t.getAttribute('data-j'); if (k === 'chargeType') { J.chargeType = t.value; jSave(); }
+      if (t.id === 'j-citysel') { J.city = t.value; var c0 = curCity(); if (c0 && c0.name) { SD.agency = c0.name; sdSave(); } jSave(); renderJob(); } });
+    el.addEventListener('input', function (e) { var t = e.target, k = t.getAttribute && t.getAttribute('data-c'), c0 = curCity(); if (!k || !c0) return; c0[k] = t.value; if (k === 'name') { SD.agency = t.value; sdSave(); } cSave(); });
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('button') : null; if (!b) return;
+      if (b.id === 'cityadd') { var nc = { id: 'c' + Date.now(), name: '' }; CITIES.push(nc); J.city = nc.id; cSave(); jSave(); renderJob(); var ni = document.getElementById('c-name'); if (ni) ni.focus(); }
+      else if (b.id === 'citydel') { CITIES = CITIES.filter(function (x) { return x.id !== J.city; }); J.city = ''; cSave(); jSave(); renderJob(); }
+      else if (b.id === 'hsave') {
+        var m0 = {}; try { m0 = (JSON.parse(localStorage.getItem('tcp5') || '{}') || {}).m || {}; } catch (e2) {}
+        var nm = (J.job || J.customer || (J.desc || '')).slice(0, 40) || (sites.length ? sites[0].name + ' ' + (sites[0].road || '') : 'Job'); nm += ' (' + new Date().toLocaleDateString() + ')';
+        HIST.unshift({ name: nm, t: $('pts').value || '', thr: thr, G: G, m: m0, J: J, SD: SD }); hSave(); renderJob(); say('jstat', 'Job saved.');
+      } else if (b.getAttribute('data-hact') === 'load') {
+        var x = HIST[+b.getAttribute('data-hi')]; if (!x) return;
+        var J2 = JSON.parse(JSON.stringify(x.J)), SD2 = JSON.parse(JSON.stringify(x.SD)); J2.startDate = ''; J2.endDate = ''; SD2.permit = ''; J2.job = ''; SD2.job = '';
+        try { localStorage.setItem('tcp5', JSON.stringify({ t: x.t, thr: x.thr, G: x.G, m: x.m })); localStorage.setItem('tcp5j', JSON.stringify(J2)); localStorage.setItem('tcp5s', JSON.stringify(SD2)); } catch (e3) {}
+        location.reload();
+      } else if (b.getAttribute('data-hact') === 'del') { HIST.splice(+b.getAttribute('data-hi'), 1); hSave(); renderJob(); }
+    });
     el.addEventListener('click', function (e) {
       var t = e.target.closest ? e.target.closest('button') : null; if (!t) return;
       var act = t.getAttribute('data-act');
