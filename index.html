@@ -612,7 +612,7 @@ function plan(i) {
   out.devSpacingTaper = Math.min(S, 50); // T9 Table 1, X
   out.devSpacingTangent = walk ? 10 : Math.min(2 * S, 100); // T9 Table 1, Y
   out.devSpacingConflict = walk ? 10 : ({ 20: 10, 25: 12, 30: 15, 35: 17, 40: 20, 45: 22 })[S] || 25; // T9 Table 1, Z (taper and tangent sections where there is a conflict between existing markings and channelizers)
-  out.signSize = i.area === 'freeway' ? '48 x 48 in' : '36 x 36 in';
+  out.signSize = (i.area === 'freeway' || S >= 45) ? '48 x 48 in' : '36 x 36 in'; /* TCT book Table 6F-1: 48 high speed, 36 intermediate; 36 is used at low speed too, which is above the 30 in minimum */
   out.scenarioName = (sc === 'laneclosure' && i.laneSide === 'L') ? 'Left lane closure' : (sc === 'laneclosure' && i.laneSide === 'C' && lanes >= 3) ? 'Center lane closure' : NAMES[sc]; out.scenarioName += ({ shift: ' + lane shift', flag: ' + flaggers off the travel lanes', shoulder: ' + shoulder closure' })[((sc === 'laneclosure' || sc === 'twolanes') && i.combo) || ''] || ''; var LS = i.laneSide === 'L' ? 'L' : 'R', LW = LS === 'L' ? 'LEFT' : 'RIGHT', LSw = LS === 'L' ? 'left' : 'right', ctr = i.laneSide === 'C' && lanes >= 3 && (sc === 'laneclosure' || sc === 'twolanes'); if (ctr) { LW = 'CENTER'; LSw = 'center'; } else if (i.laneSide === 'C') out.warnings.push('Center lane needs 3 or more lanes each way. This road has ' + lanes + ', so the right lane is used.'); out.laneWord = LW;
   var noBuf = walk || sc === 'full' || sc === 'intersection' || sc === 'turnlane' || sc === 'moving';
   out.buffer = noBuf ? 0 : SSD[S];
@@ -865,7 +865,10 @@ function plan(i) {
   }
   out.notes.push('Arrow board dimming (TCT clipboard): at night dim the board to 50 percent of its day brightness, in arrow mode and in caution mode.');
   out.notes.push('Arrow boards (MUTCD 11th, 6L.06): arrow or chevron mode only to close a lane on a multi-lane road. Use caution mode for shoulder work. Do not use an arrow board for one-lane flagger operations on a two-lane road or to show a lane shift: it can send traffic into a head-on collision (TCT book). Where it is used, put it on the shoulder at the start of the merge taper, or in the closed lane as close to the merge point as possible if the shoulder is narrow.');
-  out.notes.push('Signs: ' + out.signSize + ' minimum, orange background, mounted at least 7 ft to the bottom in urban or pedestrian areas and 5 ft elsewhere.');
+  out.notes.push('Signs: ' + out.signSize + ' minimum, orange background. On posts: at least 7 ft to the bottom in urban or pedestrian areas, 5 ft in rural areas with no sidewalk, and 2 ft behind the curb face (6 to 12 ft from the edge with no curb). On portable supports the bottom is at least 1 ft above the road. Roll-up signs only up to 3 days and only while workers are present (TCT book).');
+  out.notes.push('Warning lights (TCT book): Type A low-intensity flashing, Type B high-intensity flashing, Type C steady-burn. Flash for warning and use steady-burn for delineation. Lenses are yellow, mounted at least 30 in to the bottom of the lens. Remove or shield an arrow board and cover signs when they are not in use.');
+  var DG = { 20: [116, 120, 126], 25: [158, 165, 173], 30: [205, 215, 227], 35: [257, 271, 287], 40: [315, 333, 354], 45: [378, 400, 427], 50: [446, 474, 507], 55: [520, 553, 593], 60: [598, 638, 686], 65: [682, 728, 785], 70: [771, 825, 891], 75: [866, 927, 1003] };
+  if (!noBuf && DG[S]) out.notes.push('Downgrade buffer (Caltrans T9 Table 2): on a sustained grade steeper than 3 percent and longer than 1 mile, lengthen the ' + out.buffer + ' ft buffer to ' + DG[S][0] + ' ft for a 3 percent grade, ' + DG[S][1] + ' ft for 6 percent and ' + DG[S][2] + ' ft for 9 percent.');
   return out;
 }
 
