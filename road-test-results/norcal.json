@@ -55,6 +55,14 @@
       "Hayes Street side street - - W20-1 @100'",
       "Hayes Street side street - - W20-1 @100'"
     ],
+    "dbg": [
+      "Market Street ; 1 ; 63.27936333556522 ; 0 ; 400 ; -380/200 ; W20-7@150 W20-1@250",
+      "Market Street ; 1 ; 7.670730262144161 ; 0 ; 400 ; -380/200 ; W20-7@150 W20-1@250",
+      "Fell Street ; 1 ; -429.1443442187101 ; 49.1443442187101 ; 400 ; -380/200 ; W20-1@400 W20-5@300 W4-2R@200 W20-7@100",
+      "Fell Street ; 1 ; -429.1443442187101 ; 49.1443442187101 ; 400 ; -380/200 ; W20-1@400 W20-5@300 W4-2R@200 W20-7@100",
+      "Hayes Street ; 1 ; -771.4456445375627 ; 391.44564453756266 ; 400 ; -380/200 ; W20-1@100",
+      "Hayes Street ; 1 ; -771.2974014444112 ; 391.2974014444112 ; 400 ; -380/200 ; W20-1@100"
+    ],
     "geo": [],
     "errors": []
   },
@@ -135,6 +143,23 @@
       "Camp Street joins Albion Street - - W20-5 @170', W20-1 @340'",
       "Sparrow Street joins Valencia Street - - W20-7 @100'"
     ],
+    "dbg": [
+      "Guerrero Street ; 1 ; -1293.6091053632401 ; 595.6091053632401 ; 1000 ; -698/200 ; W20-1@500 W20-5@250",
+      "Guerrero Street ; 1 ; -1312.3780220335236 ; 614.3780220335236 ; 1000 ; -698/200 ; W20-1@500 W20-5@250",
+      "Dolores Street ; 1 ; -1985.5715999570964 ; 1287.5715999570964 ; 1000 ; -698/200 ; ",
+      "Dolores Street ; 1 ; -1942.453027983114 ; 1244.453027983114 ; 1000 ; -698/200 ; ",
+      "Albion Street ; 1 ; -938.5571065136576 ; 240.55710651365757 ; 1000 ; -698/200 ; W20-1@580 W20-5@435 W4-2R@290 W20-7@145",
+      "Valencia Street ; 1 ; -664.7289039168315 ; 0 ; 1000 ; -698/200 ; W20-7@300 W20-1@550",
+      "Valencia Street ; 1 ; -664.7289039168315 ; 0 ; 1000 ; -698/200 ; W20-7@300 W20-1@550",
+      "Hoff Street ; 1 ; -286.4436968480775 ; 0 ; 1000 ; -698/200 ; W20-7@300 W20-1@550",
+      "Albion Street ; 1 ; -1015.61574013613 ; 317.61574013612994 ; 1000 ; -698/200 ; W20-1@585 W20-5@390 W4-2R@195",
+      "Julian Avenue ; 1 ; -380.4779303214766 ; 0 ; 1000 ; -698/200 ; W20-7@300 W20-1@550",
+      "Mission Street ; 1 ; -23.956028909918132 ; 0 ; 1000 ; -698/200 ; W20-7@300 W20-1@550",
+      "Mission Street ; 1 ; -23.956028909918132 ; 0 ; 1000 ; -698/200 ; W20-7@300 W20-1@550",
+      "Camp Street ; 2 ; -1293.6091053632401 ;  ;  ;  ; W20-1@250",
+      "Camp Street ; 2 ; -938.5571065136576 ;  ;  ;  ; W20-1@340 W20-5@170",
+      "Sparrow Street ; 2 ; -664.7289039168315 ;  ;  ;  ; W20-7@100"
+    ],
     "geo": [],
     "errors": []
   },
@@ -143,7 +168,7 @@
     "lat": 37.764,
     "lon": -122.466,
     "mstat": "Map data loaded: 1304 roads and paths. Matched 1 of 1 locations to a road.",
-    "secs": 7,
+    "secs": 8,
     "streets": "Streets read at this site (5 streets, 10 approaches)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nIrving Street\tmain road, approach\tW6-3 @100', W1-4 @200', W13-1P @200', W20-1 @300'\nIrving Street\tmain road, opposite way\tW6-3 @100', W1-4 @200', W13-1P @200', W20-1 @300'\n10th Avenue\tside street, 404 ft before the work centre\tW20-1 @300', W1-4 @200', W13-1P @100'\n10th Avenue\tside street, 404 ft before the work centre\tW20-1 @300', W1-4 @200', W13-1P @100'\n9th Avenue\tside street, 95 ft before the work centre\tW20-7 @150', W20-1 @250' + flagger\n9th Avenue\tside street, 95 ft before the work centre\tW20-7 @150', W20-1 @250' + flagger\n7th Avenue\tside street, 523 ft past the work centre\tnone needed\n7th Avenue\tside street, 523 ft past the work centre\tnone needed\n8th Avenue\tside street, 215 ft past the work centre\tW20-1 @400', W1-4 @300', W13-1P @200', W6-3 @100'\n8th Avenue\tside street, 215 ft past the work centre\tW20-1 @400', W1-4 @300', W13-1P @200', W6-3 @100'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
     "chk": "MUTCD check: 16 of 16 rules passed",
@@ -194,6 +219,16 @@
       "8th Avenue side street - - W6-3 @100', W13-1P @200', W1-4 @300', W20-1 @400'",
       "8th Avenue side street - - W6-3 @100', W13-1P @200', W1-4 @300', W20-1 @400'"
     ],
+    "dbg": [
+      "10th Avenue ; 1 ; -403.9653000846224 ; 154.9653000846224 ; 300 ; -249/134 ; W20-1@300 W1-4@200 W13-1P@100",
+      "10th Avenue ; 1 ; -403.9653000846224 ; 154.9653000846224 ; 300 ; -249/134 ; W20-1@300 W1-4@200 W13-1P@100",
+      "9th Avenue ; 1 ; -94.78190137499564 ; 0 ; 300 ; -249/134 ; W20-7@150 W20-1@250",
+      "9th Avenue ; 1 ; -94.78190137499564 ; 0 ; 300 ; -249/134 ; W20-7@150 W20-1@250",
+      "7th Avenue ; 1 ; 523.4149339305629 ; 389.41493393056294 ; 300 ; -249/134 ; ",
+      "7th Avenue ; 1 ; 523.4149339305629 ; 389.41493393056294 ; 300 ; -249/134 ; ",
+      "8th Avenue ; 1 ; 215.04546477521058 ; 81.04546477521058 ; 300 ; -249/134 ; W20-1@400 W1-4@300 W13-1P@200 W6-3@100",
+      "8th Avenue ; 1 ; 215.04546477521058 ; 81.04546477521058 ; 300 ; -249/134 ; W20-1@400 W1-4@300 W13-1P@200 W6-3@100"
+    ],
     "geo": [],
     "errors": []
   },
@@ -238,6 +273,11 @@
       "Montclair Terrace side street - - W20-2 @75', W20-3 @150', W20-1 @225'",
       "Hyde Street side street - - W20-1 @100'",
       "Hyde Street side street - - W20-1 @100'"
+    ],
+    "dbg": [
+      "Montclair Terrace ; 1 ; -152.71094446769098 ; 52.71094446769098 ; 300 ; -100/100 ; W20-1@225 W20-3@150 W20-2@75",
+      "Hyde Street ; 1 ; -391.3790568983687 ; 291.3790568983687 ; 300 ; -100/100 ; W20-1@100",
+      "Hyde Street ; 1 ; -391.3790568983687 ; 291.3790568983687 ; 300 ; -100/100 ; W20-1@100"
     ],
     "geo": [],
     "errors": []
@@ -304,6 +344,17 @@
       "Battery Street joins Green Street - - W4-2R @160'",
       "Front Street joins Green Street - - W11-1 @165', W4-2R @330'"
     ],
+    "dbg": [
+      "Broadway ; 1 ; -342.5963966866002 ; 0 ; 750 ; -585/200 ; ",
+      "Broadway ; 1 ; -342.5963966866002 ; 0 ; 750 ; -585/200 ; W20-7@300 W20-1@550",
+      "Green Street ; 1 ; -1084.3762409121985 ; 499.37624091219845 ; 750 ; -585/200 ; ",
+      "Green Street ; 1 ; -1084.3762409121985 ; 499.37624091219845 ; 750 ; -585/200 ; W4-2R@750 W11-1@500 W16-1P@250",
+      "Davis Street ; 2 ; -342.5963966866002 ;  ;  ;  ; W20-1@500 W20-7@250",
+      "Davis Street ; 2 ; -342.5963966866002 ;  ;  ;  ; W20-1@340 W20-7@170",
+      "Front Street ; 2 ; -1084.3762409121985 ;  ;  ;  ; W4-2R@500 W11-1@250",
+      "Battery Street ; 2 ; -1084.3762409121985 ;  ;  ;  ; W4-2R@160",
+      "Front Street ; 2 ; -1084.3762409121985 ;  ;  ;  ; W4-2R@330 W11-1@165"
+    ],
     "geo": [],
     "errors": []
   },
@@ -312,7 +363,7 @@
     "lat": 37.7821,
     "lon": -122.4388,
     "mstat": "Map data loaded: 1542 roads and paths. Matched 1 of 1 locations to a road.",
-    "secs": 7,
+    "secs": 8,
     "streets": "Streets read at this site (6 streets, 12 approaches)\nThe pin is 114 ft from the nearest road (Divisadero Street). Check on the Map tab that this is the road you are working on. If not, drag the pin onto the right road.\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nDivisadero Street\tmain road, approach\tW20-7 @100', W4-2R @200', W20-5 @300', W20-1 @400' + flagger\nDivisadero Street\tmain road, approach\tflagger station + flagger\nEllis Street\tside street, 192 ft before the work centre\tW20-7 @150', W20-1 @250' + flagger\nEllis Street\tside street, 192 ft before the work centre\tW20-7 @150', W20-1 @250' + flagger\nTurk Street\tside street, 879 ft before the work centre\tnone needed\nTurk Street\tside street, 879 ft before the work centre\tnone needed\nEddy Street\tside street, 536 ft before the work centre\tW20-1 @300', W20-5 @200', W4-2R @100'\nEddy Street\tside street, 536 ft before the work centre\tW20-1 @300', W20-5 @200', W4-2R @100'\nO'Farrell Street\tside street, 154 ft past the work centre\tW20-7 @150', W20-1 @250' + flagger\nO'Farrell Street\tside street, 154 ft past the work centre\tW20-7 @150', W20-1 @250' + flagger\nBeideman Street\tjoins Ellis Street\tW20-1 @100'\nBeideman Street\tjoins O'Farrell Street\tW20-1 @100'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
     "chk": "MUTCD check: 20 of 20 rules passed",
@@ -370,6 +421,18 @@
       "O'Farrell Street side street F6 Add W20-1 @250', W20-7 @150'",
       "Beideman Street joins Ellis Street - - W20-1 @100'",
       "Beideman Street joins O'Farrell Street - - W20-1 @100'"
+    ],
+    "dbg": [
+      "Ellis Street ; 1 ; -191.86434638461924 ; 0 ; 400 ; -370/200 ; W20-7@150 W20-1@250",
+      "Ellis Street ; 1 ; -191.86434638461924 ; 0 ; 400 ; -370/200 ; W20-7@150 W20-1@250",
+      "Turk Street ; 1 ; -878.7812749710124 ; 508.7812749710124 ; 400 ; -370/200 ; ",
+      "Turk Street ; 1 ; -878.7812749710124 ; 508.7812749710124 ; 400 ; -370/200 ; ",
+      "Eddy Street ; 1 ; -536.2591215897439 ; 166.25912158974393 ; 400 ; -370/200 ; W20-1@300 W20-5@200 W4-2R@100",
+      "Eddy Street ; 1 ; -536.2591215897439 ; 166.25912158974393 ; 400 ; -370/200 ; W20-1@300 W20-5@200 W4-2R@100",
+      "O'Farrell Street ; 1 ; 153.70963954254694 ; 0 ; 400 ; -370/200 ; W20-7@150 W20-1@250",
+      "O'Farrell Street ; 1 ; 153.70963954254694 ; 0 ; 400 ; -370/200 ; W20-7@150 W20-1@250",
+      "Beideman Street ; 2 ; -191.86434638461924 ;  ;  ;  ; W20-1@100",
+      "Beideman Street ; 2 ; 153.70963954254694 ;  ;  ;  ; W20-1@100"
     ],
     "geo": [],
     "errors": []
@@ -430,6 +493,14 @@
       "20th Avenue side street F3 Add W20-1 @250', W20-7 @150'",
       "20th Avenue side street F4 Add W20-1 @250', W20-7 @150'",
       "21st Avenue side street - - W20-5 @100', W20-1 @200'"
+    ],
+    "dbg": [
+      "21st Avenue ; 1 ; -593.3012367000306 ; 234.30123670003059 ; 400 ; -359/200 ; W20-1@200 W20-5@100",
+      "19th Avenue ; 1 ; 23.12972851738232 ; 0 ; 400 ; -359/200 ; W20-7@150 W20-1@250",
+      "19th Avenue ; 1 ; 55.280715592796014 ; 0 ; 400 ; -359/200 ; W20-7@150 W20-1@250",
+      "20th Avenue ; 1 ; -285.4061706356349 ; 0 ; 400 ; -359/200 ; W20-7@150 W20-1@250",
+      "20th Avenue ; 1 ; -285.4061706356349 ; 0 ; 400 ; -359/200 ; W20-7@150 W20-1@250",
+      "21st Avenue ; 1 ; -593.3584190503079 ; 234.35841905030793 ; 400 ; -359/200 ; W20-1@200 W20-5@100"
     ],
     "geo": [],
     "errors": []
@@ -497,6 +568,16 @@
       "Broadway side street - - none needed",
       "Franklin Street joins 15th Street - - W20-1 @100'"
     ],
+    "dbg": [
+      "14th Street ; 1 ; 24.778139931015858 ; 0 ; 400 ; -295/200 ; W20-7@150 W20-1@250",
+      "14th Street ; 1 ; 24.778139931015858 ; 0 ; 400 ; -295/200 ; W20-7@150 W20-1@250",
+      "Telegraph Avenue ; 1 ; -393.62275463256765 ; 98.62275463256765 ; 400 ; -295/200 ; W20-1@400 W20-5@300 W4-2R@200 W20-7@100",
+      "15th Street ; 1 ; -375.4505527514457 ; 80.45055275144568 ; 400 ; -295/200 ; W20-1@400 W20-5@300 W4-2R@200 W20-7@100",
+      "Broadway ; 1 ; -786.812977039277 ; 491.81297703927703 ; 400 ; -295/200 ; ",
+      "Broadway ; 1 ; -786.812977039277 ; 491.81297703927703 ; 400 ; -295/200 ; ",
+      "Broadway ; 1 ; -779.7016881996967 ; 484.7016881996967 ; 400 ; -295/200 ; ",
+      "Franklin Street ; 2 ; -375.4505527514457 ;  ;  ;  ; W20-1@100"
+    ],
     "geo": [],
     "errors": []
   },
@@ -505,7 +586,7 @@
     "lat": 37.3352,
     "lon": -121.8905,
     "mstat": "Map data loaded: 1970 roads and paths. Matched 1 of 1 locations to a road.",
-    "secs": 7,
+    "secs": 8,
     "streets": "Streets read at this site (2 streets, 4 approaches)\nThe pin is 149 ft from the nearest road (South 1st Street). Check on the Map tab that this is the road you are working on. If not, drag the pin onto the right road.\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nSouth 1st Street\tmain road, approach\tW20-7 @100', W11-1 @200', W16-1P @200', W4-2L @300', W20-5 @400', W20-1 @500' + flagger\nSouth 1st Street\tmain road, approach\tflagger station + flagger\nEast San Fernando Street\tside street, 466 ft before the work centre\tW4-2L @300', W11-1 @200', W16-1P @100'\nEast San Fernando Street\tside street, 466 ft before the work centre\tW4-2L @300', W11-1 @200', W16-1P @100'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
     "chk": "MUTCD check: 20 of 20 rules passed",
@@ -547,6 +628,10 @@
       "South 1st Street approach F2 Add flagger station",
       "East San Fernando Street side street - - W16-1P @100', W11-1 @200', W4-2L @300'",
       "East San Fernando Street side street - - W16-1P @100', W11-1 @200', W4-2L @300'"
+    ],
+    "dbg": [
+      "East San Fernando Street ; 1 ; -466.4432851788847 ; 184.4432851788847 ; 300 ; -282/200 ; W4-2L@300 W11-1@200 W16-1P@100",
+      "East San Fernando Street ; 1 ; -466.4432851788847 ; 184.4432851788847 ; 300 ; -282/200 ; W4-2L@300 W11-1@200 W16-1P@100"
     ],
     "geo": [],
     "errors": []
@@ -606,6 +691,16 @@
       "College Avenue side street - - W20-1 @100'",
       "Humboldt Street joins 7th Street - - W1-4 @100', W20-1 @200'",
       "Humboldt Street joins 7th Street - - W1-4 @100', W20-1 @200'"
+    ],
+    "dbg": [
+      "Cherry Street ; 1 ; -214.7470530055914 ; 0 ; 300 ; -307/152 ; W20-7@150 W20-1@250",
+      "Cherry Street ; 1 ; -214.7470530055914 ; 0 ; 300 ; -307/152 ; W20-7@150 W20-1@250",
+      "7th Street ; 1 ; 237.33995432003024 ; 85.33995432003024 ; 300 ; -307/152 ; W20-1@400 W1-4@300 W13-1P@200 W6-3@100",
+      "7th Street ; 1 ; 237.33995432003024 ; 85.33995432003024 ; 300 ; -307/152 ; W20-1@320 W1-4@240 W13-1P@160 W6-3@80",
+      "College Avenue ; 1 ; -560.5617097863297 ; 253.56170978632974 ; 300 ; -307/152 ; W20-1@100",
+      "College Avenue ; 1 ; -560.5617097863297 ; 253.56170978632974 ; 300 ; -307/152 ; W20-1@100",
+      "Humboldt Street ; 2 ; 237.33995432003024 ;  ;  ;  ; W20-1@200 W1-4@100",
+      "Humboldt Street ; 2 ; 237.33995432003024 ;  ;  ;  ; W20-1@200 W1-4@100"
     ],
     "geo": [],
     "errors": []
@@ -678,6 +773,20 @@
       "California Street joins Trinity Street - - W20-5 @250', W20-1 @500'",
       "California Street joins Trinity Street - - W20-5 @185', W20-1 @370'",
       "Pine Street joins Eureka Way - - W20-1 @250'"
+    ],
+    "dbg": [
+      "Shasta Street ; 1 ; 55.56209177932715 ; 0 ; 1000 ; -480/200 ; W20-7@300 W20-1@550",
+      "Trinity Street ; 1 ; -836.4911252062952 ; 356.49112520629524 ; 1000 ; -480/200 ; W20-1@750 W20-5@500 W4-2L@250",
+      "Trinity Street ; 1 ; -836.4911252062952 ; 356.49112520629524 ; 1000 ; -480/200 ; W20-1@750 W20-5@500 W4-2L@250",
+      "Eureka Way ; 1 ; -456.6048872238366 ; 0 ; 1000 ; -480/200 ; W20-7@300 W20-1@550",
+      "Riverside Drive ; 1 ; -1478.5859873169225 ; 998.5859873169225 ; 1000 ; -480/200 ; W20-1@250",
+      "Pine Street ; 2 ; 55.56209177932715 ;  ;  ;  ; W20-1@250",
+      "Pine Street ; 2 ; -836.4911252062952 ;  ;  ;  ; W20-1@500 W20-5@250",
+      "Pine Street ; 2 ; -836.4911252062952 ;  ;  ;  ; W20-1@440 W20-5@220",
+      "East Street ; 2 ; -836.4911252062952 ;  ;  ;  ; W20-1@250",
+      "California Street ; 2 ; -836.4911252062952 ;  ;  ;  ; W20-1@500 W20-5@250",
+      "California Street ; 2 ; -836.4911252062952 ;  ;  ;  ; W20-1@370 W20-5@185",
+      "Pine Street ; 2 ; -456.6048872238366 ;  ;  ;  ; W20-1@250"
     ],
     "geo": [],
     "errors": []
@@ -767,6 +876,30 @@
       "I Street joins 1st Street - - W20-1 @145'",
       "G Street joins 1st Street - - W20-1 @250'"
     ],
+    "dbg": [
+      "3rd Street ; 1 ; -675.2618295164739 ; 0 ; 1000 ; -698/200 ; W20-7@300 W20-1@550",
+      "3rd Street ; 1 ; -675.2618295164739 ; 0 ; 1000 ; -698/200 ; W20-7@300 W20-1@550",
+      "5th Street ; 1 ; -51.96826865478306 ; 0 ; 1000 ; -698/200 ; W20-7@300 W20-1@550",
+      "4th Street ; 1 ; -366.9864459156207 ; 0 ; 1000 ; -698/200 ; W20-7@300 W20-1@550",
+      "2nd Street ; 1 ; -974.3024700356053 ; 276.3024700356053 ; 1000 ; -698/200 ; W20-1@750 W20-5@500 W4-2L@250",
+      "2nd Street ; 1 ; -974.3024700356053 ; 276.3024700356053 ; 1000 ; -698/200 ; W20-1@750 W20-5@500 W4-2L@250",
+      "1st Street ; 1 ; -1276.8847657994622 ; 578.8847657994622 ; 1000 ; -698/200 ; W20-1@500 W20-5@250",
+      "1st Street ; 1 ; -1276.8847657994622 ; 578.8847657994622 ; 1000 ; -698/200 ; W20-1@500 W20-5@250",
+      "G Street ; 2 ; -675.2618295164739 ;  ;  ;  ; W20-1@250",
+      "G Street ; 2 ; -675.2618295164739 ;  ;  ;  ; W20-1@250",
+      "I Street ; 2 ; -675.2618295164739 ;  ;  ;  ; W20-1@250",
+      "G Street ; 2 ; -51.96826865478306 ;  ;  ;  ; W20-1@250",
+      "G Street ; 2 ; -51.96826865478306 ;  ;  ;  ; W20-1@250",
+      "I Street ; 2 ; -366.9864459156207 ;  ;  ;  ; W20-1@250",
+      "J Street ; 2 ; -974.3024700356053 ;  ;  ;  ; W20-1@250",
+      "I Street ; 2 ; -974.3024700356053 ;  ;  ;  ; W20-1@290 W20-5@145",
+      "G Street ; 2 ; -974.3024700356053 ;  ;  ;  ; W20-1@290 W20-5@145",
+      "G Street ; 2 ; -974.3024700356053 ;  ;  ;  ; W20-1@500 W20-5@250",
+      "F Street ; 2 ; -974.3024700356053 ;  ;  ;  ; W20-1@250",
+      "F Street ; 2 ; -974.3024700356053 ;  ;  ;  ; W20-1@250",
+      "I Street ; 2 ; -1276.8847657994622 ;  ;  ;  ; W20-1@145",
+      "G Street ; 2 ; -1276.8847657994622 ;  ;  ;  ; W20-1@250"
+    ],
     "geo": [],
     "errors": []
   },
@@ -797,6 +930,9 @@
       "✓ Device spacing in taper no more than speed in feet 40' at 40 mph",
       "✓ Device spacing on tangent no more than twice speed 80'",
       "✓ Downstream taper 100 ft 100'"
+    ],
+    "dbg": [
+      "noplan"
     ],
     "geo": [],
     "errors": []
@@ -845,6 +981,7 @@
       "Main road approach F1 Add W20-1 @300', W20-4 @200', W20-7 @100'",
       "Main road opposite way F2 Add W20-1 @300', W20-4 @200', W20-7 @100'"
     ],
+    "dbg": [],
     "geo": [],
     "errors": []
   },
@@ -899,6 +1036,14 @@
       "East River Street side street - - W6-3 @100', W13-1P @200', W1-4 @300', W20-1 @400'",
       "Donner Pass Road side street - - none needed",
       "Donner Pass Road side street - - none needed"
+    ],
+    "dbg": [
+      "South River Street ; 1 ; -319.7464223342115 ; 0 ; 300 ; -313/158 ; W20-7@150 W20-1@250",
+      "South River Street ; 1 ; -319.7464223342115 ; 0 ; 300 ; -313/158 ; W20-7@150 W20-1@250",
+      "East River Street ; 1 ; 181.72611030462247 ; 23.726110304622466 ; 300 ; -313/158 ; W20-1@400 W1-4@300 W13-1P@200 W6-3@100",
+      "East River Street ; 1 ; 181.72611030462247 ; 23.726110304622466 ; 300 ; -313/158 ; W20-1@400 W1-4@300 W13-1P@200 W6-3@100",
+      "Donner Pass Road ; 1 ; 516.9558440974115 ; 358.9558440974115 ; 300 ; -313/158 ; ",
+      "Donner Pass Road ; 1 ; 516.9558440974115 ; 358.9558440974115 ; 300 ; -313/158 ; "
     ],
     "geo": [],
     "errors": []
@@ -965,6 +1110,17 @@
       "East 6th Street joins Main Street - - W20-1 @100'",
       "East 6th Street joins Wall Street - - W20-1 @100'",
       "East 6th Street joins Wall Street - - W20-1 @100'"
+    ],
+    "dbg": [
+      "Broadway Street ; 1 ; -512.4308718336147 ; 157.43087183361467 ; 300 ; -355/200 ; W20-1@200 W20-4@100",
+      "Main Street ; 1 ; -162.99332538766703 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350",
+      "Flume Street ; 1 ; 531.8087213420536 ; 331.80872134205356 ; 300 ; -355/200 ; ",
+      "Flume Street ; 1 ; 531.8087213420536 ; 331.80872134205356 ; 300 ; -355/200 ; ",
+      "Wall Street ; 1 ; 185.3773215983133 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350",
+      "West 6th Street ; 2 ; -162.99332538766703 ;  ;  ;  ; W20-1@100",
+      "East 6th Street ; 2 ; -162.99332538766703 ;  ;  ;  ; W20-1@100",
+      "East 6th Street ; 2 ; 185.3773215983133 ;  ;  ;  ; W20-1@100",
+      "East 6th Street ; 2 ; 185.3773215983133 ;  ;  ;  ; W20-1@100"
     ],
     "geo": [],
     "errors": []
@@ -1062,6 +1218,34 @@
       "Third Street joins A Street - - W20-1 @250'",
       "Julia Street joins A Street - - W20-1 @250'"
     ],
+    "dbg": [
+      "E Street ; 1 ; 624.6116898176397 ; 424.6116898176397 ; 750 ; -505/200 ; W20-1@500 W20-4@250",
+      "E Street ; 1 ; 624.6116898176397 ; 424.6116898176397 ; 750 ; -505/200 ; W20-1@500 W20-4@250",
+      "Shaver Street ; 1 ; 974.8236362235451 ; 774.8236362235451 ; 750 ; -505/200 ; ",
+      "D Street ; 1 ; 260.28501927090474 ; 60.28501927090474 ; 750 ; -505/200 ; W20-1@360 W20-4@240 W3-3@120",
+      "D Street ; 1 ; 260.28501927090474 ; 60.28501927090474 ; 750 ; -505/200 ; W20-1@750 W20-4@500 W3-3@250",
+      "B Street ; 1 ; -471.63356072129363 ; 0 ; 750 ; -505/200 ; W20-7@300 W20-1@550",
+      "C Street ; 1 ; -106.96770152289218 ; 0 ; 750 ; -505/200 ; W20-7@300 W20-1@550",
+      "C Street ; 1 ; -106.96770152289218 ; 0 ; 750 ; -505/200 ; W20-7@300 W20-1@550",
+      "Lootens Place ; 1 ; -1460.4641389368485 ; 955.4641389368485 ; 750 ; -505/200 ; ",
+      "Lootens Place ; 1 ; -1460.4641389368485 ; 955.4641389368485 ; 750 ; -505/200 ; ",
+      "A Street ; 1 ; -833.8403833944813 ; 328.84038339448125 ; 750 ; -505/200 ; W20-1@500 W20-4@250",
+      "A Street ; 1 ; -833.8403833944813 ; 328.84038339448125 ; 750 ; -505/200 ; W20-1@350 W20-4@175",
+      "Third Street ; 2 ; 624.6116898176397 ;  ;  ;  ; W20-1@250",
+      "Fifth Avenue ; 2 ; 624.6116898176397 ;  ;  ;  ; W20-1@250",
+      "Fifth Avenue ; 2 ; 624.6116898176397 ;  ;  ;  ; W20-1@250",
+      "Via Sessi ; 2 ; 260.28501927090474 ;  ;  ;  ; W20-1@200 W20-4@100",
+      "Third Street ; 2 ; 260.28501927090474 ;  ;  ;  ; W20-1@500 W20-4@250",
+      "Second Street ; 2 ; 260.28501927090474 ;  ;  ;  ; W20-1@250",
+      "Fifth Avenue ; 2 ; -471.63356072129363 ;  ;  ;  ; W20-1@80",
+      "Fifth Avenue ; 2 ; -471.63356072129363 ;  ;  ;  ; W20-1@75",
+      "Third Street ; 2 ; -106.96770152289218 ;  ;  ;  ; W20-1@250",
+      "Lone Palm Court ; 2 ; -106.96770152289218 ;  ;  ;  ; W20-1@95",
+      "Fifth Avenue ; 2 ; -106.96770152289218 ;  ;  ;  ; W20-1@250",
+      "Fifth Avenue ; 2 ; -106.96770152289218 ;  ;  ;  ; W20-1@250",
+      "Third Street ; 2 ; -833.8403833944813 ;  ;  ;  ; W20-1@250",
+      "Julia Street ; 2 ; -833.8403833944813 ;  ;  ;  ; W20-1@250"
+    ],
     "geo": [],
     "errors": []
   },
@@ -1119,6 +1303,14 @@
       "North San Joaquin Street side street - - none needed",
       "North San Joaquin Street side street - - none needed"
     ],
+    "dbg": [
+      "North Center Street ; 1 ; 493.8496448569068 ; 293.8496448569068 ; 300 ; -355/200 ; W20-1@100",
+      "North Hunter Street ; 1 ; -294.77726777060184 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-1@250",
+      "North Hunter Street ; 1 ; -294.77726777060184 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-1@250",
+      "North El Dorado Street ; 1 ; 111.00275683332688 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-1@250",
+      "North San Joaquin Street ; 1 ; -684.410391219044 ; 329.41039121904396 ; 300 ; -355/200 ; ",
+      "North San Joaquin Street ; 1 ; -684.410391219044 ; 329.41039121904396 ; 300 ; -355/200 ; "
+    ],
     "geo": [],
     "errors": []
   },
@@ -1127,7 +1319,7 @@
     "lat": 39.14,
     "lon": -121.62,
     "mstat": "Map data loaded: 491 roads and paths. Matched 1 of 1 locations to a road.",
-    "secs": 6,
+    "secs": 5,
     "streets": "Streets read at this site (3 streets, 4 approaches)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nChestnut Street\tmain road, approach\tW20-7 @100', W20-4 @200', W20-1 @300' + flagger\nRosalind Avenue\tside street, 3 ft before the work centre\tW20-7 @140', W20-4 @230', W20-1 @320' + flagger\nChurch Street\tside street, 421 ft before the work centre\tW20-1 @300', W20-4 @200', W20-7 @100'\nChurch Street\tside street, 421 ft before the work centre\tW20-1 @300', W20-4 @200', W20-7 @100'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
     "chk": "MUTCD check: 20 of 20 rules passed",
@@ -1169,6 +1361,11 @@
       "Rosalind Avenue side street F2 Add W20-1 @320', W20-4 @230', W20-7 @140'",
       "Church Street side street - - W20-7 @100', W20-4 @200', W20-1 @300'",
       "Church Street side street - - W20-7 @100', W20-4 @200', W20-1 @300'"
+    ],
+    "dbg": [
+      "Rosalind Avenue ; 1 ; -2.759270942372268 ; 0 ; 300 ; -355/200 ; W20-7@140 W20-4@230 W20-1@320",
+      "Church Street ; 1 ; -421.03447001694485 ; 66.03447001694485 ; 300 ; -355/200 ; W20-1@300 W20-4@200 W20-7@100",
+      "Church Street ; 1 ; -421.03447001694485 ; 66.03447001694485 ; 300 ; -355/200 ; W20-1@300 W20-4@200 W20-7@100"
     ],
     "geo": [],
     "errors": []
@@ -1215,6 +1412,12 @@
       "Elk Grove Florin Road side street - - W20-3 @250', W20-1 @500'",
       "Elk Grove Boulevard joins Elk Grove Florin Road - - W20-1 @250'"
     ],
+    "dbg": [
+      "Elk Grove Boulevard ; 1 ; -51.418967343445274 ; 0 ; 750 ; -100/100 ; W20-1@250",
+      "Elk Grove Boulevard ; 1 ; -95.11709170158468 ; 0 ; 750 ; -100/100 ; W20-1@250",
+      "Elk Grove Florin Road ; 1 ; -409.21081005080566 ; 309.21081005080566 ; 750 ; -100/100 ; W20-1@500 W20-3@250",
+      "Elk Grove Boulevard ; 2 ; -409.21081005080566 ;  ;  ;  ; W20-1@250"
+    ],
     "geo": [],
     "errors": []
   },
@@ -1223,7 +1426,7 @@
     "lat": 38.5816,
     "lon": -121.4944,
     "mstat": "Map data loaded: 1706 roads and paths. Matched 1 of 1 locations to a road.",
-    "secs": 6,
+    "secs": 7,
     "streets": "Streets read at this site (4 streets, 5 approaches)\nThe pin is on 9th Street, but a larger road (I Street) is only 60 ft away. Is the work on the larger road? The plan is built for the road under the pin. If the work is on I Street, drag the pin onto it.\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\n9th Street\tmain road, approach\tW20-7 @100', W11-1 @200', W16-1P @200', W4-2R @300', W20-5 @400', W20-1 @500' + flagger\n9th Street\tmain road, approach\tflagger station + flagger\nI Street\tside street, 60 ft before the work centre\tW20-7 @150', W20-1 @250'\nH Street\tside street, 480 ft before the work centre\tW4-2R @300', W11-1 @200', W16-1P @100'\nG Street\tside street, 899 ft before the work centre\tnone needed\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
     "chk": "MUTCD check: 21 of 21 rules passed",
@@ -1268,6 +1471,11 @@
       "I Street side street - - W20-1 @250', W20-7 @150'",
       "H Street side street - - W16-1P @100', W11-1 @200', W4-2R @300'",
       "G Street side street - - none needed"
+    ],
+    "dbg": [
+      "I Street ; 1 ; -60.15932435799027 ; 0 ; 300 ; -370/200 ; W20-7@150 W20-1@250",
+      "H Street ; 1 ; -479.59205514218877 ; 109.59205514218877 ; 300 ; -370/200 ; W4-2R@300 W11-1@200 W16-1P@100",
+      "G Street ; 1 ; -899.0029459245784 ; 529.0029459245784 ; 300 ; -370/200 ; "
     ],
     "geo": [],
     "errors": []
@@ -1317,6 +1525,11 @@
       "Spring Street side street F1 Add W20-1 @350', W20-4 @250', W20-7 @150'",
       "Spring Street side street F2 Add W20-1 @350', W20-4 @250', W20-7 @150'",
       "Spring Hill Circle joins Spring Street · private road, signs recommended, not required - - W20-4 @100', W20-1 @200'"
+    ],
+    "dbg": [
+      "Spring Street ; 1 ; -280.6855143362315 ; 15.685514336231506 ; 300 ; -265/110 ; W20-7@150 W20-4@250 W20-1@350",
+      "Spring Street ; 1 ; -280.6855143362315 ; 15.685514336231506 ; 300 ; -265/110 ; W20-7@150 W20-4@250 W20-1@350",
+      "Spring Hill Circle ; 2 ; -280.6855143362315 ;  ;  ;  ; W20-1@200 W20-4@100"
     ],
     "geo": [],
     "errors": []
@@ -1386,6 +1599,20 @@
       "Canal Street joins Scott Street - - W20-1 @100'",
       "Peddlers Lane joins Scott Street - - W20-1 @100'"
     ],
+    "dbg": [
+      "Wool Street ; 1 ; 615.0983856422802 ; 415.09838564228016 ; 300 ; -355/200 ; ",
+      "Wool Street ; 1 ; 615.0983856422802 ; 415.09838564228016 ; 300 ; -355/200 ; ",
+      "Riley Street ; 1 ; 143.61546926763435 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-1@250",
+      "Riley Street ; 1 ; 143.61546926763435 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-1@250",
+      "Bridge Street ; 1 ; -788.034286908329 ; 433.034286908329 ; 300 ; -355/200 ; ",
+      "Bridge Street ; 1 ; -788.034286908329 ; 433.034286908329 ; 300 ; -355/200 ; ",
+      "Scott Street ; 1 ; -322.0942795850251 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-1@250",
+      "Scott Street ; 1 ; -322.0942795850251 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-1@250",
+      "Greenback Lane ; 2 ; 143.61546926763435 ;  ;  ;  ; W20-1@100",
+      "Leidesdorff Street ; 2 ; 143.61546926763435 ;  ;  ;  ; W20-1@100",
+      "Canal Street ; 2 ; -322.0942795850251 ;  ;  ;  ; W20-1@100",
+      "Peddlers Lane ; 2 ; -322.0942795850251 ;  ;  ;  ; W20-1@100"
+    ],
     "geo": [],
     "errors": []
   },
@@ -1434,6 +1661,10 @@
       "Okeefe Place opposite way F1 Add W20-1 @300', W20-4 @200', W20-7 @100'",
       "Baywood Lane side street - - W20-7 @100', W20-4 @200', W20-1 @300'",
       "Benton Place joins Baywood Lane - - W20-1 @100'"
+    ],
+    "dbg": [
+      "Baywood Lane ; 1 ; 186.18155564878163 ; 76.18155564878163 ; 300 ; -265/110 ; W20-1@300 W20-4@200 W20-7@100",
+      "Benton Place ; 2 ; 186.18155564878163 ;  ;  ;  ; W20-1@100"
     ],
     "geo": [],
     "errors": []
@@ -1486,6 +1717,11 @@
       "Olema Bolinas Road side street F2 Add W20-1 @350', W20-4 @250', W20-7 @150'",
       "Olema Bolinas Road side street F3 Add W20-1 @350', W20-4 @250', W20-7 @150'"
     ],
+    "dbg": [
+      "Park Avenue ; 1 ; 413.1744266996917 ; 213.1744266996917 ; 300 ; -355/200 ; W20-1@100",
+      "Olema Bolinas Road ; 1 ; -215.74526160597028 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350",
+      "Olema Bolinas Road ; 1 ; -215.74526160597028 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350"
+    ],
     "geo": [],
     "errors": []
   },
@@ -1534,6 +1770,9 @@
       "Laguna Villa Way approach F1 Add W20-1 @300', W20-4 @200', W20-7 @100'",
       "Laguna Villa Way opposite way F2 Add W20-1 @300', W20-4 @200', W20-7 @100'",
       "Laguna Trail Way side street - - W20-7 @100', W20-4 @200', W20-1 @300'"
+    ],
+    "dbg": [
+      "Laguna Trail Way ; 1 ; 272.9108216877594 ; 72.91082168775938 ; 300 ; -355/200 ; W20-1@300 W20-4@200 W20-7@100"
     ],
     "geo": [],
     "errors": []
@@ -1594,6 +1833,16 @@
       "Gaudenzio Street joins South A Street - - W20-1 @100'",
       "Shasta Court joins South A Street - - W20-1 @100'"
     ],
+    "dbg": [
+      "South Mount Shasta Boulevard ; 1 ; -296.2196801761478 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350",
+      "South Mount Shasta Boulevard ; 1 ; -296.2196801761478 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350",
+      "South A Street ; 1 ; 208.05498488535102 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350",
+      "South A Street ; 1 ; 208.05498488535102 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350",
+      "High Street ; 2 ; -296.2196801761478 ;  ;  ;  ; W20-1@200 W20-4@100",
+      "Water Street ; 2 ; -296.2196801761478 ;  ;  ;  ; W20-1@200 W20-4@100",
+      "Gaudenzio Street ; 2 ; 208.05498488535102 ;  ;  ;  ; W20-1@100",
+      "Shasta Court ; 2 ; 208.05498488535102 ;  ;  ;  ; W20-1@100"
+    ],
     "geo": [],
     "errors": []
   },
@@ -1602,7 +1851,7 @@
     "lat": 37.796,
     "lon": -122.416,
     "mstat": "Map data loaded: 1890 roads and paths. Matched 1 of 1 locations to a road.",
-    "secs": 7,
+    "secs": 8,
     "streets": "Streets read at this site (5 streets, 13 approaches)\nSTREET\tHOW IT MEETS THE WORK\tSIGNS AND WHERE\nBernard Street\tmain road, opposite way\tW20-7 @100', W20-4 @200', W20-1 @300' + flagger\nJones Street\tside street, 272 ft past the work centre\tW20-1 @300', W20-4 @200', W20-7 @100'\nJones Street\tside street, 272 ft past the work centre\tW20-1 @300', W20-4 @200', W20-7 @100'\nLeavenworth Street\tside street, 209 ft before the work centre\tW20-7 @150', W20-4 @250', W20-1 @350' + flagger\nLeavenworth Street\tside street, 209 ft before the work centre\tW20-7 @150', W20-4 @250', W20-1 @350' + flagger\nBroadway\tjoins Jones Street\tW20-1 @160', W20-4 @80'\nBroadway\tjoins Jones Street\tW20-1 @200', W20-4 @100'\nPacific Avenue\tjoins Jones Street\tW20-1 @200', W20-4 @100'\nPacific Avenue\tjoins Jones Street\tW20-1 @200', W20-4 @100'\nBroadway\tjoins Leavenworth Street\tW20-1 @200', W20-4 @100'\nBroadway\tjoins Leavenworth Street\tW20-1 @100', W20-4 @50'\nPacific Avenue\tjoins Leavenworth Street\tW20-1 @200', W20-4 @100'\nPacific Avenue\tjoins Leavenworth Street\tW20-1 @200', W20-4 @100'\nStreets on the ground that are not listed\n0\n1\n2\n3\n4\n\nEach street added here gets its own flagger and the full set of advance signs. Service ways, alleys, driveways and parking aisles are not signed. Private roads are signed as recommended, not required. If a service way carries real traffic into the work, count it above.",
     "head": "Site 1",
     "chk": "MUTCD check: 20 of 20 rules passed",
@@ -1663,6 +1912,20 @@
       "Pacific Avenue joins Leavenworth Street - - W20-4 @100', W20-1 @200'",
       "Pacific Avenue joins Leavenworth Street - - W20-4 @100', W20-1 @200'"
     ],
+    "dbg": [
+      "Jones Street ; 1 ; 271.76018147147664 ; 71.76018147147664 ; 300 ; -355/200 ; W20-1@300 W20-4@200 W20-7@100",
+      "Jones Street ; 1 ; 271.76018147147664 ; 71.76018147147664 ; 300 ; -355/200 ; W20-1@300 W20-4@200 W20-7@100",
+      "Leavenworth Street ; 1 ; -208.8342412873992 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350",
+      "Leavenworth Street ; 1 ; -208.8342412873992 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350",
+      "Broadway ; 2 ; 271.76018147147664 ;  ;  ;  ; W20-1@160 W20-4@80",
+      "Broadway ; 2 ; 271.76018147147664 ;  ;  ;  ; W20-1@200 W20-4@100",
+      "Pacific Avenue ; 2 ; 271.76018147147664 ;  ;  ;  ; W20-1@200 W20-4@100",
+      "Pacific Avenue ; 2 ; 271.76018147147664 ;  ;  ;  ; W20-1@200 W20-4@100",
+      "Broadway ; 2 ; -208.8342412873992 ;  ;  ;  ; W20-1@200 W20-4@100",
+      "Broadway ; 2 ; -208.8342412873992 ;  ;  ;  ; W20-1@100 W20-4@50",
+      "Pacific Avenue ; 2 ; -208.8342412873992 ;  ;  ;  ; W20-1@200 W20-4@100",
+      "Pacific Avenue ; 2 ; -208.8342412873992 ;  ;  ;  ; W20-1@200 W20-4@100"
+    ],
     "geo": [],
     "errors": []
   },
@@ -1709,6 +1972,9 @@
       "APPROACH FLAGGER EXTRA FLAGGER ADVANCE SIGNS, FT BEFORE THE WORK OR JUNCTION",
       "Crestline Drive opposite way F1 Add W20-1 @300', W20-4 @200', W20-7 @100'",
       "Parkridge Drive side street F2 Add W20-1 @350', W20-4 @250', W20-7 @150'"
+    ],
+    "dbg": [
+      "Parkridge Drive ; 1 ; -265.8601447345595 ; 0 ; 300 ; -355/200 ; W20-7@150 W20-4@250 W20-1@350"
     ],
     "geo": [],
     "errors": []
@@ -1765,6 +2031,12 @@
       "Valencia Street side street - - W4-2R @100'",
       "Mission Street side street - - W20-1 @250', W20-7 @150'",
       "Mission Street side street - - W20-1 @250', W20-7 @150'"
+    ],
+    "dbg": [
+      "Valencia Street ; 1 ; -659.2074850507325 ; 279.20748505073254 ; 300 ; -380/200 ; W4-2R@100",
+      "Valencia Street ; 1 ; -659.2074850507325 ; 279.20748505073254 ; 300 ; -380/200 ; W4-2R@100",
+      "Mission Street ; 1 ; -76.49525762249618 ; 0 ; 300 ; -380/200 ; W20-7@150 W20-1@250",
+      "Mission Street ; 1 ; -76.49525762249618 ; 0 ; 300 ; -380/200 ; W20-7@150 W20-1@250"
     ],
     "geo": [],
     "errors": []
@@ -1826,6 +2098,15 @@
       "University Avenue side street - - none needed",
       "University Avenue side street - - none needed",
       "Kala Bagai Way joins Addison Street - - W4-2R @50'"
+    ],
+    "dbg": [
+      "Center Street ; 1 ; -116.21266504940729 ; 0 ; 400 ; -370/200 ; W20-7@150 W20-1@250",
+      "Center Street ; 1 ; -116.21266504940729 ; 0 ; 400 ; -370/200 ; W20-7@150 W20-1@250",
+      "Addison Street ; 1 ; -440.971774424759 ; 70.97177442475902 ; 400 ; -370/200 ; W20-1@400 W20-5@300 W4-2R@200 W20-7@100",
+      "Addison Street ; 1 ; -440.971774424759 ; 70.97177442475902 ; 400 ; -370/200 ; W20-1@400 W20-5@300 W4-2R@200 W20-7@100",
+      "University Avenue ; 1 ; -813.8793630062157 ; 443.8793630062157 ; 400 ; -370/200 ; ",
+      "University Avenue ; 1 ; -780.4786568969707 ; 410.47865689697073 ; 400 ; -370/200 ; ",
+      "Kala Bagai Way ; 2 ; -440.971774424759 ;  ;  ;  ; W4-2R@50"
     ],
     "geo": [],
     "errors": []
