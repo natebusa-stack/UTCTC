@@ -856,7 +856,7 @@ function plan(i) {
   if (out.arrowBoard && sc !== 'moving') out.notes.push('Put an arrow board at the start of the taper.');
   if (out.devTotal && !walk) {
     /* TCT book, module 2 (slides 100-135): cones, drums, panels, barricades */
-    out.notes.push('Devices (TCT book): cones ' + ((S >= 45 || i.area === 'freeway') ? '28 in minimum at this speed' : '28 in minimum at night, 18 in in daylight on a low-speed road') + '. Night cones need two orange and two white retroreflective stripes 4 to 6 in wide, top stripe orange, or a warning light. Drums are 36 in minimum, 18 in wide, closed top, with a low base ballast and no sandbags or anything on top. Use cones only while workers are present.');
+    out.notes.push('Devices (TCT book): cones ' + '28 in, day and night (the MUTCD allows 18 in in daylight on a low-speed road, but 28 in is the standard here)' + '. Night cones need two orange and two white retroreflective stripes 4 to 6 in wide, top stripe orange, or a warning light. Drums are 36 in minimum, 18 in wide, closed top, with a low base ballast and no sandbags or anything on top. Use cones only while workers are present.');
   }
   if (out.arrowBoard) {
     /* TCT book, Figure 6F-6 (Table 6F-6 arrow board types) and slide 67 (mounting height) */
@@ -3736,7 +3736,7 @@ var GUIDE = [
     body: '<p>Send people to a marked crossing close by. If the detour is long or crosses a busy road, use a flagger or a protected walkway instead.</p>' },
 
   { id: 'e-dev', cat: 'dev', title: 'Cones, drums and barricades', tags: 'cone drum barricade height night 28 18 channelizing',
-    body: '<p>Cones are at least 18 in tall in daytime on low-speed roads. Use 28 in cones, or drums, at night and at 45 mph and above. Type III barricades go across a closed road. Add reflective collars or bands for night work.</p>' },
+    body: '<p>Use 28 in cones, or drums, day and night. (The MUTCD allows 18 in cones in daylight on low-speed roads, but 28 in is the standard here.) Type III barricades go across a closed road. Add reflective collars or bands for night work.</p>' },
   { id: 'e-arrow', cat: 'dev', title: 'Arrow boards', tags: 'arrow board lane closure caution mode',
     body: '<p>Use an arrow board at the start of a lane closure taper at 45 mph and above, and at each taper of a multi-lane closure. In shoulder work it can show the caution mode.</p>' },
   { id: 'e-tma', cat: 'dev', title: 'Shadow vehicle with attenuator', tags: 'tma attenuator shadow vehicle truck mounted',
@@ -4493,7 +4493,7 @@ function nextBar() {
     if (p.signCounts) p.signCounts.forEach(function (o) { k.push([String(o.n), o.code, o.legend + ' (' + whereTxt(o) + ')']); }); else p.signs.forEach(function (s) { k.push([String(p.approaches || 1), s.code, s.legend + (p.approaches ? ' (one per approach)' : '')]); });
     if (p.pedBarr) k.push([p.pedBarr, 'Type II barricades', 'To close the crosswalk or sidewalk, with a marked pedestrian detour']);
     if (r.id === 'full') k.push([p.barricades, 'Type III barricades', 'Across the full road width']);
-    else if (p.devTotal) k.push([p.devTotal, 'Cones or drums', (night || p.speed >= 45) ? '28 in minimum at night or 45 mph and above' : '18 in minimum in daylight']);
+    else if (p.devTotal) k.push([p.devTotal, 'Cones or drums', '28 in, day and night']);
     if (p.flaggers) k.push([p.flaggers, 'Flaggers', 'One on every approach' + (p.legs ? ': ' + p.legs.filter(function (l) { return l.flagger; }).map(function (l) { return l.fid + (l.xf ? ' + ' + l.fx : '') + ' ' + l.name; }).join(', ') : '') + (p.extraFlag ? '. Includes ' + p.extraFlag + ' extra station' + (p.extraFlag > 1 ? 's' : '') + ' you turned on' : '') + '. STOP/SLOW paddles and high-visibility clothing']);
     if (p.signals) k.push([p.signals, 'Signal trailers', 'With power and a backup']);
     if (p.arrowBoard) k.push([String(p.arrowBoards || 1), p.arrowBoards > 1 ? 'Arrow boards' : 'Arrow board', r.id === 'moving' ? 'Type II, on V2 (and on V1 if no changeable message sign)' : 'Type ' + p.arrowType + (p.arrowBoards > 1 ? ', one at each taper' : ', at the start of the taper')]);
