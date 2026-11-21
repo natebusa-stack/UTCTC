@@ -831,6 +831,7 @@ function plan(i) {
   }
   if (sc === 'sidewalk') {
     out.notes.push('Barricade the closed sidewalk with a continuous bottom rail that cane users can detect.');
+    out.notes.push('Pedestrian escort (used on some city plans): if people cannot cross the work zone safely on their own, post M4-9b WAIT FOR ESCORT (24 x 30 in) at each end and have a worker escort pedestrians across at all times. Caution tape and rope are not detectable: use a barricade or a longitudinal channelizing device for the edge (TCT book). Keep pedestrian, bicycle and driveway access open unless the plan says otherwise.');
     out.ped.push('Post the closure upstream so people cross before they reach the barricade.');
   }
   if (sc === 'walkway') {
@@ -2090,7 +2091,7 @@ function JSAAdvice(j, sites) {
   if (ans('trucks') === 'yes') o.push({ lvl: 'warn', t: 'Trucks entering and leaving: put a spotter or flagger at the entrance and stop traffic before the trucks move.' });
   if (ans('sight') === 'no') o.push({ lvl: 'warn', t: 'Drivers cannot see the work early. Move the first advance sign back 100 to 200 ft, and use an arrow board or a flagger ahead of the work.' });
   if (ans('drive') === 'yes') o.push({ lvl: 'info', t: 'Driveways and side streets in the work area: keep access open, or talk to the owners first. Put a spotter on busy driveways.' });
-  if (ans('park') === 'yes') o.push({ lvl: 'info', t: 'Parked cars: post no-parking signs ahead of time as noted on the plan. Do not set cones on top of parked cars.' });
+  if (ans('park') === 'yes') o.push({ lvl: 'info', t: 'Parked cars: post no-parking signs ahead of time as noted on the plan. Mount them on barricades on both sides of the street at least 72 hours before work, with the tow-away date and time on the sign (check your city for its own notice time). Do not set cones on top of parked cars.' });
   if (ans('peds') === 'yes') o.push({ lvl: 'info', t: 'People on foot or bikes: keep a clear, signed path. Do not leave a walker on a sidewalk that dead-ends in the work.' });
   if (ans('school') === 'yes') o.push({ lvl: 'warn', t: 'Emergency route or school nearby: keep emergency vehicles able to pass, and plan work outside school arrival and dismissal times.' });
   if (ans('wires') === 'yes') o.push({ lvl: 'warn', t: 'Overhead lines: keep lifts, booms and ladders at least 10 ft away (more for high voltage). Call the utility if unsure.' });
