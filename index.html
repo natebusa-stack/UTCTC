@@ -815,7 +815,7 @@ function plan(i) {
     out.notes.push('If the job cannot be done without blocking the lane for longer than a short stop, stop work and call your supervisor. Get the closure permit and a detour plan first.');
   }
   if (sc === 'flagging') {
-    out.notes.push('Put a flagger at each end. Each needs at least ' + out.stopSight + ' ft of clear view to approaching traffic.');
+    out.notes.push('Put a flagger at each end. Each needs at least ' + out.stopSight + ' ft of clear view to approaching traffic, and must be visible to drivers from at least 500 ft (TCT book, flagger module).');
     out.notes.push('Use certified flaggers with an escape route. Light each flagger station at night.');
   }
   if (sc === 'signal') {
@@ -3736,9 +3736,9 @@ var GUIDE = [
   { id: 'e-arrow', cat: 'dev', title: 'Arrow boards', tags: 'arrow board lane closure caution mode',
     body: '<p>Use an arrow board at the start of a lane closure taper at 45 mph and above, and at each taper of a multi-lane closure. In shoulder work it can show the caution mode.</p>' },
   { id: 'e-tma', cat: 'dev', title: 'Shadow vehicle with attenuator', tags: 'tma attenuator shadow vehicle truck mounted',
-    body: '<p>At 45 mph and above, park a shadow vehicle with a truck-mounted attenuator upstream of the work. Set the brakes, turn the wheels away from traffic, and keep workers out of the space behind it.</p>' },
+    body: '<p>At 45 mph and above, park a shadow vehicle with a truck-mounted attenuator upstream of the work. Set the brakes, turn the wheels away from traffic, and keep workers out of the space behind it. The operator stays in the cab at all times, and nothing (including police vehicles) is parked in the buffer space.</p>' },
   { id: 'e-night', cat: 'dev', title: 'Night work', tags: 'night lighting retroreflective lights flagger',
-    body: '<p>Light every flagger station, check that devices are reflective, and use lights on barricades. Add lighting if the work area is not lit by street lights.</p>' },
+    body: '<p>Light every flagger station, check that devices are reflective, and use lights on barricades. Add lighting if the work area is not lit by street lights.</p><p>Per your TCT book: about 10 foot-candles for general work and around equipment, 20 foot-candles on the task itself (crack or pot filling), under Construction Safety Order 1523. Aim fixtures to limit glare, use balloon lights where you can, and do not aim floodlights above the 65 degree line toward traffic. Cones need 2 retroreflective bands at night and workers wear Class 3 (required on state highways). CA MUTCD typical applications are daytime minimums, so lengthen buffers and tapers and add Type B lights on signs at night.</p>' },
 
   { id: 'g-terms', cat: 'terms', title: 'Terms', tags: 'glossary definitions taper tangent ssd tma ttc tcp',
     body: '<dl><dt>TCP</dt><dd>Traffic control plan.</dd><dt>TTC</dt><dd>Temporary traffic control.</dd><dt>Taper</dt><dd>A slanted row of devices that moves traffic.</dd><dt>Tangent</dt><dd>The straight part along the work.</dd><dt>SSD</dt><dd>Stopping sight distance.</dd><dt>TMA</dt><dd>Truck-mounted attenuator.</dd><dt>Channelizing device</dt><dd>A cone, drum or barricade that guides traffic.</dd><dt>Activity area</dt><dd>Buffer space plus work space.</dd></dl>' },
