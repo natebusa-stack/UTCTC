@@ -3161,12 +3161,12 @@ function MapView(canvas, cb) {
           if (Math.floor(room / D) < sq.length) { var floorD = (p.speed > 25 ? 100 : 50); Dl = Math.min(D, Math.max(floorD, Math.floor(room / sq.length / 5) * 5)); note = Dl < D ? 'Short block: signs are closer together (' + Dl + ' ft instead of ' + D + ' ft) so they all fit before the next street.' : ''; }
           var m = Math.max(0, Math.min(sq.length, Math.floor(room / Dl)));
           sg = sq.slice(0, m).map(function (q, k) { return { code: q.code, legend: q.legend, dist: F + (k + 1) * Dl }; });
-        } else if (jd >= far1) {
+        } else if (jd + Math.min(50, D / 2) >= far1) {
           /* Beyond the first main-road sign: drivers from this street turn onto the main road ahead of every sign, so they see the whole train. No sign on the side street. */
           req = 0; note = 'Joins beyond the first main-road sign. Drivers pass all of the main-road signs after they turn, so this street needs no sign of its own.';
         } else {
           /* joins between the main-road signs: a driver coming out of this street only passes the main-road signs that sit nearer the work than the junction. The ones farther out are missed, so the street gets its own copy of those signs, in the same order, at the same spacing as every other sign (D), counted back from the junction. The set follows the setup on the main road. */
-          var missed = seqAsc.filter(function (q) { return q.dist > jd; }).sort(function (u, x) { return x.dist - u.dist; });
+          var tolJ = Math.min(50, D / 2), missed = seqAsc.filter(function (q) { return q.dist > jd + tolJ; }).sort(function (u, x) { return x.dist - u.dist; });
           if (!missed.length) missed = [adv.filter(function (q) { return q.code === 'W20-1'; }).pop() || seqAsc[seqAsc.length - 1]];
           req = missed.length; var roomB = Math.floor(avail - 8), DlB = D, floorB = (p.speed > 25 ? 100 : 50);
           if (Math.floor(roomB / D) < missed.length) DlB = Math.min(D, Math.max(floorB, Math.floor(roomB / missed.length / 5) * 5));
@@ -3207,8 +3207,8 @@ function MapView(canvas, cb) {
             [-1, 1].forEach(function (lg2) {
               var cum2 = v._c, tot2 = cum2[cum2.length - 1], sj2 = cum2[i2], av2 = lg2 < 0 ? sj2 : tot2 - sj2, key2 = 't' + v.id + (lg2 < 0 ? 'n' : 'p') + L.key; if (av2 < 45 || !feeds(v, lg2) || added[key2]) return;
               var cap2 = Math.floor(av2 - 8); if (cap2 < 45) return; added[key2] = 1; n++;
-              var ls2 = L.signs.slice().sort(function (u, x) { return x.dist - u.dist; }), w1b = ls2[0], ms2 = ls2.filter(function (q) { return q.dist > j2; });
-              if (!ms2.length) ms2 = [ls2[ls2.length - 1]];
+              var ls2 = L.signs.slice().sort(function (u, x) { return x.dist - u.dist; }), w1b = ls2[0], ms2 = ls2.filter(function (q) { return q.dist > j2 + Math.min(50, D / 2); });
+              if (!ms2.length) return;
               var Dl2 = D, fl2 = (p.speed > 25 ? 100 : 50); if (Math.floor(cap2 / D) < ms2.length) Dl2 = Math.min(D, Math.max(fl2, Math.floor(cap2 / ms2.length / 5) * 5));
               var m2 = Math.max(1, Math.min(ms2.length, Math.floor(cap2 / Dl2))); if (Dl2 * m2 > cap2) Dl2 = Math.max(45, Math.floor(cap2 / m2 / 5) * 5); var kp2 = ms2.slice(ms2.length - m2), sg2 = kp2.map(function (q, k) { return { code: q.code, legend: q.legend, dist: Math.round(Dl2 * (m2 - k) / 5) * 5 }; });
               var lev2 = legLanes(v), multi2 = !!(lev2 && lev2.lpd >= 2);
