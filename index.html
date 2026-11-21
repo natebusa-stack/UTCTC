@@ -3210,7 +3210,7 @@ function MapView(canvas, cb) {
               var ls2 = L.signs.slice().sort(function (u, x) { return x.dist - u.dist; }), w1b = ls2[0], ms2 = ls2.filter(function (q) { return q.dist > j2; });
               if (!ms2.length) ms2 = [ls2[ls2.length - 1]];
               var Dl2 = D, fl2 = (p.speed > 25 ? 100 : 50); if (Math.floor(cap2 / D) < ms2.length) Dl2 = Math.min(D, Math.max(fl2, Math.floor(cap2 / ms2.length / 5) * 5));
-              var m2 = Math.max(1, Math.min(ms2.length, Math.floor(cap2 / Dl2))), kp2 = ms2.slice(ms2.length - m2), sg2 = kp2.map(function (q, k) { return { code: q.code, legend: q.legend, dist: Math.round(Dl2 * (m2 - k) / 5) * 5 }; });
+              var m2 = Math.max(1, Math.min(ms2.length, Math.floor(cap2 / Dl2))); if (Dl2 * m2 > cap2) Dl2 = Math.max(45, Math.floor(cap2 / m2 / 5) * 5); var kp2 = ms2.slice(ms2.length - m2), sg2 = kp2.map(function (q, k) { return { code: q.code, legend: q.legend, dist: Math.round(Dl2 * (m2 - k) / 5) * 5 }; });
               var lev2 = legLanes(v), multi2 = !!(lev2 && lev2.lpd >= 2);
               legs.push({ kind: 'side', level: 2, key: key2, name: v.tags.name || 'Side street', via: L.name, recommended: v.tags.access === 'private', flagger: false, multi: multi2, lpd: lev2 ? lev2.lpd : null, halfW: multi2 ? Math.max(((RW[v.tags.highway] || [24])[0]) / 2, lev2.total * 6) : 0, needFlag: false, signs: sg2, missing: 0, note: (j2 <= far2 + 10 ? 'Joins ' + L.name + ' inside its sign zone. These signs cover what drivers miss, spaced like the rest.' : 'Joins ' + L.name + ' beyond its farthest sign. This sign warns drivers before they reach ' + L.name + '.'), w: v, pts: vp, cum: cum2, sj: sj2, lg: lg2, avail: av2, F: 0, D: D, tJ: L.tJ, j2: j2, viaFar: far2 });
             });
