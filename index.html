@@ -3182,7 +3182,7 @@ function MapView(canvas, cb) {
         var lev = legLanes(w), multi = !!(lev && lev.lpd >= 2);
         var halfW = multi ? Math.max(((RW[w.tags.highway] || [24])[0]) / 2, lev.total * 6) : 0;
         if (multi && need) note = (note ? note + ' ' : '') + 'Multi-lane road (' + lev.lpd + ' lanes in one direction): no flagger station is assigned here. A lane closure on this road is required before anything stands in it.';
-        legs.push({ kind: 'side', key: 's' + w.id + (lg < 0 ? 'n' : 'p'), name: w.tags.name || 'Side street', recommended: w.tags.access === 'private', flagger: need && !multi, multi: multi, lpd: lev ? lev.lpd : null, halfW: halfW, needFlag: need, signs: sg, missing: Math.max(0, req - sg.length), note: note, w: w, pts: pts, cum: cum, sj: sj, lg: lg, avail: avail, F: F, D: (typeof Dl !== 'undefined' && Dl) || D, tJ: f.tJ, chain: f.chain });
+        legs.push({ kind: 'side', key: 's' + w.id + (lg < 0 ? 'n' : 'p'), name: w.tags.name || 'Side street', recommended: w.tags.access === 'private', flagger: need && !multi, multi: multi, lpd: lev ? lev.lpd : null, halfW: halfW, needFlag: need, signs: sg, missing: Math.max(0, req - sg.length), note: note, w: w, pts: pts, cum: cum, sj: sj, lg: lg, avail: avail, F: F, D: (typeof Dl !== 'undefined' && Dl) || D, tJ: f.tJ, jd: jd, far1: far1, tSE: [tS, tE], chain: f.chain });
       });
     });
     /* streets that join a side street along its advance-warning extent miss that street's signs too */
@@ -5096,7 +5096,7 @@ function nextBar() {
       var k = p.approaches || 1; p.legs = null; p.xlegs = (z.items[0].loc && z.items[0].loc.xt) || null;
       p.signs.forEach(function (g) { add(g.code, g.legend, k, k > 1 ? 'each of ' + k + ' approaches' : 'at the work'); });
     } else {
-      p.mainGone = L.mainGone || 0; p.over = L.over || null; p.legs = L.legs.map(function (l) { return { prot: l.prot, entry: l.entry, room: l.room, avail: l.avail, ang: l.ang, alongMain: l.alongMain, level: l.level, kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, recommended: l.recommended, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0, multi: !!l.multi, lpd: l.lpd || null, needFlag: !!l.needFlag }; });
+      window.__lastPlan = p; p.mainGone = L.mainGone || 0; p.over = L.over || null; p.legs = L.legs.map(function (l) { return { tJ: l.tJ, jd: l.jd, far1: l.far1, tSE: l.tSE, prot: l.prot, entry: l.entry, room: l.room, avail: l.avail, ang: l.ang, alongMain: l.alongMain, level: l.level, kind: l.kind, ahead: l.ahead, key: l.key, note: l.note, via: l.via, xf: l.xf, fx: l.fx, name: l.name, recommended: l.recommended, flagger: l.flagger, fid: l.fid, signs: l.signs, missing: l.missing || 0, multi: !!l.multi, lpd: l.lpd || null, needFlag: !!l.needFlag }; });
       L.legs.forEach(function (l) { l.signs.forEach(function (g) { add(g.code, g.legend, 1, l.name); }); });
       L.zoneSigns.forEach(function (g) { add(g.code, g.legend, 1, 'at the work'); });
       if (['laneclosure', 'twolanes', 'laneshift', 'signal'].indexOf(p.scenario) >= 0) {

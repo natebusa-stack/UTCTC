@@ -30,6 +30,7 @@ async function one(b, [name, lat, lon]) {
     R.fit = await p.evaluate(() => { const t = document.body.innerText; const m = t.match(/The work was shortened to \d+ ft[^\n]*/); return m ? m[0] : ''; });
     R.fails = await p.evaluate(() => { const c = document.getElementById('comppre'); return c ? c.innerText.split('\n').filter(l => /^\u2717/.test(l)).map(l => l.slice(0, 220)) : []; });
     R.legrows = await p.evaluate(() => [...document.querySelectorAll('table.legt tr')].map(r => r.innerText.replace(/\s+/g, ' ').slice(0, 200)));
+    R.dbg = await p.evaluate(() => { try { var P = window.__lastPlan; return P && P.legs ? P.legs.filter(l => l.kind === 'side').map(l => [l.name, l.level || 1, l.tJ, l.jd, l.far1, l.tSE && l.tSE.join('/'), (l.signs || []).map(q => q.code + '@' + q.dist).join(' ')].join(' ; ')) : ['noplan']; } catch (e) { return ['err ' + e.message]; } });
     R.geo = await p.evaluate(() => { const c = document.getElementById('comppre'); return c ? c.innerText.split('\n').filter(l => /^\u2717/.test(l) && /road that is there|past a road end|beyond the end|fits on the street|joins past/i.test(l)) : []; });
     if (/Sacramento 9th|Stinson Cooper|SF Lombard|Santa Rosa Mendocino|Folsom Sutter|I-80 Davis|Eureka 5th|SF Embarcadero|Napa Hwy/.test(name)) { try { const raw = await p.evaluate(() => localStorage.getItem('tcp5roads')); if (raw) fs.writeFileSync('road-test-results/raw_' + name.replace(/\W+/g, '_') + '.json', raw); } catch (e) {} }
     await p.evaluate(() => document.querySelectorAll('details').forEach(x => { if (/Aerial view/i.test(x.innerText.slice(0, 40))) x.open = true; }));
@@ -40,7 +41,7 @@ async function one(b, [name, lat, lon]) {
 (async () => {
   const b = await chromium.launch(); fs.mkdirSync('road-test-results', { recursive: true });
   const list = only ? SITES.filter(s => s[0].indexOf(only) >= 0) : SITES, out = [];
-  for (let i = 0; i < list.length; i += 4) { const r = await Promise.all(list.slice(i, i + 4).map(s => one(b, s))); r.forEach(x => { out.push(x); console.log(x.name, '|', x.secs + 's', '|', (x.mstat || '').slice(0, 70), '|', x.head, '|', x.chk); (x.fails || []).forEach(f => console.log('   NEEDS ATTENTION', x.name, f)); (x.legrows || []).forEach(l => console.log('   LEG', x.name, '|', l)); }); }
+  for (let i = 0; i < list.length; i += 4) { const r = await Promise.all(list.slice(i, i + 4).map(s => one(b, s))); r.forEach(x => { out.push(x); console.log(x.name, '|', x.secs + 's', '|', (x.mstat || '').slice(0, 70), '|', x.head, '|', x.chk); (x.fails || []).forEach(f => console.log('   NEEDS ATTENTION', x.name, f)); (x.dbg || []).forEach(l => console.log('   DBG', x.name, '|', l)); (x.legrows || []).forEach(l => console.log('   LEG', x.name, '|', l)); }); }
   fs.writeFileSync('road-test-results/norcal.json', JSON.stringify(out, null, 2)); await b.close();
   const bad = out.filter(x => x.geo && x.geo.length); bad.forEach(x => console.log('GEOMETRY FAIL', x.name, x.geo.join(' | ')));
   if (bad.length) process.exitCode = 1;
